@@ -1,4 +1,4 @@
-package com.voximplantdemo;
+package software.beda.telemedicinedemo;
 
 import com.facebook.react.ReactActivity;
 
@@ -12,7 +12,7 @@ public class MainActivity extends ReactActivity {
      */
     @Override
     protected String getMainComponentName() {
-        return "VoximplantDemo";
+        return "TelemedicineDemo";
     }
 
     @Override

@@ -84,31 +84,23 @@ DEPENDENCIES:
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
-SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - boost-for-react-native
-    - CocoaLumberjack
-    - SocketRocket
-    - VoxImplantSDK
-    - VoxImplantWebRTC
-
 EXTERNAL SOURCES:
   DoubleConversion:
-    :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+    :podspec: ../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec
   Folly:
-    :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
+    :podspec: ../node_modules/react-native/third-party-podspecs/Folly.podspec
   glog:
-    :podspec: "../node_modules/react-native/third-party-podspecs/GLog.podspec"
+    :podspec: ../node_modules/react-native/third-party-podspecs/GLog.podspec
   React:
-    :path: "../node_modules/react-native"
+    :path: ../node_modules/react-native
   react-native-notifications:
-    :path: "../node_modules/react-native-notifications"
+    :path: ../node_modules/react-native-notifications
   react-native-voximplant:
-    :path: "../node_modules/react-native-voximplant"
+    :path: ../node_modules/react-native-voximplant
   RNDefaultPreference:
-    :path: "../node_modules/react-native-default-preference"
+    :path: ../node_modules/react-native-default-preference
   yoga:
-    :path: "../node_modules/react-native/ReactCommon/yoga"
+    :path: ../node_modules/react-native/ReactCommon/yoga
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
@@ -116,15 +108,15 @@ SPEC CHECKSUMS:
   DoubleConversion: a9706f16e388b53ff12cca34473428ee29746a26
   Folly: c89ac2d5c6ab169cd7397ef27485c44f35f742c7
   glog: b3b0330915eccea41c5cc9731a77cf564a9be5ea
-  React: 1fe0eb13d90b625d94c3b117c274dcfd2e760e11
-  react-native-notifications: 4626ecc0189e1b0594b1f422c17e64849390e30d
-  react-native-voximplant: 91fdb91e021a8f288bc451bf714dc8a6567377f3
-  RNDefaultPreference: f0ec2a41653832443559a28a599fc6c7628fe776
+  React: bdb39c05e2eed10a43056cff89a68bc9ebe7f232
+  react-native-notifications: 53ae5f73356132883e6d557959c1705fba66b65c
+  react-native-voximplant: e7ee167f9f875ee5a5710d2050671ed5a603ab04
+  RNDefaultPreference: d8043a9ca03811d1eef306acb6dcd343303a1802
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
   VoxImplantSDK: bcc17f69e5f5f710a899176d673d9a520cef41cb
   VoxImplantWebRTC: 7f7217fced66ee3e05bafe2ab03c09150386ee66
-  yoga: b1ce48b6cf950b98deae82838f5173ea7cf89e85
+  yoga: 2418c171de153cbe3c94dc28c3bf691b1695ae17
 
-PODFILE CHECKSUM: cc3b81670b9c1ef67708996f9f7ddef9ca6cf167
+PODFILE CHECKSUM: 856727c68356097e43bc9aeb48a42408f2d7cb6f
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.3.1

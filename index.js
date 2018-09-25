@@ -7,4 +7,4 @@
 import { AppRegistry } from 'react-native';
 import App from './App';
 
-AppRegistry.registerComponent('VoximplantDemo', () => App);
+AppRegistry.registerComponent('TelemedicineDemo', () => App);

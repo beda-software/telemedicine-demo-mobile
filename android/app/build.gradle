@@ -104,7 +104,7 @@ android {
     buildToolsVersion "26.0.3"
 
     defaultConfig {
-        applicationId "com.voximplantdemo"
+        applicationId "software.beda.telemedicinedemo"
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1

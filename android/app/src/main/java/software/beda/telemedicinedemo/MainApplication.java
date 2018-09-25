@@ -1,4 +1,4 @@
-package com.voximplantdemo;
+package software.beda.telemedicinedemo;
 
 import android.app.Application;
 

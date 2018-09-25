@@ -1,4 +1,4 @@
-rootProject.name = 'VoximplantDemo'
+rootProject.name = 'TelemedicineDemo'
 
 include ':app'
 

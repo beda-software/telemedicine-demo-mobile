@@ -16,7 +16,7 @@ Learn more at [quickstart](https://voximplant.com/docs/references/articles/quick
     ### iOS
       
     1. Run `pod install` from `react-native-demo/ios` folder
-    2. Start XCode and open generated `VoximplantDemo.xcworkspace`
+    2. Start XCode and open generated `TelemedicineDemo.xcworkspace`
     
     Note: To enable ios push notifications in demo project, follow the [the instructions](http://voximplant.com/blog/push-notifications-for-ios/) to add certificates to the Voximplant Cloud
     
