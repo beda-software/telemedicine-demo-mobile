@@ -625,7 +625,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = software.beda.TelemedicineDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = "software.beda.telemedicine-demo";
 				PRODUCT_NAME = TelemedicineDemo;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -648,7 +648,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = software.beda.TelemedicineDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = "software.beda.telemedicine-demo";
 				PRODUCT_NAME = TelemedicineDemo;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
