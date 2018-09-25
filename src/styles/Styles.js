@@ -8,6 +8,20 @@ import { StyleSheet } from 'react-native';
 import COLOR from "./Color";
 
 export default StyleSheet.create({
+    logo: {
+        alignItems: 'center',
+        padding: 5,
+    },
+    logotext: {
+        fontSize: 35,
+    },
+    sublogo: {
+        alignItems: 'center',
+        marginBottom: 50
+    },
+    sublogotext: {
+        fontSize: 18,
+    },
     safearea: {
         flex: 1,
         backgroundColor: COLOR.WHITE,

@@ -89,6 +89,13 @@ export default class LoginScreen extends React.Component {
             <SafeAreaView style={styles.safearea}>
                 <StatusBar barStyle={Platform.OS === 'ios' ? COLOR_SCHEME.DARK : COLOR_SCHEME.LIGHT} backgroundColor={COLOR.PRIMARY_DARK} />
                 <View style={[styles.container]}>
+                    <View style={styles.logo}>
+                        <Text style={styles.logotext}>beda.software</Text>
+                    </View>
+
+                    <View style={styles.sublogo}>
+                        <Text style={styles.sublogotext}>Telemedicine Demo</Text>
+                    </View>
                     <View>
                         <View style={styles.loginform}>
                             <TextInput

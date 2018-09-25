@@ -33,19 +33,20 @@ export default class MainScreen extends React.Component {
 
         return {
             headerLeft: (
+                <View>
+                    <Text style={styles.headerButton}>
+                        Telemedicine Demo
+                    </Text>
+                </View>
+
+            ),
+            headerRight: (
                 <TouchableOpacity onPress={params.backClicked}>
                     <Text style={styles.headerButton}>
                         Logout
                     </Text>
                 </TouchableOpacity>
             ),
-            // headerRight: (
-            //     <TouchableOpacity onPress={params.settingsClick}>
-            //         <Text style={styles.headerButton}>
-            //             Settings
-            //         </Text>
-            //     </TouchableOpacity>
-            // ),
         };
     };
     constructor(props) {

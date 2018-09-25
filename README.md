@@ -1,4 +1,4 @@
-# React Native Voximplant Demo Application
+# React Native Telemedicine Demo Application
 
 User agent demo application that uses `react-native-voximplant` and [Voximplant cloud platform](http://voximplant.com) for making/receiving audio/video calls.
 
