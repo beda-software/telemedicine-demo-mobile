@@ -1,0 +1,24 @@
+stages:
+- build
+
+before_script:
+  - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+  - echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+  - curl -sL https://deb.nodesource.com/setup_8.x | bash -
+  - apt-get update && apt-get install -y yarn nodejs
+  - mkdir ~/.gradle
+cache:
+  key: ${CI_PROJECT_ID}
+  paths:
+  - ~/.gradle/
+
+build:
+  stage: build
+  script:
+  - yarn
+  - echo $MYAPP_RELEASE_STORE_FILE | base64 -d > android/app/my-release-key.keystore
+  - echo $GRADLE_PROPERTIES > ~/.gradle/gradle.properties
+  - cd android && ./gradlew assembleRelease
+  artifacts:
+    paths:
+    - android/app/build/outputs/apk/app-release.apk
