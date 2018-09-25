@@ -18,6 +18,7 @@ build:
   - yarn
   - echo $KEYSTORE_FILE | base64 -d > android/app/my-release-key.keystore
   - echo $GRADLE_PROPERTIES > ~/.gradle/gradle.properties
+  - cat ~/.gradle/gradle.properties 
   - cd android && ./gradlew assembleRelease
   artifacts:
     paths:
