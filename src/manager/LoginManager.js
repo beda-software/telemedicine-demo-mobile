@@ -113,7 +113,7 @@ export default class LoginManager {
                 const username = await DefaultPreference.get('usernameValue');
                 const accessToken = await DefaultPreference.get('accessToken');
                 console.log('LoginManager: loginWithToken: user: ' + username + ', token: ' + accessToken );
-                const authResult = await this.client.loginWithToken(username + '.voximplant.com', accessToken);
+                const authResult = await this.client.loginWithToken(username + '@voice-chat.beda-software.voximplant.com', accessToken);
                 this._processLoginSuccess(authResult);
             }
         } catch (e) {

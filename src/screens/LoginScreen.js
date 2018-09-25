@@ -77,11 +77,11 @@ export default class LoginScreen extends React.Component {
     }
 
     loginClicked() {
-        LoginManager.getInstance().loginWithPassword(this.state.username + ".voximplant.com", this.password);
+        LoginManager.getInstance().loginWithPassword(this.state.username + "@voice-chat.beda-software.voximplant.com", this.password);
     }
 
     loginWithOneTimeKeyClicked() {
-        LoginManager.getInstance().loginWithOneTimeKey(this.state.username + ".voximplant.com", this.password);
+        LoginManager.getInstance().loginWithOneTimeKey(this.state.username + "@voice-chat.beda-software.voximplant.com", this.password);
     }
 
     render() {
@@ -94,7 +94,7 @@ export default class LoginScreen extends React.Component {
                             <TextInput
                                 underlineColorAndroid='transparent'
                                 style={styles.forminput}
-                                placeholder="user@app.account"
+                                placeholder="Username"
                                 value={this.state.username}
                                 autoFocus={true}
                                 ref='acc'
