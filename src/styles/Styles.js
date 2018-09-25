@@ -14,6 +14,7 @@ export default StyleSheet.create({
     },
     logotext: {
         fontSize: 35,
+        color: COLOR.ACCENT,
     },
     sublogo: {
         alignItems: 'center',
@@ -21,6 +22,7 @@ export default StyleSheet.create({
     },
     sublogotext: {
         fontSize: 18,
+        color: COLOR.ACCENT,
     },
     safearea: {
         flex: 1,
