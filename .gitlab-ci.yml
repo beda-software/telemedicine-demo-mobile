@@ -16,7 +16,7 @@ build:
   stage: build
   script:
   - yarn
-  - echo $MYAPP_RELEASE_STORE_FILE | base64 -d > android/app/my-release-key.keystore
+  - echo $KEYSTORE_FILE | base64 -d > android/app/my-release-key.keystore
   - echo $GRADLE_PROPERTIES > ~/.gradle/gradle.properties
   - cd android && ./gradlew assembleRelease
   artifacts:
