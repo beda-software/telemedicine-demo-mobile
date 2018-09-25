@@ -19,6 +19,7 @@ import {
 
 import LoginManager from '../manager/LoginManager';
 import DefaultPreference from 'react-native-default-preference';
+import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 import COLOR_SCHEME from '../styles/ColorScheme';
 import COLOR from '../styles/Color';
 import styles from '../styles/Styles';
@@ -45,6 +46,10 @@ export default class LoginScreen extends React.Component {
         LoginManager.getInstance().on('onConnectionFailed', (reason) => this.onConnectionFailed(reason));
         LoginManager.getInstance().on('onLoggedIn', (param) => this.onLoggedIn());
         LoginManager.getInstance().on('onLoginFailed', (errorCode) => this.onLoginFailed(errorCode));
+    }
+
+    focusNextField(nextField) {
+        this.refs[nextField].focus()
     }
 
     onLoginFailed(errorCode) {
@@ -88,66 +93,69 @@ export default class LoginScreen extends React.Component {
         return (
             <SafeAreaView style={styles.safearea}>
                 <StatusBar barStyle={Platform.OS === 'ios' ? COLOR_SCHEME.DARK : COLOR_SCHEME.LIGHT} backgroundColor={COLOR.PRIMARY_DARK} />
-                <View style={[styles.container]}>
-                    <View style={styles.logo}>
-                        <Text style={styles.logotext}>beda.software</Text>
-                    </View>
-
-                    <View style={styles.sublogo}>
-                        <Text style={styles.sublogotext}>Telemedicine Demo</Text>
-                    </View>
-                    <View>
-                        <View style={styles.loginform}>
-                            <TextInput
-                                underlineColorAndroid='transparent'
-                                style={styles.forminput}
-                                placeholder="Username"
-                                value={this.state.username}
-                                autoFocus={true}
-                                ref='acc'
-                                autoCapitalize='none'
-                                autoCorrect={false}
-                                onSubmitEditing={(event) => this.focusNextField('password')}
-                                onChangeText={(text) => { this.setState({username: text}) }}
-                                blurOnSubmit={true} />
-                            <TextInput
-                                underlineColorAndroid='transparent'
-                                style={styles.forminput}
-                                placeholder="User password"
-                                defaultValue={this.password}
-                                secureTextEntry={true}
-                                ref='password'
-                                onChangeText={(text) => { this.password = text }}
-                                blurOnSubmit={true} />
-                            <TouchableOpacity onPress={() => this.loginClicked()} style={{ width: 220, alignSelf: 'center' }}>
-                                <Text style={styles.loginbutton}>
-                                    LOGIN
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => this.loginWithOneTimeKeyClicked()} style={{ width: 220, alignSelf: 'center' }}>
-                                <Text style={styles.loginbutton}>
-                                    LOGIN WITH ONE TIME KEY
-                                </Text>
-                            </TouchableOpacity>
+                <KeyboardAwareView>
+                    <View style={[styles.container]}>
+                        <View style={styles.logo}>
+                            <Text style={styles.logotext}>beda.software</Text>
                         </View>
-                    </View>
-                    <Modal
-                        animationType='fade'
-                        transparent={true}
-                        visible={this.state.isModalOpen}
-                        onRequestClose={() => { }}>
-                        <TouchableHighlight
-                            onPress={(e) => this.setState({ isModalOpen: false })}
-                            style={styles.container}>
-                            <View style={[styles.container, styles.modalBackground]}>
-                                <View
-                                    style={[styles.innerContainer, styles.innerContainerTransparent]}>
-                                    <Text>{this.state.modalText}</Text>
-                                </View>
+
+                        <View style={styles.sublogo}>
+                            <Text style={styles.sublogotext}>Telemedicine Demo</Text>
+                        </View>
+                        <View>
+                            <View style={styles.loginform}>
+                                <TextInput
+                                    underlineColorAndroid='transparent'
+                                    style={styles.forminput}
+                                    placeholder="Username"
+                                    value={this.state.username}
+                                    autoFocus={true}
+                                    ref='acc'
+                                    autoCapitalize='none'
+                                    autoCorrect={false}
+                                    onSubmitEditing={(event) => this.focusNextField('password')}
+                                    onChangeText={(text) => { this.setState({username: text}) }}
+                                    blurOnSubmit={true} />
+                                <TextInput
+                                    underlineColorAndroid='transparent'
+                                    style={styles.forminput}
+                                    placeholder="User password"
+                                    defaultValue={this.password}
+                                    secureTextEntry={true}
+                                    ref='password'
+                                    onSubmitEditing={() => this.loginClicked()}
+                                    onChangeText={(text) => { this.password = text }}
+                                    blurOnSubmit={true} />
+                                <TouchableOpacity onPress={() => this.loginClicked()} style={{ width: 220, alignSelf: 'center' }}>
+                                    <Text style={styles.loginbutton}>
+                                        LOGIN
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.loginWithOneTimeKeyClicked()} style={{ width: 220, alignSelf: 'center' }}>
+                                    <Text style={styles.loginbutton}>
+                                        LOGIN WITH ONE TIME KEY
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                        </TouchableHighlight>
-                    </Modal>
-                </View>
+                        </View>
+                        <Modal
+                            animationType='fade'
+                            transparent={true}
+                            visible={this.state.isModalOpen}
+                            onRequestClose={() => { }}>
+                            <TouchableHighlight
+                                onPress={(e) => this.setState({ isModalOpen: false })}
+                                style={styles.container}>
+                                <View style={[styles.container, styles.modalBackground]}>
+                                    <View
+                                        style={[styles.innerContainer, styles.innerContainerTransparent]}>
+                                        <Text>{this.state.modalText}</Text>
+                                    </View>
+                                </View>
+                            </TouchableHighlight>
+                        </Modal>
+                    </View>
+                </KeyboardAwareView>
             </SafeAreaView>
         );
     }

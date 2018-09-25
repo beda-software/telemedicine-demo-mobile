@@ -11,6 +11,7 @@
 		"react-native": "0.56.0",
 		"react-native-default-preference": "^1.2.0",
 		"react-native-fcm": "^16.0.0",
+		"react-native-keyboard-aware-view": "0.0.14",
 		"react-native-md5": "1.0.0",
 		"react-native-notifications": "1.1.16",
 		"react-native-vector-icons": "^4.6.0",
