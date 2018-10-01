@@ -5,7 +5,7 @@
 'use strict';
 
 import { StackNavigator, SwitchNavigator } from 'react-navigation';
-import LoginScreen from '../screens/LoginScreen';
+import Login from '../containers/Login';
 import MainScreen from '../screens/MainScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import CallScreen from '../screens/CallScreen';
@@ -37,7 +37,7 @@ const AppStack = StackNavigator(
 
 const RootStack = SwitchNavigator(
     {
-        Login: LoginScreen,
+        Login: Login,
         App: AppStack,
         Call: CallScreen,
         IncomingCall: IncomingCallScreen
