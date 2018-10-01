@@ -1,7 +1,8 @@
-import { INCREMENT_COUNTER } from './constants'
+import { LOGIN } from './constants';
 
-export function incrementCounter() {
-  return {
-    type: INCREMENT_COUNTER,
-  };
+export function login(values) {
+    return {
+        type: LOGIN,
+        values,
+    };
 }

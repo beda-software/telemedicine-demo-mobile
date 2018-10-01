@@ -1,1 +1,1 @@
-export const INCREMENT_COUNTER = 'login/INCREMENT_COUNTER';
+export const LOGIN = 'Login/LOGIN';
