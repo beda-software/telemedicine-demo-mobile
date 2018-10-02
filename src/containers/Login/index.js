@@ -4,11 +4,9 @@ import { connect } from 'react-redux';
 import {
     Text,
     View,
-    TextInput,
     Platform,
     Modal,
     TouchableHighlight,
-    TouchableOpacity,
     SafeAreaView,
     StatusBar,
 } from 'react-native';
@@ -17,10 +15,10 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 import styles from '../../styles/Styles';
 import COLOR_SCHEME from '../../styles/ColorScheme';
 import COLOR from '../../styles/Color';
+import Logo from '../../components/Logo';
 import Form from './Form';
 import { login } from './actions';
-
-import { navigate } from '../../App/actions'
+import { navigate } from '../App/actions';
 
 class Login extends React.PureComponent {
     render() {
@@ -32,13 +30,7 @@ class Login extends React.PureComponent {
                 />
                 <KeyboardAwareView>
                     <View style={[styles.container]}>
-                        <View style={styles.logo}>
-                            <Text style={styles.logotext}>beda.software</Text>
-                        </View>
-
-                        <View style={styles.sublogo}>
-                            <Text style={styles.sublogotext}>Telemedicine Demo</Text>
-                        </View>
+                        <Logo />
                         <Form
                             onSubmit={this.props.login}
                             goToSignUp={this.props.goToSignUp}

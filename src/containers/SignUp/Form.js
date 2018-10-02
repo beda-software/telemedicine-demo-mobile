@@ -23,7 +23,7 @@ class SignUpForm extends React.PureComponent {
                         placeholder="Username"
                         autoCapitalize="none"
                         autoCorrect={false}
-                        onSubmitEditing={() => this.displayNameRef.current.focus()}
+                        onSubmitEditing={() => this.displayNameRef.current.getRenderedComponent().focus()}
                         blurOnSubmit
                         autoFocus
                     />
@@ -35,11 +35,10 @@ class SignUpForm extends React.PureComponent {
                         placeholder="Display Name"
                         autoCapitalize="none"
                         autoCorrect={false}
-                        onSubmitEditing={() => this.passwordRef.current.focus()}
+                        onSubmitEditing={() => this.passwordRef.current.getRenderedComponent().focus()}
                         ref={this.displayNameRef}
                         withRef
                         blurOnSubmit
-                        autoFocus
                     />
                     <Field
                         name="password"
@@ -57,11 +56,22 @@ class SignUpForm extends React.PureComponent {
                         onPress={this.props.handleSubmit}
                         style={{
                             width: 220,
-                            alignSelf: 'center'
+                            alignSelf: 'center',
                         }}
                     >
                         <Text style={styles.loginbutton}>
-                            LOGIN
+                            SIGN UP
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={this.props.goToLogin}
+                        style={{
+                            width: 220,
+                            alignSelf: 'center',
+                        }}
+                    >
+                        <Text style={styles.loginbutton}>
+                            BACK TO LOGIN
                         </Text>
                     </TouchableOpacity>
                 </View>

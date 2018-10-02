@@ -1,1 +1,1 @@
-export const LOGIN = 'Login/LOGIN';
+export const SIGN_UP = 'SignUp/SIGN_UP';

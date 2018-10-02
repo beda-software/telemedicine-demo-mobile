@@ -4,11 +4,9 @@ import { connect } from 'react-redux';
 import {
     Text,
     View,
-    TextInput,
     Platform,
     Modal,
     TouchableHighlight,
-    TouchableOpacity,
     SafeAreaView,
     StatusBar,
 } from 'react-native';
@@ -17,8 +15,10 @@ import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 import styles from '../../styles/Styles';
 import COLOR_SCHEME from '../../styles/ColorScheme';
 import COLOR from '../../styles/Color';
+import Logo from '../../components/Logo';
 import Form from './Form';
-import { login } from './actions';
+import { signUp } from './actions';
+import { navigate } from '../App/actions';
 
 class Login extends React.PureComponent {
     render() {
@@ -30,14 +30,11 @@ class Login extends React.PureComponent {
                 />
                 <KeyboardAwareView>
                     <View style={[styles.container]}>
-                        <View style={styles.logo}>
-                            <Text style={styles.logotext}>beda.software</Text>
-                        </View>
-
-                        <View style={styles.sublogo}>
-                            <Text style={styles.sublogotext}>Telemedicine Demo</Text>
-                        </View>
-                        <Form onSubmit={this.props.login} />
+                        <Logo />
+                        <Form
+                            onSubmit={this.props.signUp}
+                            goToLogin={this.props.goToLogin}
+                        />
                         <Modal
                             animationType="fade"
                             transparent
@@ -73,7 +70,8 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => ({
-    login: (values) => dispatch(login(values)),
+    signUp: (values) => dispatch(signUp(values)),
+    goToLogin: () => dispatch(navigate('Login')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

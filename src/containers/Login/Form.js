@@ -42,7 +42,7 @@ class LoginForm extends React.PureComponent {
                         onPress={this.props.handleSubmit}
                         style={{
                             width: 220,
-                            alignSelf: 'center'
+                            alignSelf: 'center',
                         }}
                     >
                         <Text style={styles.loginbutton}>
@@ -53,11 +53,11 @@ class LoginForm extends React.PureComponent {
                         onPress={this.props.goToSignUp}
                         style={{
                             width: 220,
-                            alignSelf: 'center'
+                            alignSelf: 'center',
                         }}
                     >
                         <Text style={styles.loginbutton}>
-                            SIGN UP
+                            GO TO SIGN UP
                         </Text>
                     </TouchableOpacity>
                 </View>

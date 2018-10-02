@@ -1,48 +1,42 @@
-/*
- * Copyright (c) 2011-2018, Zingaya, Inc. All rights reserved.
- */
-
-'use strict';
-
-import { StackNavigator, SwitchNavigator } from 'react-navigation';
+import { SwitchNavigator } from 'react-navigation';
 import Login from '../containers/Login';
 import SignUp from '../containers/SignUp';
-import MainScreen from '../screens/MainScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import CallScreen from '../screens/CallScreen';
-import IncomingCallScreen from '../screens/IncomingCallScreen';
+// import MainScreen from '../screens/MainScreen';
+// import SettingsScreen from '../screens/SettingsScreen';
+// import CallScreen from '../screens/CallScreen';
+// import IncomingCallScreen from '../screens/IncomingCallScreen';
 
-import COLOR from '../styles/Color';
+// import COLOR from '../styles/Color';
 
-const AppStack = StackNavigator(
-    {
-        Main: {
-            screen: MainScreen,
-        },
-        Settings: {
-            screen: SettingsScreen,
-        }
-    },
-    {
-        navigationOptions: {
-            headerStyle: {
-                backgroundColor: COLOR.PRIMARY,
-            },
-            headerTintColor: COLOR.WHITE,
-            headerTitleStyle: {
-                fontWeight: 'bold',
-            }
-        }
-    }
-);
+// const AppStack = StackNavigator(
+//     {
+//         Main: {
+//             screen: MainScreen,
+//         },
+//         Settings: {
+//             screen: SettingsScreen,
+//         }
+//     },
+//     {
+//         navigationOptions: {
+//             headerStyle: {
+//                 backgroundColor: COLOR.PRIMARY,
+//             },
+//             headerTintColor: COLOR.WHITE,
+//             headerTitleStyle: {
+//                 fontWeight: 'bold',
+//             },
+//         },
+//     }
+// );
 
 const RootStack = SwitchNavigator(
     {
-        Login: Login,
-        SignUp: SignUp,
-        App: AppStack,
-        Call: CallScreen,
-        IncomingCall: IncomingCallScreen
+        Login,
+        SignUp,
+        // App: AppStack,
+        // Call: CallScreen,
+        // IncomingCall: IncomingCallScreen
     },
     {
         initialRouteName: 'Login',
@@ -50,5 +44,3 @@ const RootStack = SwitchNavigator(
 );
 
 export default RootStack;
-
-

@@ -1,8 +1,8 @@
-import { LOGIN } from './constants';
+import { SIGN_UP } from './constants';
 
-export function login(values) {
+export function signUp(values) {
     return {
-        type: LOGIN,
+        type: SIGN_UP,
         values,
     };
 }

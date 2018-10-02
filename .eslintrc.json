@@ -15,6 +15,7 @@
     "react/jsx-closing-bracket-location": ["error", "tag-aligned"],
     "react/prop-types": ["off"],
     "react/prefer-es6-class": "off",
+    "react/destructuring-assignment": "off",
     "react/no-multi-comp": "off",
     "react/sort-comp": ["error", {
       "order": [
