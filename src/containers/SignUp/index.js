@@ -20,8 +20,6 @@ import COLOR from '../../styles/Color';
 import Form from './Form';
 import { login } from './actions';
 
-import { navigate } from '../../App/actions'
-
 class Login extends React.PureComponent {
     render() {
         return (
@@ -39,10 +37,7 @@ class Login extends React.PureComponent {
                         <View style={styles.sublogo}>
                             <Text style={styles.sublogotext}>Telemedicine Demo</Text>
                         </View>
-                        <Form
-                            onSubmit={this.props.login}
-                            goToSignUp={this.props.goToSignUp}
-                        />
+                        <Form onSubmit={this.props.login} />
                         <Modal
                             animationType="fade"
                             transparent
@@ -79,7 +74,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
     login: (values) => dispatch(login(values)),
-    goToSignUp: () => dispatch(navigate('SignUp')),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

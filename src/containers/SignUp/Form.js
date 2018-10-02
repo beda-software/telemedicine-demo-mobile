@@ -4,9 +4,10 @@ import { Field, reduxForm } from 'redux-form';
 import styles from '../../styles/Styles';
 import TextInput from '../../components/TextInput';
 
-class LoginForm extends React.PureComponent {
+class SignUpForm extends React.PureComponent {
     constructor(props) {
         super(props);
+        this.displayNameRef = React.createRef();
         this.passwordRef = React.createRef();
     }
 
@@ -22,7 +23,21 @@ class LoginForm extends React.PureComponent {
                         placeholder="Username"
                         autoCapitalize="none"
                         autoCorrect={false}
-                        onSubmitEditing={() => this.passwordRef.current.getRenderedComponent().focus()}
+                        onSubmitEditing={() => this.displayNameRef.current.focus()}
+                        blurOnSubmit
+                        autoFocus
+                    />
+                    <Field
+                        name="displayName"
+                        component={TextInput}
+                        underlineColorAndroid="transparent"
+                        style={styles.forminput}
+                        placeholder="Display Name"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        onSubmitEditing={() => this.passwordRef.current.focus()}
+                        ref={this.displayNameRef}
+                        withRef
                         blurOnSubmit
                         autoFocus
                     />
@@ -49,17 +64,6 @@ class LoginForm extends React.PureComponent {
                             LOGIN
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={this.props.goToSignUp}
-                        style={{
-                            width: 220,
-                            alignSelf: 'center'
-                        }}
-                    >
-                        <Text style={styles.loginbutton}>
-                            SIGN UP
-                        </Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         );
@@ -67,5 +71,5 @@ class LoginForm extends React.PureComponent {
 }
 
 export default reduxForm({
-    form: 'login',
-})(LoginForm);
+    form: 'signup',
+})(SignUpForm);

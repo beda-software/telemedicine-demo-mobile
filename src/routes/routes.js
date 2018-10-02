@@ -6,6 +6,7 @@
 
 import { StackNavigator, SwitchNavigator } from 'react-navigation';
 import Login from '../containers/Login';
+import SignUp from '../containers/SignUp';
 import MainScreen from '../screens/MainScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import CallScreen from '../screens/CallScreen';
@@ -38,6 +39,7 @@ const AppStack = StackNavigator(
 const RootStack = SwitchNavigator(
     {
         Login: Login,
+        SignUp: SignUp,
         App: AppStack,
         Call: CallScreen,
         IncomingCall: IncomingCallScreen
