@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Field, reduxForm } from 'redux-form';
-import styles from '../../styles/Styles';
-import TextInput from '../../components/TextInput';
+import styles from 'styles/Styles';
+import TextInput from 'components/TextInput';
 
 class LoginForm extends React.PureComponent {
     constructor(props) {

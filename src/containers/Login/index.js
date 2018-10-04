@@ -12,13 +12,13 @@ import {
 } from 'react-native';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
-import styles from '../../styles/Styles';
-import COLOR_SCHEME from '../../styles/ColorScheme';
-import COLOR from '../../styles/Color';
-import Logo from '../../components/Logo';
+import styles from 'styles/Styles';
+import COLOR_SCHEME from 'styles/ColorScheme';
+import COLOR from 'styles/Color';
+import Logo from 'components/Logo';
+import { navigate } from 'containers/App/actions';
 import Form from './Form';
 import { login } from './actions';
-import { navigate } from '../App/actions';
 
 class Login extends React.PureComponent {
     render() {

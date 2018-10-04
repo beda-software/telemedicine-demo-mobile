@@ -1,16 +1,22 @@
-import { takeEvery, call } from 'redux-saga/effects';
+import { takeEvery, call, put } from 'redux-saga/effects';
 
+import request from 'utils/request';
 import { SIGN_UP } from './constants';
-import request from '../../utils/request';
+import { signUpSuccess, signUpFailed } from './actions';
 
 export function* signUpUser({ values }) {
-    const url = 'http://10.0.2.2:7777/td/signup/';
-    const options = { body: JSON.stringify(values), method: 'POST' };
+    const url = 'http://192.168.1.3:7777/td/signup/';
+    const options = {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+        method: 'POST',
+    };
     try {
-        const response = yield call(request, url, options);
-        console.log("request response: ", response);
+        yield call(request, url, options);
+        yield put(signUpSuccess());
     } catch (err) {
-        console.log(err.response);
+        const content = yield call([err.response, 'json']);
+        yield put(signUpFailed(content));
     }
 }
 

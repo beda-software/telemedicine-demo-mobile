@@ -12,10 +12,10 @@ import {
 } from 'react-native';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
-import styles from '../../styles/Styles';
-import COLOR_SCHEME from '../../styles/ColorScheme';
-import COLOR from '../../styles/Color';
-import Logo from '../../components/Logo';
+import styles from 'styles/Styles';
+import COLOR_SCHEME from 'styles/ColorScheme';
+import COLOR from 'styles/Color';
+import Logo from 'components/Logo';
 import Form from './Form';
 import { signUp } from './actions';
 import { navigate } from '../App/actions';

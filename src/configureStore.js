@@ -5,13 +5,13 @@ import createSagaMiddleware from 'redux-saga';
 const sagaMiddleware = createSagaMiddleware();
 
 export default function configureStore(initialState = {}) {
-  const store = createStore(
-    createReducer(),
-    initialState,
-    applyMiddleware(sagaMiddleware)
-  );
+    const store = createStore(
+        createReducer(),
+        initialState,
+        applyMiddleware(sagaMiddleware)
+    );
 
-  store.runSaga = sagaMiddleware.run;
- 
-  return store;
+    store.runSaga = sagaMiddleware.run;
+
+    return store;
 }
