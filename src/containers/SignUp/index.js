@@ -20,7 +20,7 @@ import Form from './Form';
 import { signUp } from './actions';
 import { navigate } from '../App/actions';
 
-class Login extends React.PureComponent {
+class SignUp extends React.PureComponent {
     render() {
         return (
             <SafeAreaView style={styles.safearea}>
@@ -74,4 +74,4 @@ const mapDispatchToProps = (dispatch) => ({
     goToLogin: () => dispatch(navigate('Login')),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

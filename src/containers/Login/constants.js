@@ -1,1 +1,1 @@
-export const LOGIN = 'Login/LOGIN';
+export const LOGIN = 'telemedicine-demo/Login/LOGIN';
