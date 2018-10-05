@@ -4,6 +4,7 @@ import {
     SAVE_CONTACT_LIST,
     LOGOUT,
     MAKE_CALL,
+    MAKE_VIDEO_CALL,
     FETCH_CONTACTS,
 } from './constants';
 
@@ -40,9 +41,16 @@ export function fetchContacts() {
     };
 }
 
-export function makeCall(callTo) {
+export function makeCall(contactUsername) {
     return {
         type: MAKE_CALL,
-        callTo,
+        contactUsername,
+    };
+}
+
+export function makeVideoCall(contactUsername) {
+    return {
+        type: MAKE_VIDEO_CALL,
+        contactUsername,
     };
 }

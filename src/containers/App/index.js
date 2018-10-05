@@ -24,7 +24,7 @@ import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
 
-import { logout, fetchContacts } from './actions';
+import { logout, fetchContacts, makeCall, makeVideoCall } from './actions';
 
 
 class App extends React.Component {
@@ -148,8 +148,8 @@ const mapStateToProps = createStructuredSelector({
 
 const mapDispatchToProps = (dispatch) => ({
     fetchContacts: () => dispatch(fetchContacts()),
-    makeCall: () => console.log('call'),
-    makeVideoCall: () => console.log('video call'),
+    makeCall: (contact) => dispatch(makeCall(contact.username)),
+    makeVideoCall: (contact) => dispatch(makeVideoCall(contact.username)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
