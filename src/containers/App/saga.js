@@ -9,7 +9,7 @@ import { makeSelectApiToken } from './selectors';
 import { saveContactList } from './actions';
 
 // TODO: Replace VI callmanager with one adapted for our needs
-import CallManager from '../../manager/CallManager';
+// import CallManager from '../../manager/CallManager';
 
 function* logout() {
     console.log('logout saga')
@@ -45,7 +45,7 @@ function* makeCall(action) {
     //         let permissions = [PermissionsAndroid.PERMISSIONS.RECORD_AUDIO];
     //         const granted = await PermissionsAndroid.requestMultiple(permissions);
     //         const recordAudioGranted = granted['android.permission.RECORD_AUDIO'] === 'granted';
-    //         if (recordAudioGranted) {
+    //         if (!recordAudioGranted) {
     //             console.warn('MainScreen: makeCall: record audio permission is not granted');
     //             return;
     //         }
