@@ -2,7 +2,7 @@ import {
     SAVE_AUTH_TOKENS,
     SAVE_API_TOKEN,
     LOGOUT,
-    UPDATE_USER_LIST,
+    SAVE_CONTACT_LIST,
 } from './constants';
 
 export default function appReducer(state = {}, action) {
@@ -27,11 +27,11 @@ export default function appReducer(state = {}, action) {
             tokens,
         };
     }
-    case UPDATE_USER_LIST: {
-        const { userList } = action;
+    case SAVE_CONTACT_LIST: {
+        const { contactList } = action;
         return {
             ...state,
-            userList,
+            contactList,
         };
     }
     case LOGOUT: {

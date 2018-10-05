@@ -1,10 +1,10 @@
 import {
     SAVE_AUTH_TOKENS,
     SAVE_API_TOKEN,
+    SAVE_CONTACT_LIST,
     LOGOUT,
     MAKE_CALL,
-    LOAD_USERS,
-    UPDATE_USER_LIST,
+    FETCH_CONTACTS,
 } from './constants';
 
 export function saveAuthTokens(tokens) {
@@ -14,10 +14,10 @@ export function saveAuthTokens(tokens) {
     };
 }
 
-export function updateUserList(userList) {
+export function saveContactList(contactList) {
     return {
-        type: UPDATE_USER_LIST,
-        userList,
+        type: SAVE_CONTACT_LIST,
+        contactList,
     };
 }
 
@@ -34,9 +34,9 @@ export function logout() {
     };
 }
 
-export function loadUsers() {
+export function fetchContacts() {
     return {
-        type: LOAD_USERS,
+        type: FETCH_CONTACTS,
     };
 }
 

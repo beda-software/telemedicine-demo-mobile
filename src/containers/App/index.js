@@ -17,19 +17,19 @@ import { createStructuredSelector } from 'reselect';
 // import LoginManager from '../manager/LoginManager';
 // import CallManager from '../manager/CallManager';
 
-import { makeSelectUserList } from 'containers/App/selectors';
+import { makeSelectContactList } from 'containers/App/selectors';
 
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
 
-import { logout, loadUsers } from './actions';
+import { logout, fetchContacts } from './actions';
 
 
 class App extends React.Component {
     componentDidMount() {
-        this.props.loadUsers();
+        this.props.fetchContacts();
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -135,7 +135,7 @@ class App extends React.Component {
                 <Form
                     makeCall={this.props.makeCall}
                     makeVideoCall={this.props.makeVideoCall}
-                    userList={this.props.userList || []}
+                    contactList={this.props.contactList || []}
                 />
             </SafeAreaView>
         );
@@ -143,11 +143,11 @@ class App extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  userList: makeSelectUserList(),
+  contactList: makeSelectContactList(),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    loadUsers: () => dispatch(loadUsers()),
+    fetchContacts: () => dispatch(fetchContacts()),
     makeCall: () => console.log('call'),
     makeVideoCall: () => console.log('video call'),
 });

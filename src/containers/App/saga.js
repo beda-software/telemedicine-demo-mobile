@@ -4,9 +4,9 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { makeGet } from 'utils/request';
 
-import { LOGOUT, LOAD_USERS } from './constants';
+import { LOGOUT, FETCH_CONTACTS } from './constants';
 import { makeSelectApiToken } from './selectors';
-import { updateUserList } from './actions';
+import { saveContactList } from './actions';
 
 function* logout() {
     console.log('logout saga')
@@ -24,25 +24,25 @@ function flattenUserEntry({ username, displayName, voxImplantId }) {
     return { username, displayName, voxImplantId };
 }
 
-function* loadUsers() {
+function* fetchContacts() {
     const apiToken = yield select(makeSelectApiToken());
     const users = yield call(
         () => makeGet("http://10.0.2.2:7777/User/", {}, apiToken)
     );
-    userList = users.entry.map((user) => flattenUserEntry(user.resource));
-    yield put(updateUserList(userList));
+    contactList = users.entry.map((user) => flattenUserEntry(user.resource));
+    yield put(saveContactList(contactList));
 }
 
 export function* appLogout() {
     yield takeLatest(LOGOUT, logout);
 }
 
-export function* appLoadUsers() {
-    yield takeLatest(LOAD_USERS, loadUsers);
+export function* appFetchContacts() {
+    yield takeLatest(FETCH_CONTACTS, fetchContacts);
 }
 
 export default function* appSaga() {
-    yield all([appLogout(), appLoadUsers()]);
+    yield all([appLogout(), appFetchContacts()]);
 }
 
 

@@ -21,7 +21,7 @@ function AppForm(props) {
             />
 
             <FlatList
-                data={props.userList}
+                data={props.contactList}
                 keyExtractor={(item, index) => item.voxImplantId}
                 renderItem={({item}) =>
                     <View
