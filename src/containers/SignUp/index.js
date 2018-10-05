@@ -11,6 +11,7 @@ import {
     StatusBar,
 } from 'react-native';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
+import { NavigationActions } from 'react-navigation';
 
 import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
@@ -18,7 +19,6 @@ import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
 import Form from './Form';
 import { signUp } from './actions';
-import { navigate } from '../App/actions';
 
 class SignUp extends React.PureComponent {
     render() {
@@ -71,7 +71,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
     signUp: (values) => dispatch(signUp(values)),
-    goToLogin: () => dispatch(navigate('Login')),
+    goToLogin: () => dispatch(NavigationActions.navigate({ routeName: 'Login' })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

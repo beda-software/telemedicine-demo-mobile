@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { NavigationActions } from 'react-navigation';
 
 import {
     Text,
@@ -16,7 +17,6 @@ import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
-import { navigate } from 'containers/App/actions';
 import Form from './Form';
 import { login } from './actions';
 
@@ -40,7 +40,8 @@ class Login extends React.PureComponent {
                             transparent
                             visible={false}
                             // visible={this.state.isModalOpen}
-                            onRequestClose={() => {}}
+                            onRequestClose={() => {
+                            }}
                         >
                             <TouchableHighlight
                                 onPress={() => this.setState({ isModalOpen: false })}
@@ -71,7 +72,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({
     login: (values) => dispatch(login(values)),
-    goToSignUp: () => dispatch(navigate('SignUp')),
+    goToSignUp: () => dispatch(NavigationActions.navigate({ routeName: 'SignUp' })),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

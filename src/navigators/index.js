@@ -1,13 +1,16 @@
 import { SwitchNavigator, StackNavigator } from 'react-navigation';
-import Login from '../containers/Login';
-import SignUp from '../containers/SignUp';
-import App from '../containers/App';
+import { createReactNavigationReduxMiddleware, reduxifyNavigator } from 'react-navigation-redux-helpers';
+
+import Login from 'containers/Login';
+import SignUp from 'containers/SignUp';
+import App from 'containers/App';
 // import MainScreen from '../screens/MainScreen';
 // import SettingsScreen from '../screens/SettingsScreen';
 // import CallScreen from '../screens/CallScreen';
 // import IncomingCallScreen from '../screens/IncomingCallScreen';
 
 import COLOR from 'styles/Color';
+import { connect } from 'react-redux';
 
 const AppStack = StackNavigator(
     {
@@ -31,7 +34,7 @@ const AppStack = StackNavigator(
     }
 );
 
-const RootStack = SwitchNavigator(
+const RootNavigator = SwitchNavigator(
     {
         Login,
         SignUp,
@@ -44,4 +47,17 @@ const RootStack = SwitchNavigator(
     }
 );
 
-export default RootStack;
+const navigationMiddleware = createReactNavigationReduxMiddleware(
+    'root',
+    (state) => state.navigation
+);
+
+const AppWithNavigationState = reduxifyNavigator(RootNavigator, 'root');
+
+const mapStateToProps = (state) => ({
+    state: state.navigation,
+});
+
+const AppNavigator = connect(mapStateToProps)(AppWithNavigationState);
+
+export { RootNavigator, AppNavigator, navigationMiddleware };
