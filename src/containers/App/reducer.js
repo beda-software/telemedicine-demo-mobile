@@ -1,7 +1,19 @@
-import { SAVE_AUTH_TOKENS, LOGOUT } from './constants';
+import {
+    SAVE_AUTH_TOKENS,
+    SAVE_API_TOKEN,
+    LOGOUT,
+    UPDATE_USER_LIST,
+} from './constants';
 
 export default function appReducer(state = {}, action) {
     switch (action.type) {
+    case SAVE_API_TOKEN: {
+        const { apiToken } = action;
+        return {
+            ...state,
+            apiToken,
+        };
+    }
     case SAVE_AUTH_TOKENS: {
         const { tokens } = action;
 
@@ -15,10 +27,18 @@ export default function appReducer(state = {}, action) {
             tokens,
         };
     }
+    case UPDATE_USER_LIST: {
+        const { userList } = action;
+        return {
+            ...state,
+            userList,
+        };
+    }
     case LOGOUT: {
         return {
             ...state,
             tokens: {},
+            apiToken: {},
         };
     }
     default:

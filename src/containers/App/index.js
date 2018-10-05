@@ -12,19 +12,26 @@ import {
     Platform
 } from 'react-native';
 import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
 
 // import LoginManager from '../manager/LoginManager';
 // import CallManager from '../manager/CallManager';
+
+import { makeSelectUserList } from 'containers/App/selectors';
 
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
 
-import { logout } from './actions';
+import { logout, loadUsers } from './actions';
 
 
 class App extends React.Component {
+    componentDidMount() {
+        this.props.loadUsers();
+    }
+
     static navigationOptions = ({ navigation }) => {
         console.log("in options",navigation)
         const params = navigation.state.params || {};
@@ -120,19 +127,26 @@ class App extends React.Component {
     render() {
         return (
             <SafeAreaView style={styles.safearea}>
-                <StatusBar barStyle={COLOR_SCHEME.LIGHT} backgroundColor={COLOR.PRIMARY_DARK} />
+                <StatusBar
+                    barStyle={COLOR_SCHEME.LIGHT}
+                    backgroundColor={COLOR.PRIMARY_DARK}
+                />
 
-                <Form makeCall={this.props.makeCall} />
+                <Form
+                    makeCall={this.props.makeCall}
+                    userList={this.props.userList || []}
+                />
             </SafeAreaView>
         );
     }
 }
 
-const mapStateToProps = (state) => {
-    return {};
-};
+const mapStateToProps = createStructuredSelector({
+  userList: makeSelectUserList(),
+});
 
 const mapDispatchToProps = (dispatch) => ({
+    loadUsers: () => dispatch(loadUsers()),
     makeCall: () => console.log('call'),
 });
 

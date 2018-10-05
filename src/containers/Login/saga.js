@@ -3,7 +3,7 @@ import { Voximplant } from 'react-native-voximplant';
 import { takeLatest, call, put } from 'redux-saga/effects';
 
 import { makePost } from 'utils/request';
-import { saveAuthTokens } from 'containers/App/actions';
+import { saveAuthTokens, saveApiToken } from 'containers/App/actions';
 import { loginSuccess, loginFailed } from './actions';
 import { LOGIN } from './constants';
 
@@ -13,13 +13,13 @@ export function* loginUser({ values }) {
 
     try {
         const result = yield call(
-            () => makePost('http://192.168.1.3:7777/td/signin/', {
+            () => makePost('http://10.0.2.2:7777/td/signin/', {
                 username,
                 password,
             })
         );
         token = result.token;
-        //TODO: yield put(saveApiToken(token))
+        yield put(saveApiToken(token))
     } catch (err) {
         return yield put(loginFailed(err.message));
     }
@@ -54,7 +54,7 @@ export function* loginUser({ values }) {
                 try {
                     const result = yield call(
                         () => makePost(
-                            'http://192.168.1.3:7777/td/voximplant-hash/',
+                            'http://10.0.2.2:7777/td/voximplant-hash/',
                             { oneTimeKey: err.key },
                             token
                         )

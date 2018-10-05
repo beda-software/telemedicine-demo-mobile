@@ -5,7 +5,7 @@ import { SIGN_UP } from './constants';
 import { signUpSuccess, signUpFailed } from './actions';
 
 export function* signUpUser({ values }) {
-    const url = 'http://192.168.1.3:7777/td/signup/';
+    const url = 'http://10.0.2.2:7777/td/signup/';
     const options = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
