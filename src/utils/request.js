@@ -20,9 +20,11 @@ function* makeRequest(method, url, body, token = null) {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(body),
         method: method,
     };
+    if (method === 'POST') {
+        options.body = JSON.stringify(body);
+    }
     try {
         return yield request(url, options);
     } catch (err) {
