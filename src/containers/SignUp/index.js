@@ -18,7 +18,7 @@ import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
 import Form from './Form';
-import { signUp } from './actions';
+import { signUp, hideModal } from './actions';
 
 class SignUp extends React.PureComponent {
     render() {
@@ -38,12 +38,11 @@ class SignUp extends React.PureComponent {
                         <Modal
                             animationType="fade"
                             transparent
-                            visible={false}
-                            // visible={this.state.isModalOpen}
+                            visible={this.props.isModalVisible}
                             onRequestClose={() => {}}
                         >
                             <TouchableHighlight
-                                onPress={() => this.setState({ isModalOpen: false })}
+                                onPress={this.props.hideModal}
                                 style={styles.container}
                             >
                                 <View style={[styles.container, styles.modalBackground]}>
@@ -51,8 +50,7 @@ class SignUp extends React.PureComponent {
                                         style={[styles.innerContainer, styles.innerContainerTransparent]}
                                     >
                                         <Text>
-                                            {/*{this.state.modalText}*/}
-
+                                            {this.props.modalText}
                                         </Text>
                                     </View>
                                 </View>
@@ -66,12 +64,16 @@ class SignUp extends React.PureComponent {
 }
 
 const mapStateToProps = (state) => {
-    return {};
+    return {
+        isModalVisible: state.signUp.isModalVisible,
+        modalText: state.signUp.modalText,
+    };
 };
 
 const mapDispatchToProps = (dispatch) => ({
     signUp: (values) => dispatch(signUp(values)),
     goToLogin: () => dispatch(NavigationActions.navigate({ routeName: 'Login' })),
+    hideModal: () => dispatch(hideModal()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

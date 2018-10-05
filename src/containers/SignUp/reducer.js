@@ -1,16 +1,29 @@
-import { SIGN_UP_SUCCESS, SIGN_UP_FAILED } from './constants';
+import { SIGN_UP_SUCCESS, SIGN_UP_FAILED, HIDE_MODAL } from './constants';
 
-const initialState = {};
+const initialState = {
+    isModalVisible: false,
+    modalText: '',
+};
 
 export default function signUpReducer(state = initialState, action) {
     switch (action.type) {
     case SIGN_UP_FAILED:
-        console.log('Sign up failed: ', action.error);
-        return state;
+        return {
+            ...state,
+            isModalVisible: true,
+            modalText: action.error.msg,
+        };
     case SIGN_UP_SUCCESS:
-        console.log('Sign up success');
-        // TODO: redirect
-        return state;
+        return {
+            ...state,
+            isModalVisible: true,
+            modalText: 'You\'ve sucessfully registered. Please go to login page and input your credentials.',
+        };
+    case HIDE_MODAL:
+        return {
+            ...state,
+            isModalVisible: false,
+        };
     default:
         return state;
     }
