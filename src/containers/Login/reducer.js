@@ -1,16 +1,26 @@
-import { LOGIN_SUCCESS, LOGIN_FAILED, SAVE_AUTH_TOKENS } from './constants';
-import DefaultPreference from 'react-native-default-preference';
+import { LOGIN_SUCCESS, LOGIN_FAILED, HIDE_MODAL } from './constants';
 
-const initialState = {};
+const initialState = {
+    isModalVisible: false,
+    modalText: '',
+};
 
 export default function loginReducer(state = initialState, action) {
     switch (action.type) {
     case LOGIN_FAILED:
-        console.log('Login failed: ', action.error);
-        return state;
+        console.log(action.error)
+        return {
+            ...state,
+            isModalVisible: true,
+            modalText: action.error.msg,
+        };
     case LOGIN_SUCCESS:
-        console.log('Login success');
         return state;
+    case HIDE_MODAL:
+        return {
+            ...state,
+            isModalVisible: false,
+        };
     default:
         return state;
     }

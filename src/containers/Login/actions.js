@@ -1,4 +1,4 @@
-import { LOGIN, LOGIN_SUCCESS, LOGIN_FAILED } from './constants';
+import { LOGIN, LOGIN_SUCCESS, LOGIN_FAILED, HIDE_MODAL } from './constants';
 
 export function login(values) {
     return {
@@ -17,5 +17,11 @@ export function loginFailed(error) {
     return {
         type: LOGIN_FAILED,
         error,
+    };
+}
+
+export function hideModal() {
+    return {
+        type: HIDE_MODAL,
     };
 }

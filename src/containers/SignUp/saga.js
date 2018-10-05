@@ -15,8 +15,8 @@ export function* signUpUser({ values }) {
         yield call(request, url, options);
         yield put(signUpSuccess());
     } catch (err) {
-        const content = yield call([err.response, 'json']);
-        yield put(signUpFailed(content));
+        const result = yield call([err.response, 'json']);
+        yield put(signUpFailed(result));
     }
 }
 

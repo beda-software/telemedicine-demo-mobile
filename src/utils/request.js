@@ -21,14 +21,15 @@ function* makeRequest(method, url, body, token = null) {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(body),
-        method: method,
+        method,
     };
     try {
         return yield request(url, options);
     } catch (err) {
         const content = yield err.response.json();
-        const error = new Error(content);
+        const error = new Error();
         error.code = err.status;
+        error.message = content;
         throw error;
     }
 }

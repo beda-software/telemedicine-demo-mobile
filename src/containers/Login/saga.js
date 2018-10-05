@@ -36,7 +36,6 @@ export function* loginUser({ values }) {
         try {
             yield call(() => client.disconnect());
         } catch (err) {
-            console.log('error in disconnect', err)
         }
         yield call(() => client.connect());
 
