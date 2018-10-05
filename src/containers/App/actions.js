@@ -1,8 +1,22 @@
-import { NAVIGATE } from './constants';
+import { SAVE_AUTH_TOKENS, LOGOUT, MAKE_CALL } from './constants';
 
-export function navigate(routeName) {
+export function saveAuthTokens(tokens) {
     return {
-        type: NAVIGATE,
-        routeName,
+        type: SAVE_AUTH_TOKENS,
+        tokens,
+    };
+}
+
+export function logout() {
+    return {
+        type: LOGOUT,
+    };
+}
+
+
+export function makeCall(callTo) {
+    return {
+        type: MAKE_CALL,
+        callTo,
     };
 }

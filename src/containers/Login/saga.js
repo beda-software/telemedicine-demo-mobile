@@ -1,53 +1,106 @@
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
-import DefaultPreference from 'react-native-default-preference';
-import { takeEvery, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put } from 'redux-saga/effects';
 
 import request from 'utils/request';
+import { saveAuthTokens } from 'containers/App/actions';
 import { loginSuccess, loginFailed } from './actions';
 import { LOGIN } from './constants';
 
-
-export function* loginUser({ values }) {
-    const url = 'http://192.168.1.3:7777/td/signin/';
+// TODO: move to utils/request
+// TODO: add makeGet
+function* makePost(url, body, token = null) {
     const options = {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
         method: 'POST',
     };
     try {
-        yield call(request, url, options);
+        return yield request(url, options);
     } catch (err) {
         const content = yield err.response.json();
-        yield put(loginFailed(content));
+        const error = new Error(content);
+        error.code = err.status;
+        throw error;
     }
+}
+
+
+export function* loginUser({ values }) {
+    let token = null;
+    const { username, password } = values;
+
     try {
-        const client = Voximplant.getInstance();
+        const result = yield call(
+            () => makePost('http://192.168.1.3:7777/td/signin/', {
+                username,
+                password,
+            })
+        );
+        token = result.token;
+        //TODO: yield put(saveApiToken(token))
+    } catch (err) {
+        return yield put(loginFailed(err.message));
+    }
+
+    const client = Voximplant.getInstance();
+
+    console.log('state', yield client.getClientState())
+    const fullUsername = `${username}@voice-chat.beda-software.voximplant.com`;
+
+    try {
         // Connection to the Voximplant Cloud is stayed alive on reloading of the app's
         // JavaScript code. Calling "disconnect" API here makes the SDK and app states
         // synchronized.
         try {
-            yield client.disconnect();
+            yield call(() => client.disconnect());
         } catch (err) {
+            console.log('error in disconnect', err)
         }
-        yield client.connect();
-        const { username, password } = values;
-        const fullUsername = `${username}@voice-chat.beda-software.voximplant.com`;
-        const authResult = yield client.login(fullUsername, password);
+        yield call(() => client.connect());
 
-        const loginTokens = authResult.tokens;
-        DefaultPreference.set('accessToken', loginTokens.accessToken);
-        DefaultPreference.set('refreshToken', loginTokens.refreshToken);
-        DefaultPreference.set('accessExpire', loginTokens.accessExpire.toString());
-        DefaultPreference.set('refreshExpire', loginTokens.refreshExpire.toString());
 
-        yield put(loginSuccess());
-        yield put(NavigationActions.navigate({ routeName: 'App' }));
+        yield call(() => client.requestOneTimeLoginKey(fullUsername));
+
     } catch (err) {
-        console.log('err', err);
+        switch (err.name) {
+            case Voximplant.ClientEvents.ConnectionFailed:
+            // TODO: dispatch connectionFailed
+            console.log('connection failed');
+            break;
+        case Voximplant.ClientEvents.AuthResult:
+            if (err.code === 302) {
+                try {
+                    const result = yield call(
+                        () => makePost(
+                            'http://192.168.1.3:7777/td/voximplant-hash/',
+                            { oneTimeKey: err.key },
+                            token
+                        )
+                    );
+
+                    const authResult = yield call(() => client.loginWithOneTimeKey(fullUsername, result.hash));
+                    const loginTokens = authResult.tokens;
+
+                    yield put(saveAuthTokens(loginTokens));
+
+                    yield put(loginSuccess());
+                    return yield put(NavigationActions.navigate({ routeName: 'App' }));
+                } catch (nestedErr) {
+                    return yield put(loginFailed(nestedErr.message));
+                }
+            }
+            break;
+        default:
+            console.log('global ERR ')
+            return yield put(loginFailed(err.message));
+        }
     }
 }
 
 export default function* loginSaga() {
-    yield takeEvery(LOGIN, loginUser);
+    yield takeLatest(LOGIN, loginUser);
 }

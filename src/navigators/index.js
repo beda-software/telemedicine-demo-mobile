@@ -43,7 +43,7 @@ const RootNavigator = SwitchNavigator(
         // IncomingCall: IncomingCallScreen
     },
     {
-        initialRouteName: 'Login',
+        initialRouteName: 'App',
     }
 );
 

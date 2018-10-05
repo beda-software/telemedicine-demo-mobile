@@ -1,4 +1,5 @@
-import { LOGIN_SUCCESS, LOGIN_FAILED } from './constants';
+import { LOGIN_SUCCESS, LOGIN_FAILED, SAVE_AUTH_TOKENS } from './constants';
+import DefaultPreference from 'react-native-default-preference';
 
 const initialState = {};
 

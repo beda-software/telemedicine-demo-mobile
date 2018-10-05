@@ -11,18 +11,22 @@ import {
     PermissionsAndroid,
     Platform
 } from 'react-native';
+import { connect } from 'react-redux';
 
-import CallButton from 'components/CallButton';
 // import LoginManager from '../manager/LoginManager';
 // import CallManager from '../manager/CallManager';
 
-import {Voximplant} from 'react-native-voximplant';
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
+import Form from './Form';
 
-export default class App extends React.Component {
+import { logout } from './actions';
+
+
+class App extends React.Component {
     static navigationOptions = ({ navigation }) => {
+        console.log("in options",navigation)
         const params = navigation.state.params || {};
 
         return {
@@ -35,7 +39,7 @@ export default class App extends React.Component {
 
             ),
             headerRight: (
-                <TouchableOpacity onPress={params.backClicked}>
+                <TouchableOpacity onPress={() => navigation.dispatch(logout())}>
                     <Text style={styles.headerButton}>
                         Logout
                     </Text>
@@ -117,25 +121,19 @@ export default class App extends React.Component {
         return (
             <SafeAreaView style={styles.safearea}>
                 <StatusBar barStyle={COLOR_SCHEME.LIGHT} backgroundColor={COLOR.PRIMARY_DARK} />
-                <View style={styles.useragent}>
-                    <TextInput
-                        underlineColorAndroid='transparent'
-                        style={[styles.forminput, styles.margin]}
-                        onChangeText={(text) => { this.number = text }}
-                        placeholder="Call to"
-                        defaultValue={this.number}
-                        onSubmitEditing={(e) => this.onSubmit(e)}
-                        ref={component => this._thisNumber = component}
-                        autoCapitalize='none'
-                        autoCorrect={false} />
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', height: 90 }}>
-                        <CallButton icon_name='call' color={COLOR.ACCENT} buttonPressed={() => this.makeCall(false)} />
-                        <CallButton icon_name='videocam' color={COLOR.ACCENT} buttonPressed={() => this.makeCall(true)} />
-                    </View>
 
-
-                </View>
+                <Form makeCall={this.props.makeCall} />
             </SafeAreaView>
         );
     }
 }
+
+const mapStateToProps = (state) => {
+    return {};
+};
+
+const mapDispatchToProps = (dispatch) => ({
+    makeCall: () => console.log('call'),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
