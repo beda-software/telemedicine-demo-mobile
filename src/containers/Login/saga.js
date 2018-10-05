@@ -2,32 +2,10 @@ import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import { takeLatest, call, put } from 'redux-saga/effects';
 
-import request from 'utils/request';
+import { makePost } from 'utils/request';
 import { saveAuthTokens } from 'containers/App/actions';
 import { loginSuccess, loginFailed } from './actions';
 import { LOGIN } from './constants';
-
-// TODO: move to utils/request
-// TODO: add makeGet
-function* makePost(url, body, token = null) {
-    const options = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(body),
-        method: 'POST',
-    };
-    try {
-        return yield request(url, options);
-    } catch (err) {
-        const content = yield err.response.json();
-        const error = new Error(content);
-        error.code = err.status;
-        throw error;
-    }
-}
-
 
 export function* loginUser({ values }) {
     let token = null;
