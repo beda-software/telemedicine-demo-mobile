@@ -64,6 +64,13 @@ export default StyleSheet.create({
         paddingTop: 20,
         textAlign: 'center'
     },
+    contactListItem: {
+        color: COLOR.BUTTON,
+        fontSize: 16,
+        alignSelf: 'flex-start',
+        paddingTop: 10,
+        textAlign: 'center'
+    },
     forminput: {
         padding: 5,
         marginBottom: 10,

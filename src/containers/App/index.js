@@ -134,6 +134,7 @@ class App extends React.Component {
 
                 <Form
                     makeCall={this.props.makeCall}
+                    makeVideoCall={this.props.makeVideoCall}
                     userList={this.props.userList || []}
                 />
             </SafeAreaView>
@@ -148,6 +149,7 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = (dispatch) => ({
     loadUsers: () => dispatch(loadUsers()),
     makeCall: () => console.log('call'),
+    makeVideoCall: () => console.log('video call'),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

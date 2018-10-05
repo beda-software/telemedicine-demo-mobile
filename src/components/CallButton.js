@@ -25,7 +25,7 @@ export default class CallButton extends Component {
           <Icon 
               name={ this.props.icon_name } 
               color={ this.props.color }
-              size={ 35 } 
+              size={ 20 } 
               backgroundColor='transparent' />
         </View>
       </TouchableOpacity>
@@ -35,10 +35,10 @@ export default class CallButton extends Component {
 
 var styles = StyleSheet.create({
   icon: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
     borderWidth: 2,
-    borderRadius: 35,
+    borderRadius: 15,
     margin: 10,
     alignItems: 'center', 
     justifyContent: 'center',
