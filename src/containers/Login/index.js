@@ -3,11 +3,8 @@ import { connect } from 'react-redux';
 import { NavigationActions } from 'react-navigation';
 
 import {
-    Text,
     View,
     Platform,
-    Modal,
-    TouchableHighlight,
     SafeAreaView,
     StatusBar,
 } from 'react-native';
@@ -17,7 +14,7 @@ import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
-import { hideModal } from 'containers/App/actions';
+import Modal from 'components/Modal';
 import { login } from './actions';
 import Form from './Form';
 
@@ -36,27 +33,7 @@ class Login extends React.PureComponent {
                             onSubmit={this.props.login}
                             goToSignUp={this.props.goToSignUp}
                         />
-                        <Modal
-                            animationType="fade"
-                            transparent
-                            visible={this.props.isModalVisible}
-                            onRequestClose={() => {}}
-                        >
-                            <TouchableHighlight
-                                onPress={this.props.hideModal}
-                                style={styles.container}
-                            >
-                                <View style={[styles.container, styles.modalBackground]}>
-                                    <View
-                                        style={[styles.innerContainer, styles.innerContainerTransparent]}
-                                    >
-                                        <Text>
-                                            {this.props.modalText}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </TouchableHighlight>
-                        </Modal>
+                        <Modal />
                     </View>
                 </KeyboardAwareView>
             </SafeAreaView>
@@ -64,15 +41,11 @@ class Login extends React.PureComponent {
     }
 }
 
-const mapStateToProps = (state) => ({
-    isModalVisible: state.global.isModalVisible,
-    modalText: state.global.modalText,
-});
+const mapStateToProps = (state) => ({});
 
 const mapDispatchToProps = (dispatch) => ({
     login: (values) => dispatch(login(values)),
     goToSignUp: () => dispatch(NavigationActions.navigate({ routeName: 'SignUp' })),
-    hideModal: () => dispatch(hideModal()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);

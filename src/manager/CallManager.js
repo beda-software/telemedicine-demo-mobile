@@ -9,13 +9,13 @@ import {
     AppState
 } from 'react-native';
 
-import PushManager from './PushManager';
+// import PushManager from './PushManager';
 import { Voximplant } from 'react-native-voximplant';
 import NavigationService from '../routes/NavigationService';
 
 // Voximplant SDK supports multiple calls at the same time, however
 // this demo app demonstrates only one active call at the moment,
-// so it rejects new incoming call if there is already a call. 
+// so it rejects new incoming call if there is already a call.
 export default class CallManager {
     static myInstance = null;
     call = null;
@@ -27,8 +27,8 @@ export default class CallManager {
     }
 
     init() {
-        this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
-        AppState.addEventListener("change", this._handleAppStateChange);
+        //this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
+        //AppState.addEventListener("change", this._handleAppStateChange);
     }
 
     static getInstance() {

@@ -2,28 +2,19 @@ import React from 'react';
 import {
     Text,
     View,
-    Modal,
-    TouchableHighlight,
     TouchableOpacity,
-    TextInput,
     SafeAreaView,
     StatusBar,
-    PermissionsAndroid,
-    Platform
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-// import LoginManager from '../manager/LoginManager';
-// import CallManager from '../manager/CallManager';
-
 import { makeSelectContactList } from 'containers/App/selectors';
-
+import Modal from 'components/Modal';
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
-
 import { logout, fetchContacts, makeCall, makeVideoCall } from './actions';
 
 
@@ -33,7 +24,6 @@ class App extends React.Component {
     }
 
     static navigationOptions = ({ navigation }) => {
-        console.log("in options",navigation)
         const params = navigation.state.params || {};
 
         return {
@@ -137,6 +127,7 @@ class App extends React.Component {
                     makeVideoCall={this.props.makeVideoCall}
                     contactList={this.props.contactList || []}
                 />
+                <Modal />
             </SafeAreaView>
         );
     }
