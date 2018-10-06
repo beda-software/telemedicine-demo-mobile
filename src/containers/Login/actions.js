@@ -1,4 +1,4 @@
-import { LOGIN, LOGIN_SUCCESS, LOGIN_FAILED, HIDE_MODAL } from './constants';
+import { LOGIN, LOGIN_SUCCESS, LOGIN_FAILED, VOX_IMPLANT_LOGIN } from './constants';
 
 export function login(values) {
     return {
@@ -20,8 +20,8 @@ export function loginFailed(error) {
     };
 }
 
-export function hideModal() {
+export function voxImplantLogin() {
     return {
-        type: HIDE_MODAL,
+        type: VOX_IMPLANT_LOGIN,
     };
 }

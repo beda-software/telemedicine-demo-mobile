@@ -1,3 +1,8 @@
+import { Platform } from 'react-native';
+
+// TODO: get from env
+const baseUrl = Platform.OS === 'ios' ? 'http://192.168.1.3:7777' : 'http://10.0.2.2:7777';
+
 function parseJSON(response) {
     if (response.status === 204 || response.status === 205) {
         return null;
@@ -14,38 +19,39 @@ function checkStatus(response) {
     throw error;
 }
 
-function* makeRequest(method, url, body, token = null) {
+
+function request(path, options) {
+    return fetch(`${baseUrl}${path}`, options)
+        .then(checkStatus)
+        .then(parseJSON);
+}
+
+function* makeRequest(method, path, body, token = null) {
     const options = {
         headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        method: method,
+        method,
     };
     if (method === 'POST') {
         options.body = JSON.stringify(body);
     }
     try {
-        return yield request(url, options);
+        return yield request(path, options);
     } catch (err) {
-        const content = yield err.response.json();
+        const data = yield err.response.json();
         const error = new Error();
         error.code = err.status;
-        error.message = content;
+        error.data = data;
         throw error;
     }
 }
 
-export function* makePost(url, body, token = null) {
-    return yield* makeRequest('POST', url, body, token);
+export function* makePost(path, body, token = null) {
+    return yield* makeRequest('POST', path, body, token);
 }
 
-export function* makeGet(url, body, token = null) {
-    return yield* makeRequest('GET', url, body, token);
-}
-
-export default function request(url, options) {
-    return fetch(url, options)
-        .then(checkStatus)
-        .then(parseJSON);
+export function* makeGet(path, body, token = null) {
+    return yield* makeRequest('GET', path, body, token);
 }

@@ -1,4 +1,4 @@
-import { SIGN_UP, SIGN_UP_SUCCESS, SIGN_UP_FAILED, HIDE_MODAL } from './constants';
+import { SIGN_UP, SIGN_UP_SUCCESS, SIGN_UP_FAILED } from './constants';
 
 export function signUp(values) {
     return {
@@ -17,11 +17,5 @@ export function signUpFailed(error) {
     return {
         type: SIGN_UP_FAILED,
         error,
-    };
-}
-
-export function hideModal() {
-    return {
-        type: HIDE_MODAL,
     };
 }

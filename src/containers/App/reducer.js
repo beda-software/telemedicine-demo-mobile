@@ -1,11 +1,19 @@
 import {
-    SAVE_AUTH_TOKENS,
+    SAVE_VOX_IMPLANT_TOKENS,
     SAVE_API_TOKEN,
+    SAVE_USERNAME,
     LOGOUT,
     SAVE_CONTACT_LIST,
+    SHOW_MODAL,
+    HIDE_MODAL,
 } from './constants';
 
-export default function appReducer(state = {}, action) {
+const initialState = {
+    isModalVisible: false,
+    modalText: '',
+};
+
+export default function appReducer(state = initialState, action) {
     switch (action.type) {
     case SAVE_API_TOKEN: {
         const { apiToken } = action;
@@ -14,7 +22,14 @@ export default function appReducer(state = {}, action) {
             apiToken,
         };
     }
-    case SAVE_AUTH_TOKENS: {
+    case SAVE_USERNAME: {
+        const { username } = action;
+        return {
+            ...state,
+            username,
+        };
+    }
+    case SAVE_VOX_IMPLANT_TOKENS: {
         const { tokens } = action;
 
         // TODO: move to SAGA
@@ -39,6 +54,19 @@ export default function appReducer(state = {}, action) {
             ...state,
             tokens: {},
             apiToken: {},
+        };
+    }
+    case SHOW_MODAL: {
+        return {
+            ...state,
+            isModalVisible: true,
+            modalText: action.text,
+        };
+    }
+    case HIDE_MODAL: {
+        return {
+            ...state,
+            isModalVisible: false,
         };
     }
     default:

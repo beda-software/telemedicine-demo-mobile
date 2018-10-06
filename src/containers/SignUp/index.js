@@ -17,8 +17,9 @@ import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
+import { hideModal } from 'containers/App/actions';
+import { signUp } from './actions';
 import Form from './Form';
-import { signUp, hideModal } from './actions';
 
 class SignUp extends React.PureComponent {
     render() {
@@ -65,8 +66,8 @@ class SignUp extends React.PureComponent {
 
 const mapStateToProps = (state) => {
     return {
-        isModalVisible: state.signUp.isModalVisible,
-        modalText: state.signUp.modalText,
+        isModalVisible: state.global.isModalVisible,
+        modalText: state.global.modalText,
     };
 };
 

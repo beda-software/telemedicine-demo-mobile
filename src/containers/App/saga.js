@@ -12,7 +12,7 @@ import { saveContactList } from './actions';
 // import CallManager from '../../manager/CallManager';
 
 function* logout() {
-    console.log('logout saga')
+    console.log('logout saga');
     const client = Voximplant.getInstance();
 
     try {
@@ -24,15 +24,19 @@ function* logout() {
 }
 
 function flattenUserEntry({ username, displayName, voxImplantId }) {
-    return { username, displayName, voxImplantId };
+    return {
+        username,
+        displayName,
+        voxImplantId
+    };
 }
 
 function* fetchContacts() {
     const apiToken = yield select(makeSelectApiToken());
     const users = yield call(
-        () => makeGet("http://10.0.2.2:7777/User/", {}, apiToken)
+        () => makeGet('/User/', {}, apiToken)
     );
-    contactList = users.entry.map((user) => flattenUserEntry(user.resource));
+    const contactList = users.entry.map((user) => flattenUserEntry(user.resource));
     yield put(saveContactList(contactList));
 }
 
@@ -109,28 +113,12 @@ function* makeVideoCall(action) {
     // }
 }
 
-export function* appLogout() {
-    yield takeLatest(LOGOUT, logout);
-}
-
-export function* appFetchContacts() {
-    yield takeLatest(FETCH_CONTACTS, fetchContacts);
-}
-
-export function* appMakeCall() {
-    yield takeLatest(MAKE_CALL, makeCall);
-}
-
-export function* appMakeVideoCall() {
-    yield takeLatest(MAKE_VIDEO_CALL, makeVideoCall);
-}
-
 export default function* appSaga() {
     yield all([
-        appLogout(),
-        appFetchContacts(),
-        appMakeCall(),
-        appMakeVideoCall(),
+        takeLatest(LOGOUT, logout),
+        takeLatest(FETCH_CONTACTS, fetchContacts),
+        takeLatest(MAKE_CALL, makeCall),
+        takeLatest(MAKE_VIDEO_CALL, makeVideoCall),
     ]);
 }
 

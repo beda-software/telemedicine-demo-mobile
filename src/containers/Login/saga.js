@@ -1,32 +1,47 @@
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
-import { takeLatest, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 
 import { makePost } from 'utils/request';
-import { saveAuthTokens, saveApiToken } from 'containers/App/actions';
-import { loginSuccess, loginFailed } from './actions';
-import { LOGIN } from './constants';
+import { saveUsername, saveVoxImplantTokens, saveApiToken, showModal } from 'containers/App/actions';
+import { LOGIN_FAILED, LOGIN_SUCCESS } from 'containers/Login/constants';
+import { makeSelectApiToken, makeSelectUsername } from 'containers/App/selectors';
+import { voxImplantLogin, loginSuccess, loginFailed } from './actions';
+import { LOGIN, VOX_IMPLANT_LOGIN } from './constants';
 
-export function* loginUser({ values }) {
-    let token = null;
+// eslint-disable-next-line consistent-return
+async function requestOneTimeLoginKey(client, fullUsername) {
+    try {
+        const res = await client.requestOneTimeLoginKey(fullUsername);
+    } catch (err) {
+        if (err.name === Voximplant.ClientEvents.AuthResult && err.code === 302) {
+            return err.key;
+        }
+        throw err;
+    }
+}
+
+export function* onLogin({ values }) {
     const { username, password } = values;
 
     try {
-        const result = yield call(
-            () => makePost('http://10.0.2.2:7777/td/signin/', {
-                username,
-                password,
-            })
-        );
-        token = result.token;
-        yield put(saveApiToken(token))
+        const result = yield makePost('/td/signin/', {
+            username,
+            password,
+        });
+        yield put(saveApiToken(result.token));
+        yield put(saveUsername(username));
+        yield put(voxImplantLogin());
     } catch (err) {
-        return yield put(loginFailed(err.message));
+        yield put(loginFailed(err.data));
     }
+}
+
+function* onVoxImplantLogin() {
+    const username = yield select(makeSelectUsername());
+    const token = yield select(makeSelectApiToken());
 
     const client = Voximplant.getInstance();
-
-    console.log('state', yield client.getClientState())
     const fullUsername = `${username}@voice-chat.beda-software.voximplant.com`;
 
     try {
@@ -35,49 +50,38 @@ export function* loginUser({ values }) {
         // synchronized.
         try {
             yield call(() => client.disconnect());
-        } catch (err) {
-        }
+        } catch (err) {}
         yield call(() => client.connect());
-
-
-        yield call(() => client.requestOneTimeLoginKey(fullUsername));
-
+        const oneTimeKey = yield requestOneTimeLoginKey(client, fullUsername);
+        const { hash } = yield makePost('/td/voximplant-hash/', { oneTimeKey }, token);
+        const { tokens } = yield client.loginWithOneTimeKey(fullUsername, hash);
+        yield put(saveVoxImplantTokens(tokens));
+        yield put(loginSuccess());
     } catch (err) {
         switch (err.name) {
-            case Voximplant.ClientEvents.ConnectionFailed:
-            // TODO: dispatch connectionFailed
-            console.log('connection failed');
+        case Voximplant.ClientEvents.ConnectionFailed: {
+            yield put(loginFailed({ message: 'Connection failed. Please try again.' }));
             break;
-        case Voximplant.ClientEvents.AuthResult:
-            if (err.code === 302) {
-                try {
-                    const result = yield call(
-                        () => makePost(
-                            'http://10.0.2.2:7777/td/voximplant-hash/',
-                            { oneTimeKey: err.key },
-                            token
-                        )
-                    );
-
-                    const authResult = yield call(() => client.loginWithOneTimeKey(fullUsername, result.hash));
-                    const loginTokens = authResult.tokens;
-
-                    yield put(saveAuthTokens(loginTokens));
-
-                    yield put(loginSuccess());
-                    return yield put(NavigationActions.navigate({ routeName: 'App' }));
-                } catch (nestedErr) {
-                    return yield put(loginFailed(nestedErr.message));
-                }
-            }
-            break;
+        }
         default:
-            console.log('global ERR ')
-            return yield put(loginFailed(err.message));
+            yield put(loginFailed({ message: `Something went wrong. Code: ${err.code}` }));
         }
     }
 }
 
+function* onLoginSuccess() {
+    yield put(NavigationActions.navigate({ routeName: 'App' }));
+}
+
+function* onLoginFailed({ error }) {
+    yield put(showModal(error.message));
+}
+
 export default function* loginSaga() {
-    yield takeLatest(LOGIN, loginUser);
+    yield all([
+        takeLatest(LOGIN, onLogin),
+        takeLatest(VOX_IMPLANT_LOGIN, onVoxImplantLogin),
+        takeLatest(LOGIN_SUCCESS, onLoginSuccess),
+        takeLatest(LOGIN_FAILED, onLoginFailed),
+    ]);
 }

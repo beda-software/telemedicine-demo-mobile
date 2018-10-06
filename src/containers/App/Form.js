@@ -10,7 +10,7 @@ import CallButton from 'components/CallButton';
 function AppForm(props) {
     return (
         <View style={styles.useragent}>
-            <Field
+            {/*<Field
                 component={TextInput}
                 name="callTo"
                 underlineColorAndroid="transparent"
@@ -18,12 +18,12 @@ function AppForm(props) {
                 placeholder="Search for contacts"
                 autoCapitalize="none"
                 autoCorrect={false}
-            />
+            />*/}
 
             <FlatList
                 data={props.contactList}
-                keyExtractor={(item, index) => item.voxImplantId}
-                renderItem={({item}) =>
+                keyExtractor={(item) => item.voxImplantId}
+                renderItem={({ item }) =>
                     <View
                         style={{
                             alignSelf: 'center',
@@ -32,12 +32,12 @@ function AppForm(props) {
                             paddingLeft: 10,
                         }}
                     >
-                        <View style={{flex: 1}}>
+                        <View style={{ flex: 1 }}>
                             <Text style={styles.contactListItem}>
                                 {item.displayName}
                             </Text>
                         </View>
-                        <View style={{flexDirection: 'row'}}>
+                        <View style={{ flexDirection: 'row' }}>
                             <CallButton
                                 icon_name="call"
                                 color={COLOR.ACCENT}

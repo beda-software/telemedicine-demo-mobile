@@ -1,25 +1,33 @@
-import { takeEvery, call, put } from 'redux-saga/effects';
+import { takeEvery, call, put, all } from 'redux-saga/effects';
+import { NavigationActions } from 'react-navigation';
 
-import request from 'utils/request';
-import { SIGN_UP } from './constants';
+import { makePost } from 'utils/request';
+import { showModal } from 'containers/App/actions';
+import { SIGN_UP, SIGN_UP_SUCCESS, SIGN_UP_FAILED } from './constants';
 import { signUpSuccess, signUpFailed } from './actions';
 
-export function* signUpUser({ values }) {
-    const url = 'http://10.0.2.2:7777/td/signup/';
-    const options = {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-        method: 'POST',
-    };
+function* onSignUp({ values }) {
     try {
-        yield call(request, url, options);
+        yield call(makePost, '/td/signup/', values);
         yield put(signUpSuccess());
     } catch (err) {
-        const result = yield call([err.response, 'json']);
-        yield put(signUpFailed(result));
+        yield put(signUpFailed(err.data));
     }
 }
 
+function* onSignUpSuccess() {
+    yield put(NavigationActions.navigate({ routeName: 'Login' }));
+    yield put(showModal('You\'ve successfully registered.'));
+}
+
+function* onSignUpFailed({ error }) {
+    yield put(showModal(error.message));
+}
+
 export default function* signUpSaga() {
-    yield takeEvery(SIGN_UP, signUpUser);
+    yield all([
+        takeEvery(SIGN_UP, onSignUp),
+        takeEvery(SIGN_UP_SUCCESS, onSignUpSuccess),
+        takeEvery(SIGN_UP_FAILED, onSignUpFailed),
+    ]);
 }

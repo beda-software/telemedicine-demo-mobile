@@ -1,16 +1,19 @@
 import {
-    SAVE_AUTH_TOKENS,
+    SAVE_VOX_IMPLANT_TOKENS,
     SAVE_API_TOKEN,
+    SAVE_USERNAME,
     SAVE_CONTACT_LIST,
     LOGOUT,
     MAKE_CALL,
     MAKE_VIDEO_CALL,
     FETCH_CONTACTS,
+    HIDE_MODAL,
+    SHOW_MODAL,
 } from './constants';
 
-export function saveAuthTokens(tokens) {
+export function saveVoxImplantTokens(tokens) {
     return {
-        type: SAVE_AUTH_TOKENS,
+        type: SAVE_VOX_IMPLANT_TOKENS,
         tokens,
     };
 }
@@ -28,6 +31,14 @@ export function saveApiToken(apiToken) {
         apiToken,
     };
 }
+
+export function saveUsername(username) {
+    return {
+        type: SAVE_USERNAME,
+        username,
+    };
+}
+
 
 export function logout() {
     return {
@@ -52,5 +63,18 @@ export function makeVideoCall(contactUsername) {
     return {
         type: MAKE_VIDEO_CALL,
         contactUsername,
+    };
+}
+
+export function showModal(text) {
+    return {
+        type: SHOW_MODAL,
+        text,
+    };
+}
+
+export function hideModal() {
+    return {
+        type: HIDE_MODAL,
     };
 }
