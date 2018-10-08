@@ -3,7 +3,7 @@ import { Voximplant } from 'react-native-voximplant';
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 
 import { makePost } from 'utils/request';
-import { saveUsername, saveVoxImplantTokens, saveApiToken, showModal } from 'containers/App/actions';
+import { saveUsername, saveVoxImplantTokens, saveApiToken, showModal, initCall } from 'containers/App/actions';
 import { LOGIN_FAILED, LOGIN_SUCCESS } from 'containers/Login/constants';
 import { makeSelectApiToken, makeSelectUsername } from 'containers/App/selectors';
 import { voxImplantLogin, loginSuccess, loginFailed } from './actions';
@@ -70,6 +70,7 @@ function* onVoxImplantLogin() {
 }
 
 function* onLoginSuccess() {
+    yield put(initCall());
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 

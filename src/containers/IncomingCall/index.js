@@ -13,7 +13,17 @@ import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
 import { answerCall, answerVideoCall, declineCall } from './actions';
 
+// TODO: use own
+import CallManager from '../../manager/CallManager';
+
 class IncomingCall extends React.Component {
+    constructor(props) {
+        super(props);
+
+        const { callId } = props.navigation.state.params;
+        this.call = CallManager.getInstance().getCallById(callId);
+    }
+
     render() {
         return (
             <SafeAreaView style={[styles.safearea, styles.aligncenter]}>
@@ -21,7 +31,7 @@ class IncomingCall extends React.Component {
                     Incoming call from:
                 </Text>
                 <Text style={styles.incoming_call}>
-                    {this.state.displayName}
+                    Somebody
                 </Text>
                 <View
                     style={{
@@ -33,17 +43,17 @@ class IncomingCall extends React.Component {
                     <CallButton
                         icon_name="call"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerCall()}
+                        buttonPressed={() => this.props.answerCall(this.call)}
                     />
                     <CallButton
                         icon_name="videocam"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerVideoCall()}
+                        buttonPressed={() => this.props.answerVideoCall(this.call)}
                     />
                     <CallButton
                         icon_name="call-end"
                         color={COLOR.RED}
-                        buttonPressed={() => this.props.declineCall()}
+                        buttonPressed={() => this.props.declineCall(this.call)}
                     />
                 </View>
                 <Modal />
@@ -55,9 +65,9 @@ class IncomingCall extends React.Component {
 const mapStateToProps = createStructuredSelector({});
 
 const mapDispatchToProps = (dispatch) => ({
-    answerCall: () => dispatch(answerCall()),
-    answerVideoCall: () => dispatch(answerVideoCall()),
-    declineCall: () => dispatch(declineCall()),
+    answerCall: (call) => dispatch(answerCall(call)),
+    answerVideoCall: (call) => dispatch(answerVideoCall(call)),
+    declineCall: (call) => dispatch(declineCall(call)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IncomingCall);

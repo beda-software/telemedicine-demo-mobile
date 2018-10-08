@@ -8,6 +8,7 @@ import {
     FETCH_CONTACTS,
     HIDE_MODAL,
     SHOW_MODAL,
+    INIT_CALL,
     SET_ACTIVE_CALL,
 } from './constants';
 
@@ -43,6 +44,12 @@ export function saveUsername(username) {
 export function logout() {
     return {
         type: LOGOUT,
+    };
+}
+
+export function initCall() {
+    return {
+        type: INIT_CALL,
     };
 }
 

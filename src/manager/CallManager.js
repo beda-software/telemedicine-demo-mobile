@@ -27,7 +27,7 @@ export default class CallManager {
     }
 
     init() {
-        //this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
+        this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
         //AppState.addEventListener("change", this._handleAppStateChange);
     }
 
@@ -67,13 +67,13 @@ export default class CallManager {
         } else {
             this.addCall(event.call);
             if (this.currentAppState !== 'active') {
-                this.call.on(Voximplant.CallEvents.Disconnected, this._callDisconnected);
-                PushManager.showLocalNotification('');
-                this.showIncomingCallScreen = true;
+                // TODO: !!! recover this functionality
+                // this.call.on(Voximplant.CallEvents.Disconnected, this._callDisconnected);
+                // PushManager.showLocalNotification('');
+                // this.showIncomingCallScreen = true;
             } else {
                 NavigationService.navigate('IncomingCall', {
                     callId: event.call.callId,
-                    isVideo: event.video,
                     from: null
                 });
             }
