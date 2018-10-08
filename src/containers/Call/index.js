@@ -49,9 +49,21 @@ import { makeSelectActiveCall } from 'containers/App/selectors';
 
 class CallScreen extends React.Component {
     componentDidMount() {
-        this.props.subscribeToCallEvents(this.props.activeCall);
+        const { isIncoming, isVideoCall } = this.props.navigation.state.params;
+
+        this.props.subscribeToCallEvents(this.props.activeCall, isIncoming);
         this.props.subscribeToAudioDeviceEvents();
         this.props.setCallStatusConnecting();
+
+        if (isIncoming) {
+            const callSettings = {
+                video: {
+                    sendVideo: isVideoCall,
+                    receiveVideo: isVideoCall,
+                },
+            };
+            this.props.activeCall.answer(callSettings);
+        }
     }
 
     componentWillUnmount() {
@@ -60,15 +72,7 @@ class CallScreen extends React.Component {
     }
 
     _keypadPressed(value) {
-        this.call.sendTone(value);
-    }
-
-    _closeModal() {
-        this.setState({
-            isModalOpen: false,
-            modalText: '',
-        });
-        this.props.navigation.navigate('App');
+        this.props.activeCall.sendTone(value);
     }
 
     flatListItemSeparator() {
@@ -94,7 +98,7 @@ class CallScreen extends React.Component {
                 />
                 <View><Text>CALL!</Text></View>
                 <View style={styles.useragent}>
-                    {/*<View style={styles.videoPanel}>
+                    <View style={styles.videoPanel}>
                         {this.props.isVideoBeingSent ? (
                             <Voximplant.VideoView
                                 style={styles.selfview}
@@ -120,11 +124,11 @@ class CallScreen extends React.Component {
                         <Text style={styles.call_connecting_label}>{this.props.callStatus}</Text>
                     </View>
 
-                    {this.state.isKeypadVisible ? (
+                    {this.props.isKeypadVisible ? (
                         <Keypad keyPressed={(e) => this._keypadPressed(e)} />
                     ) : (
                         null
-                    )}*/}
+                    )}
 
                     <View style={styles.call_controls}>
                         <View
@@ -137,27 +141,31 @@ class CallScreen extends React.Component {
                             <CallButton
                                 icon_name={this.props.isAudioMuted ? 'mic' : 'mic-off'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={this.props.toggleAudioMute}
+                                buttonPressed={() => this.props.toggleAudioMute(
+                                    this.props.activeCall, !this.props.isAudioMuted,
+                                )}
                             />
                             <CallButton
                                 icon_name="dialpad"
                                 color={COLOR.ACCENT}
                                 buttonPressed={this.props.toggleKeypad}
                             />
-                            <CallButton
+                            {/* <CallButton
                                 icon_name={this.props.audioDeviceIcon}
                                 color={COLOR.ACCENT}
                                 buttonPressed={this.props.switchAudioDevice}
-                            />
+                            />*/}
                             <CallButton
                                 icon_name={this.props.isVideoBeingSent ? 'videocam-off' : 'video-call'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={this.props.toggleVideoSend}
+                                buttonPressed={() => this.props.toggleVideoSend(
+                                    this.props.activeCall, !this.props.isVideoBeingSent,
+                                )}
                             />
                             <CallButton
                                 icon_name="call-end"
                                 color={COLOR.RED}
-                                buttonPressed={this.props.endCall}
+                                buttonPressed={() => this.props.endCall(this.props.activeCall)}
                             />
                         </View>
                     </View>
@@ -220,9 +228,9 @@ const mapDispatchToProps = (dispatch) => ({
     subscribeToAudioDeviceEvents: () => dispatch(subscribeToAudioDeviceEvents()),
     unsubscribeFromCallEvents: () => dispatch(unsubscribeFromCallEvents()),
     unsubscribeFromAudioDeviceEvents: () => dispatch(unsubscribeFromAudioDeviceEvents()),
-    toggleAudioMute: () => dispatch(toggleAudioMute()),
-    toggleVideoSend: () => dispatch(toggleVideoSend()),
-    endCall: () => dispatch(endCall()),
+    toggleAudioMute: (call, isAudioMuted) => dispatch(toggleAudioMute(call, isAudioMuted)),
+    toggleVideoSend: (call, isVideoBeingSent) => dispatch(toggleVideoSend(call, isVideoBeingSent)),
+    endCall: (activeCall) => dispatch(endCall(activeCall)),
     toggleKeypad: () => dispatch(toggleKeypad()),
     switchAudioDevice: () => dispatch(switchAudioDevice()),
     selectAudioDevice: (device) => dispatch(selectAudioDevice(device)),

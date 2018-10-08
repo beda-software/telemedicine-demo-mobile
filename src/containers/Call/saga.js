@@ -34,6 +34,7 @@ import {
     deviceChanged,
     deviceListChanged,
 } from './actions';
+import { requestPermissions } from 'containers/App/saga';
 
 
 function* onCallFailed({ reason }) {
@@ -50,7 +51,7 @@ function* onCallDisconnected() {
 function createEndpointChannel(endpoint) {
     return eventChannel((emit) => {
         const handler = (event) => {
-            emit(event.name, event);
+            emit(event);
         };
 
         Object.keys(Voximplant.EndpointEvents)
@@ -64,10 +65,12 @@ function createEndpointChannel(endpoint) {
 }
 
 function* onEndpointAdded({ endpoint }) {
-    const channel = createEndpointChannel();
+    const channel = createEndpointChannel(endpoint);
 
-    yield takeEvery(endpoint, function* onEndpointEvent(eventName, event) {
-        switch (eventName) {
+    yield takeEvery(channel, function* onEndpointEvent(event) {
+        console.log(`Endpoint event: ${event.name}`, event);
+
+        switch (event.name) {
         case Voximplant.EndpointEvents.Removed: {
             yield put(endpointRemoved(event.endpoint));
             break;
@@ -81,7 +84,7 @@ function* onEndpointAdded({ endpoint }) {
             break;
         }
         default:
-            console.log(`Unhandled endpoint event ${eventName}`);
+            console.log(`Unhandled endpoint event ${event.name}`);
         }
     });
 
@@ -97,7 +100,7 @@ function* onEndpointAdded({ endpoint }) {
 function createCallChannel(activeCall) {
     return eventChannel((emit) => {
         const handler = (event) => {
-            emit(event.name, event);
+            emit(event);
         };
 
         Object.keys(Voximplant.CallEvents)
@@ -110,11 +113,18 @@ function createCallChannel(activeCall) {
     });
 }
 
-export function* onSubscribeToCallEvents({ call: activeCall }) {
+export function* onSubscribeToCallEvents({ call: activeCall, isIncoming }) {
+    if (isIncoming) {
+        activeCall.getEndpoints().forEach(function* onEachEndpoint(endpoint) {
+            yield put(endpointAdded(endpoint));
+        });
+    }
+
     const channel = createCallChannel(activeCall);
 
-    yield takeEvery(channel, function* onCallEvent(eventName, event) {
-        switch (eventName) {
+    yield takeEvery(channel, function* onCallEvent(event) {
+        console.log(`Call event: ${event.name}`, event);
+        switch (event.name) {
         case Voximplant.CallEvents.Failed: {
             yield put(callFailed());
             break;
@@ -136,7 +146,7 @@ export function* onSubscribeToCallEvents({ call: activeCall }) {
             break;
         }
         default:
-            console.log(`Unhandled call event ${eventName}`);
+            console.log(`Unhandled call event ${event.name}`);
         }
     });
 
@@ -149,7 +159,7 @@ function createAudioDeviceChannel() {
 
     return eventChannel((emit) => {
         const handler = (event) => {
-            emit(event.name, event);
+            emit(event);
         };
 
         Object.keys(Voximplant.Hardware.AudioDeviceEvents)
@@ -165,8 +175,10 @@ function createAudioDeviceChannel() {
 export function* onSubscribeToAudioDeviceEvents() {
     const channel = createAudioDeviceChannel();
 
-    yield takeEvery(channel, function* onCallEvent(eventName, event) {
-        switch (eventName) {
+    yield takeEvery(channel, function* onCallEvent(event) {
+        console.log(`Device event: ${event.name}`, event);
+
+        switch (event.name) {
         case Voximplant.Hardware.AudioDeviceEvents.DeviceChanged: {
             yield put(deviceChanged(event.currentDevice));
             break;
@@ -176,7 +188,7 @@ export function* onSubscribeToAudioDeviceEvents() {
             break;
         }
         default:
-            console.log(`Unhandled audio device event ${eventName}`);
+            console.log(`Unhandled audio device event ${event.name}`);
         }
     });
 
@@ -184,50 +196,20 @@ export function* onSubscribeToAudioDeviceEvents() {
     channel.close();
 }
 
-export function* onMuteAudio() {
-    // const isMuted = this.state.isAudioMuted;
-    // this.call.sendAudio(isMuted);
-    // this.setState({isAudioMuted: !isMuted});
+export function onToggleAudioMute({ call: activeCall, isAudioMuted }) {
+    activeCall.sendAudio(!isAudioMuted);
 }
 
-export function* onSendVideo({ doSend }) {
-    // console.log("CallScreen[" + this.callId + "] sendVideo: " + doSend);
-    // try {
-    //     if (doSend && Platform.OS === 'android') {
-    //         const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
-    //         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-    //             console.warn('CallScreen[' + this.callId + '] sendVideo: failed due to camera permission is not granted');
-    //             return;
-    //         }
-    //     }
-    //     await this.call.sendVideo(doSend);
-    //     this.setState({isVideoSent: doSend});
-    // } catch (e) {
-    //     console.warn(`Failed to sendVideo(${doSend}) due to ${e.code} ${e.message}`);
-    // }
+export function* onToggleVideoSend({ call: activeCall, isVideoBeingSent }) {
+    try {
+        yield requestPermissions();
+        yield activeCall.sendVideo(isVideoBeingSent);
+    } catch (err) {
+        put(showModal(`Failed to send video:\n${err.message}`));
+    }
 }
 
-export function* onHold({ doHold }) {
-    // console.log('CallScreen[' + this.callId + '] hold: ' + doHold);
-    // try {
-    //     await this.call.hold(doHold);
-    // } catch (e) {
-    //     console.warn('Failed to hold(' + doHold + ') due to ' + e.code + ' ' + e.message);
-    // }
-}
-
-export function* onReceiveVideo() {
-    // console.log('CallScreen[' + this.callId + '] receiveVideo');
-    // try {
-    //     await this.call.receiveVideo();
-    // } catch (e) {
-    //     console.warn('Failed to receiveVideo due to ' + e.code + ' ' + e.message);
-    // }
-}
-
-export function* onEndCall() {
-    const activeCall = yield select(makeSelectActiveCall());
-
+export function onEndCall({ call: activeCall }) {
     activeCall.hangup();
 }
 
@@ -247,10 +229,8 @@ export default function* incomingCallSaga() {
     yield all([
         takeLatest(SUBSCRIBE_TO_CALL_EVENTS, onSubscribeToCallEvents),
         takeLatest(SUBSCRIBE_TO_AUDIO_DEVICE_EVENTS, onSubscribeToAudioDeviceEvents),
-        takeLatest(TOGGLE_AUDIO_MUTE, onMuteAudio),
-        takeLatest(TOGGLE_VIDEO_SEND, onSendVideo),
-        takeLatest(HOLD, onHold),
-        takeLatest(RECEIVE_VIDEO, onReceiveVideo),
+        takeLatest(TOGGLE_AUDIO_MUTE, onToggleAudioMute),
+        takeLatest(TOGGLE_VIDEO_SEND, onToggleVideoSend),
         takeLatest(END_CALL, onEndCall),
         takeLatest(SWITCH_AUDIO_DEVICE, onSwitchAudioDevice),
         takeLatest(SELECT_AUDIO_DEVICE, onSelectAudioDevice),

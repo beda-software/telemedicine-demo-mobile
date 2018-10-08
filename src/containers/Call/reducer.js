@@ -43,17 +43,15 @@ export default function incomingCallReducer(state = initialState, action) {
         };
     }
     case TOGGLE_AUDIO_MUTE: {
-        const { isAudioMuted } = state;
         return {
             ...state,
-            isAudioMuted: !isAudioMuted,
+            isAudioMuted: action.isAudioMuted,
         };
     }
     case TOGGLE_VIDEO_SEND: {
-        const { isVideoBeingSent } = state;
         return {
             ...state,
-            isVideoBeingSent: !isVideoBeingSent,
+            isVideoBeingSent: action.isVideoBeingSent,
         };
     }
     case CALL_LOCAL_VIDEO_STREAM_CHANGED: {

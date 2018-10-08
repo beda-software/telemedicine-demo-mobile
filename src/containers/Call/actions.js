@@ -25,10 +25,11 @@ import {
     DEVICE_LIST_CHANGED,
 } from './constants';
 
-export function subscribeToCallEvents(call) {
+export function subscribeToCallEvents(call, isIncoming) {
     return {
         type: SUBSCRIBE_TO_CALL_EVENTS,
         call,
+        isIncoming,
     };
 }
 
@@ -57,15 +58,19 @@ export function setCallStatusConnecting() {
     };
 }
 
-export function toggleAudioMute() {
+export function toggleAudioMute(call, isAudioMuted) {
     return {
         type: TOGGLE_AUDIO_MUTE,
+        call,
+        isAudioMuted,
     };
 }
 
-export function toggleVideoSend() {
+export function toggleVideoSend(call, isVideoBeingSent) {
     return {
         type: TOGGLE_VIDEO_SEND,
+        call,
+        isVideoBeingSent,
     };
 }
 
@@ -81,9 +86,10 @@ export function receiveVideo() {
     };
 }
 
-export function endCall() {
+export function endCall(call) {
     return {
         type: END_CALL,
+        call,
     };
 }
 
