@@ -6,6 +6,7 @@ import {
     SAVE_CONTACT_LIST,
     SHOW_MODAL,
     HIDE_MODAL,
+    SET_ACTIVE_CALL,
 } from './constants';
 
 const initialState = {
@@ -67,6 +68,13 @@ export default function appReducer(state = initialState, action) {
         return {
             ...state,
             isModalVisible: false,
+        };
+    }
+    case SET_ACTIVE_CALL: {
+        const { activeCall } = action;
+        return {
+            ...state,
+            activeCall,
         };
     }
     default:

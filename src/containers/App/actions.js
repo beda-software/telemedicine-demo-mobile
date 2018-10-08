@@ -8,6 +8,7 @@ import {
     FETCH_CONTACTS,
     HIDE_MODAL,
     SHOW_MODAL,
+    SET_ACTIVE_CALL,
 } from './constants';
 
 export function saveVoxImplantTokens(tokens) {
@@ -77,5 +78,12 @@ export function showModal(text) {
 export function hideModal() {
     return {
         type: HIDE_MODAL,
+    };
+}
+
+export function setActiveCall(activeCall) {
+    return {
+        type: SET_ACTIVE_CALL,
+        activeCall,
     };
 }

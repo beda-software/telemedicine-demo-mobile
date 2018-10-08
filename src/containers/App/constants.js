@@ -8,3 +8,4 @@ export const MAKE_VIDEO_CALL = 'telemedicine-demo/App/MAKE_VIDEO_CALL';
 export const FETCH_CONTACTS = 'telemedicine-demo/App/FETCH_CONTACTS';
 export const SHOW_MODAL = 'telemedicine-demo/App/SHOW_MODAL';
 export const HIDE_MODAL = 'telemedicine-demo/App/HIDE_MODAL';
+export const SET_ACTIVE_CALL = 'telemedicine-demo/App/SET_ACTIVE_CALL';
