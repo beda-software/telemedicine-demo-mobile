@@ -5,9 +5,9 @@ import Login from 'containers/Login';
 import SignUp from 'containers/SignUp';
 import App from 'containers/App';
 import IncomingCall from 'containers/IncomingCall';
+import Call from 'containers/Call';
 // import MainScreen from '../screens/MainScreen';
 // import SettingsScreen from '../screens/SettingsScreen';
-import CallScreen from '../screens/CallScreen';
 
 import COLOR from 'styles/Color';
 import { connect } from 'react-redux';
@@ -36,10 +36,10 @@ const AppStack = StackNavigator(
 
 const RootNavigator = SwitchNavigator(
     {
+        App: AppStack,
         Login,
         SignUp,
-        App: AppStack,
-        Call: CallScreen,
+        Call,
         IncomingCall,
     },
     {

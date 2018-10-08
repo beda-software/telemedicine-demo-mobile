@@ -13,11 +13,15 @@ import {
     TOGGLE_KEYPAD,
     SWITCH_AUDIO_DEVICE,
     SELECT_AUDIO_DEVICE,
+
+    CALL_FAILED,
+    CALL_DISCONNECTED,
 } from './constants';
 
-export function subscribeToCallEvents() {
+export function subscribeToCallEvents(call) {
     return {
         type: SUBSCRIBE_TO_CALL_EVENTS,
+        call,
     };
 }
 
@@ -88,9 +92,21 @@ export function switchAudioDevice() {
     };
 }
 
-export function switchAudioDevice(device) {
+export function selectAudioDevice(device) {
     return {
         type: SELECT_AUDIO_DEVICE,
-        device
+        device,
+    };
+}
+
+export function callFailed() {
+    return {
+        type: CALL_FAILED,
+    };
+}
+
+export function callDisconnected() {
+    return {
+        type: CALL_DISCONNECTED,
     };
 }

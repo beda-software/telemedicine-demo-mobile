@@ -1,88 +1,81 @@
 import { createSelector } from 'reselect';
 
-const selectOutgoingCall = (state) => state.outgoingCalll;
-
-function makeSelectApiToken() {
-    return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.apiToken
-    );
-}
+const selectCall = (state) => state.call;
 
 function makeSelectCallStatus() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.callStatus
+        selectCall,
+        (callState) => callState.callStatus
     );
 }
 
 function makeSelectIsAudioMuted() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.isAudioMuted
+        selectCall,
+        (callState) => callState.isAudioMuted
     );
 }
 
 function makeSelectIsVideoBeingSent() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.isVideoBeingSent
+        selectCall,
+        (callState) => callState.isVideoBeingSent
     );
 }
 
 function makeSelectIsKeypadVisible() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.isKeypadVisible
+        selectCall,
+        (callState) => callState.isKeypadVisible
     );
 }
 
 function makeSelectIsModalOpen() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.isModalOpen
+        selectCall,
+        (callState) => callState.isModalOpen
     );
 }
 
 function makeSelectModalText() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.modalText
+        selectCall,
+        (callState) => callState.modalText
     );
 }
 
 function makeSelectLocalVideoStreamId() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.localVideoStreamId
+        selectCall,
+        (callState) => callState.localVideoStreamId
     );
 }
 
 function makeSelectRemoteVideoStreamId() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.remoteVideoStreamId
+        selectCall,
+        (callState) => callState.remoteVideoStreamId
     );
 }
 
 function makeSelectIsAudioDeviceSelectionVisible() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.isAudioDeviceSelectionVisible
+        selectCall,
+        (callState) => callState.isAudioDeviceSelectionVisible
     );
 }
 
 function makeSelectAudioDeviceIcon() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.audioDeviceIcon
+        selectCall,
+        (callState) => callState.audioDeviceIcon
     );
 }
 
 function makeSelectAudioDeviceList() {
     return createSelector(
-        selectOutgoingCall,
-        (outgoingCallState) => outgoingCallState.audioDeviceList
+        selectCall,
+        (callState) => callState.audioDeviceList
     );
 }
 
