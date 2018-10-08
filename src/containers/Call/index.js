@@ -37,8 +37,8 @@ import {
     subscribeToAudioDeviceEvents,
     unsubscribeFromCallEvents,
     unsubscribeFromAudioDeviceEvents,
-    muteAudio,
-    sendVideo,
+    toggleAudioMute,
+    toggleVideoSend,
     endCall,
     toggleKeypad,
     switchAudioDevice,
@@ -137,7 +137,7 @@ class CallScreen extends React.Component {
                             <CallButton
                                 icon_name={this.props.isAudioMuted ? 'mic' : 'mic-off'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={this.props.muteAudio}
+                                buttonPressed={this.props.toggleAudioMute}
                             />
                             <CallButton
                                 icon_name="dialpad"
@@ -152,7 +152,7 @@ class CallScreen extends React.Component {
                             <CallButton
                                 icon_name={this.props.isVideoBeingSent ? 'videocam-off' : 'video-call'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => this.props.sendVideo(!this.props.isVideoBeingSent)}
+                                buttonPressed={this.props.toggleVideoSend}
                             />
                             <CallButton
                                 icon_name="call-end"
@@ -220,8 +220,8 @@ const mapDispatchToProps = (dispatch) => ({
     subscribeToAudioDeviceEvents: () => dispatch(subscribeToAudioDeviceEvents()),
     unsubscribeFromCallEvents: () => dispatch(unsubscribeFromCallEvents()),
     unsubscribeFromAudioDeviceEvents: () => dispatch(unsubscribeFromAudioDeviceEvents()),
-    muteAudio: () => dispatch(muteAudio()),
-    sendVideo: () => dispatch(sendVideo()),
+    toggleAudioMute: () => dispatch(toggleAudioMute()),
+    toggleVideoSend: () => dispatch(toggleVideoSend()),
     endCall: () => dispatch(endCall()),
     toggleKeypad: () => dispatch(toggleKeypad()),
     switchAudioDevice: () => dispatch(switchAudioDevice()),

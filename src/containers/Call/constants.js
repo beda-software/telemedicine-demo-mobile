@@ -18,8 +18,8 @@ export const UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS =
     'telemedicine-demo/Call/UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS';
 
 
-export const MUTE_AUDIO = 'telemedicine-demo/Call/MUTE_AUDIO';
-export const SEND_VIDEO = 'telemedicine-demo/Call/SEND_VIDEO';
+export const TOGGLE_AUDIO_MUTE = 'telemedicine-demo/Call/TOGGLE_AUDIO_MUTE';
+export const TOGGLE_VIDEO_SEND = 'telemedicine-demo/Call/TOGGLE_VIDEO_SEND';
 export const HOLD = 'telemedicine-demo/Call/HOLD';
 export const RECEIVE_VIDEO = 'telemedicine-demo/Call/RECEIVE_VIDEO';
 export const END_CALL = 'telemedicine-demo/Call/END_CALL';

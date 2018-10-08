@@ -2,6 +2,8 @@ import {
     SET_CALL_STATUS,
     CALL_STATUS_DISCONNECTED,
     TOGGLE_KEYPAD,
+    TOGGLE_AUDIO_MUTE,
+    TOGGLE_VIDEO_SEND,
 } from './constants';
 
 const initialState = {
@@ -32,6 +34,20 @@ export default function incomingCallReducer(state = initialState, action) {
         return {
             ...state,
             isKeypadVisible: !isKeypadVisible,
+        };
+    }
+    case TOGGLE_AUDIO_MUTE: {
+        const { isAudioMuted } = state;
+        return {
+            ...state,
+            isAudioMuted: !isAudioMuted,
+        };
+    }
+    case TOGGLE_VIDEO_SEND: {
+        const { isVideoBeingSent } = state;
+        return {
+            ...state,
+            isVideoBeingSent: !isVideoBeingSent,
         };
     }
     default:

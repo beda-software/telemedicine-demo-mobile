@@ -5,8 +5,8 @@ import {
     UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS,
     SET_CALL_STATUS,
     CALL_STATUS_CONNECTING,
-    MUTE_AUDIO,
-    SEND_VIDEO,
+    TOGGLE_AUDIO_MUTE,
+    TOGGLE_VIDEO_SEND,
     HOLD,
     RECEIVE_VIDEO,
     END_CALL,
@@ -50,15 +50,15 @@ export function setCallStatusConnecting() {
     };
 }
 
-export function muteAudio() {
+export function toggleAudioMute() {
     return {
-        type: MUTE_AUDIO,
+        type: TOGGLE_AUDIO_MUTE,
     };
 }
 
-export function sendVideo() {
+export function toggleVideoSend() {
     return {
-        type: SEND_VIDEO,
+        type: TOGGLE_VIDEO_SEND,
     };
 }
 
