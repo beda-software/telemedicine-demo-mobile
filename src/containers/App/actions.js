@@ -8,7 +8,8 @@ import {
     FETCH_CONTACTS,
     HIDE_MODAL,
     SHOW_MODAL,
-    INIT_CALL,
+    INIT_APP,
+    DEINIT_APP,
     SET_ACTIVE_CALL,
 } from './constants';
 
@@ -47,9 +48,15 @@ export function logout() {
     };
 }
 
-export function initCall() {
+export function initApp() {
     return {
-        type: INIT_CALL,
+        type: INIT_APP,
+    };
+}
+
+export function deinitApp() {
+    return {
+        type: DEINIT_APP,
     };
 }
 

@@ -1,14 +1,14 @@
 import { Platform, PermissionsAndroid } from 'react-native';
 import { eventChannel } from 'redux-saga';
-import { all, takeLatest, put, select, call, take } from 'redux-saga/effects';
+import { all, takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import { makeGet } from 'utils/request';
 
 import { incomingCall } from 'containers/IncomingCall/actions';
-import { LOGOUT, FETCH_CONTACTS, MAKE_CALL, INIT_CALL } from './constants';
+import { LOGOUT, FETCH_CONTACTS, MAKE_CALL, INIT_APP, DEINIT_APP } from './constants';
 import { makeSelectApiToken } from './selectors';
-import { saveContactList, showModal } from './actions';
+import { saveContactList, showModal, deinitApp } from './actions';
 
 // TODO: Replace VI callmanager with one adapted for our needs
 import CallManager from '../../manager/CallManager';
@@ -21,7 +21,7 @@ function* onLogout() {
         yield client.disconnect();
     } catch (err) {
     }
-
+    yield put(deinitApp());
     yield put(NavigationActions.navigate({ routeName: 'Login' }));
 }
 
@@ -108,20 +108,22 @@ function createIncomingCallChannel() {
     });
 }
 
-function* onInitCall() {
+function* onInitApp() {
     const incomingCallChannel = yield createIncomingCallChannel();
 
-    while (true) {
-        const newIncomingCall = yield take(incomingCallChannel);
+    yield takeEvery(incomingCallChannel, function* onIncomingCall(newIncomingCall) {
         yield put(incomingCall(newIncomingCall));
-    }
+    });
+
+    yield take(DEINIT_APP);
+    incomingCallChannel.close();
 }
 
 export default function* appSaga() {
     yield all([
         takeLatest(LOGOUT, onLogout),
         takeLatest(FETCH_CONTACTS, onFetchContacts),
-        takeLatest(INIT_CALL, onInitCall),
+        takeLatest(INIT_APP, onInitApp),
         takeLatest(MAKE_CALL, onMakeCall),
     ]);
 }
