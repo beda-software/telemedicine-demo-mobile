@@ -49,17 +49,18 @@ import { makeSelectActiveCall } from 'containers/App/selectors';
 
 class CallScreen extends React.Component {
     componentDidMount() {
-        const { isIncoming, isVideoCall } = this.props.navigation.state.params;
+        const { isIncoming, isVideo } = this.props.navigation.state.params;
 
         this.props.subscribeToCallEvents(this.props.activeCall, isIncoming);
         this.props.subscribeToAudioDeviceEvents();
         this.props.setCallStatusConnecting();
+        this.props.toggleVideoSend(this.props.activeCall, isVideo);
 
         if (isIncoming) {
             const callSettings = {
                 video: {
-                    sendVideo: isVideoCall,
-                    receiveVideo: isVideoCall,
+                    sendVideo: isVideo,
+                    receiveVideo: isVideo,
                 },
             };
             this.props.activeCall.answer(callSettings);
