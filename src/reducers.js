@@ -5,6 +5,7 @@ import { createNavigationReducer } from 'react-navigation-redux-helpers';
 import globalReducer from 'containers/App/reducer';
 import loginReducer from 'containers/Login/reducer';
 import signUpReducer from 'containers/SignUp/reducer';
+import incomingCallReducer from 'containers/IncomingCall/reducer';
 import { RootNavigator } from './navigators';
 
 const navigationReducer = createNavigationReducer(RootNavigator);
@@ -14,6 +15,7 @@ export default function createReducer() {
         login: loginReducer,
         signUp: signUpReducer,
         global: globalReducer,
+        incomingCall: incomingCallReducer,
         form: formReducer,
         navigation: navigationReducer,
     });

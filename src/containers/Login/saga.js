@@ -12,7 +12,7 @@ import { LOGIN, VOX_IMPLANT_LOGIN } from './constants';
 // eslint-disable-next-line consistent-return
 async function requestOneTimeLoginKey(client, fullUsername) {
     try {
-        const res = await client.requestOneTimeLoginKey(fullUsername);
+        await client.requestOneTimeLoginKey(fullUsername);
     } catch (err) {
         if (err.name === Voximplant.ClientEvents.AuthResult && err.code === 302) {
             return err.key;

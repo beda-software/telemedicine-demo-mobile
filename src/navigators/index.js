@@ -4,10 +4,10 @@ import { createReactNavigationReduxMiddleware, reduxifyNavigator } from 'react-n
 import Login from 'containers/Login';
 import SignUp from 'containers/SignUp';
 import App from 'containers/App';
+import IncomingCall from 'containers/IncomingCall';
 // import MainScreen from '../screens/MainScreen';
 // import SettingsScreen from '../screens/SettingsScreen';
 import CallScreen from '../screens/CallScreen';
-//import IncomingCallScreen from '../screens/IncomingCallScreen';
 
 import COLOR from 'styles/Color';
 import { connect } from 'react-redux';
@@ -40,7 +40,7 @@ const RootNavigator = SwitchNavigator(
         SignUp,
         App: AppStack,
         Call: CallScreen,
-        //IncomingCall: IncomingCallScreen
+        IncomingCall,
     },
     {
         initialRouteName: 'Login',

@@ -5,7 +5,6 @@ import {
     SAVE_CONTACT_LIST,
     LOGOUT,
     MAKE_CALL,
-    MAKE_VIDEO_CALL,
     FETCH_CONTACTS,
     HIDE_MODAL,
     SHOW_MODAL,
@@ -56,13 +55,15 @@ export function makeCall(contactUsername) {
     return {
         type: MAKE_CALL,
         contactUsername,
+        isVideo: false,
     };
 }
 
 export function makeVideoCall(contactUsername) {
     return {
-        type: MAKE_VIDEO_CALL,
+        type: MAKE_CALL,
         contactUsername,
+        isVideo: true,
     };
 }
 
