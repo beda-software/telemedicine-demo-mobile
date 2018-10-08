@@ -8,13 +8,9 @@ import { makeGet } from 'utils/request';
 import { incomingCall } from 'containers/IncomingCall/actions';
 import { LOGOUT, FETCH_CONTACTS, MAKE_CALL, INIT_APP, DEINIT_APP } from './constants';
 import { makeSelectApiToken } from './selectors';
-import { saveContactList, showModal, deinitApp } from './actions';
-
-// TODO: Replace VI callmanager with one adapted for our needs
-import CallManager from '../../manager/CallManager';
+import { setActiveCall, saveContactList, showModal, deinitApp } from './actions';
 
 function* onLogout() {
-    console.log('logout saga');
     const client = Voximplant.getInstance();
 
     try {
@@ -79,8 +75,7 @@ function* onMakeCall({ contactUsername, isVideo = false }) {
         };
         const newCall = yield Voximplant.getInstance()
             .call(contactUsername, callSettings);
-        CallManager.getInstance()
-            .addCall(newCall);
+        yield put(setActiveCall(newCall));
         yield put(NavigationActions.navigate({
             routeName: 'Call',
             params: {
@@ -96,6 +91,7 @@ function* onMakeCall({ contactUsername, isVideo = false }) {
 
 function createIncomingCallChannel() {
     const client = Voximplant.getInstance();
+
     return eventChannel((emit) => {
         const incomingCallHandler = (event) => {
             emit(event.call);

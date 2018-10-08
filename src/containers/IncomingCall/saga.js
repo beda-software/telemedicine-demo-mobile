@@ -1,9 +1,9 @@
 import { NavigationActions } from 'react-navigation';
-import { all, takeLatest, put } from 'redux-saga/effects';
+import { all, takeLatest, put, select } from 'redux-saga/effects';
 import { requestPermissions } from 'containers/App/saga';
-import { showModal } from 'containers/App/actions';
+import { showModal, setActiveCall } from 'containers/App/actions';
+import { makeSelectActiveCall } from 'containers/App/selectors';
 import { ANSWER_CALL, DECLINE_CALL, INCOMING_CALL } from './constants';
-import CallManager from '../../manager/CallManager';
 
 function* onAnswerCall({ call, isVideo }) {
     try {
@@ -23,20 +23,24 @@ function* onAnswerCall({ call, isVideo }) {
 
 function* onDeclineCall({ call }) {
     call.decline();
-    CallManager.getInstance().removeCall(call);
-
+    yield put(setActiveCall(null));
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
 function* onIncomingCall({ call }) {
-    // TODO: remove
-    CallManager.getInstance().addCall(call);
-    yield put(NavigationActions.navigate({
-        routeName: 'IncomingCall',
-        params: {
-            callId: call.callId,
-        },
-    }));
+    const activeCall = yield select(makeSelectActiveCall());
+    if (activeCall && activeCall.id !== call.id) {
+        call.decline();
+        yield put(showModal('You\'ve received one another call, but we declined it.'));
+    } else {
+        yield put(setActiveCall(call));
+        yield put(NavigationActions.navigate({
+            routeName: 'IncomingCall',
+            params: {
+                callId: call.callId,
+            },
+        }));
+    }
 }
 
 export default function* incomingCallSaga() {

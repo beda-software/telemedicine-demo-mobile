@@ -38,7 +38,6 @@ function MyModal(props) {
     );
 }
 
-
 const mapStateToProps = (state) => ({
     isModalVisible: state.global.isModalVisible,
     modalText: state.global.modalText,

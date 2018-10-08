@@ -2,20 +2,18 @@ import { createSelector } from 'reselect';
 
 const selectGlobal = (state) => state.global;
 
-function makeSelectApiToken() {
+export function makeSelectApiToken() {
     return createSelector(selectGlobal, (globalState) => globalState.apiToken);
 }
 
-function makeSelectUsername() {
+export function makeSelectUsername() {
     return createSelector(selectGlobal, (globalState) => globalState.username);
 }
 
-function makeSelectContactList() {
+export function makeSelectContactList() {
     return createSelector(selectGlobal, (globalState) => globalState.contactList);
 }
 
-export {
-    makeSelectApiToken,
-    makeSelectContactList,
-    makeSelectUsername,
-};
+export function makeSelectActiveCall() {
+    return createSelector(selectGlobal, (globalState) => globalState.activeCall);
+}

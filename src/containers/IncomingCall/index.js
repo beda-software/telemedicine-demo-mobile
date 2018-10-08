@@ -11,17 +11,14 @@ import Modal from 'components/Modal';
 import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
+import { makeSelectActiveCall } from 'containers/App/selectors';
 import { answerCall, answerVideoCall, declineCall } from './actions';
-
-// TODO: use own
-import CallManager from '../../manager/CallManager';
 
 class IncomingCall extends React.Component {
     constructor(props) {
         super(props);
 
-        const { callId } = props.navigation.state.params;
-        this.call = CallManager.getInstance().getCallById(callId);
+        this.call = props.activeCall;
     }
 
     render() {
@@ -62,7 +59,9 @@ class IncomingCall extends React.Component {
     }
 }
 
-const mapStateToProps = createStructuredSelector({});
+const mapStateToProps = createStructuredSelector({
+    activeCall: makeSelectActiveCall(),
+});
 
 const mapDispatchToProps = (dispatch) => ({
     answerCall: (call) => dispatch(answerCall(call)),
