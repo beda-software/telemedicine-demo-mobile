@@ -40,6 +40,7 @@ import { requestPermissions } from 'containers/App/saga';
 function* onCallFailed({ reason }) {
     yield put(setActiveCall(null));
     yield put(showModal(`Call failed: ${reason}`));
+    yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
 function* onCallDisconnected() {
