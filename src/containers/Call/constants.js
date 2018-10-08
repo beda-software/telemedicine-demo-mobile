@@ -33,3 +33,10 @@ export const SELECT_AUDIO_DEVICE =
 
 export const CALL_FAILED = 'telemedicine-demo/Call/CALL_FAILED';
 export const CALL_DISCONNECTED = 'telemedicine-demo/Call/CALL_DISCONNECTED';
+export const CALL_LOCAL_VIDEO_STREAM_CHANGED = 'telemedicine-demo/Call/CALL_LOCAL_VIDEO_STREAM_CHANGED';
+export const ENDPOINT_ADDED = 'telemedicine-demo/Call/ENDPOINT_ADDED';
+export const ENDPOINT_REMOVED = 'telemedicine-demo/Call/ENDPOINT_REMOVED';
+export const ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED = 'telemedicine-demo/Call/ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED';
+
+export const DEVICE_CHANGED = 'telemedicine-demo/Call/DEVICE_CHANGED';
+export const DEVICE_LIST_CHANGED = 'telemedicine-demo/Call/DEVICE_LIST_CHANGED';

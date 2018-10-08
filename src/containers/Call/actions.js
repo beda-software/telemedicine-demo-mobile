@@ -16,6 +16,13 @@ import {
 
     CALL_FAILED,
     CALL_DISCONNECTED,
+    CALL_LOCAL_VIDEO_STREAM_CHANGED,
+    ENDPOINT_ADDED,
+    ENDPOINT_REMOVED,
+    ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED,
+
+    DEVICE_CHANGED,
+    DEVICE_LIST_CHANGED,
 } from './constants';
 
 export function subscribeToCallEvents(call) {
@@ -108,5 +115,48 @@ export function callFailed() {
 export function callDisconnected() {
     return {
         type: CALL_DISCONNECTED,
+    };
+}
+
+
+export function callLocalVideoStreamChanged(stream) {
+    return {
+        type: CALL_LOCAL_VIDEO_STREAM_CHANGED,
+        stream,
+    };
+}
+
+export function endpointAdded(endpoint) {
+    return {
+        type: ENDPOINT_ADDED,
+        endpoint,
+    };
+}
+
+export function endpointRemoved(endpoint) {
+    return {
+        type: ENDPOINT_REMOVED,
+        endpoint,
+    };
+}
+
+export function endpointRemoveVideoStreamChanged(stream) {
+    return {
+        type: ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED,
+        stream,
+    };
+}
+
+export function deviceChanged(currentDevice) {
+    return {
+        type: DEVICE_CHANGED,
+        currentDevice,
+    };
+}
+
+export function deviceListChanged(newDeviceList) {
+    return {
+        type: DEVICE_LIST_CHANGED,
+        newDeviceList,
     };
 }

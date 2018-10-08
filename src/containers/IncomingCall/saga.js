@@ -1,5 +1,5 @@
 import { NavigationActions } from 'react-navigation';
-import { all, takeLatest, put, select } from 'redux-saga/effects';
+import { all, takeLatest, takeEvery, put, select } from 'redux-saga/effects';
 import { requestPermissions } from 'containers/App/saga';
 import { showModal, setActiveCall } from 'containers/App/actions';
 import { makeSelectActiveCall } from 'containers/App/selectors';
@@ -47,6 +47,6 @@ export default function* incomingCallSaga() {
     yield all([
         takeLatest(ANSWER_CALL, onAnswerCall),
         takeLatest(DECLINE_CALL, onDeclineCall),
-        takeLatest(INCOMING_CALL, onIncomingCall),
+        takeEvery(INCOMING_CALL, onIncomingCall),
     ]);
 }

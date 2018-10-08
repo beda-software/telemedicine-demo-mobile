@@ -1,6 +1,9 @@
+import { Voximplant } from 'react-native-voximplant';
 import { NavigationActions } from 'react-navigation';
 import { eventChannel } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effects';
+import { makeSelectActiveCall } from 'containers/App/selectors';
+import { setActiveCall, showModal } from 'containers/App/actions';
 
 import {
     SUBSCRIBE_TO_CALL_EVENTS,
@@ -17,15 +20,20 @@ import {
 
     CALL_FAILED,
     CALL_DISCONNECTED,
+    ENDPOINT_ADDED,
+    ENDPOINT_REMOVED,
 } from './constants';
 import {
     callFailed,
     callDisconnected,
-} from './actions';
+    callLocalVideoStreamChanged,
+    endpointAdded,
+    endpointRemoved,
+    endpointRemoveVideoStreamChanged,
 
-import { Voximplant } from 'react-native-voximplant';
-import { makeSelectActiveCall } from 'containers/App/selectors';
-import { setActiveCall, showModal } from 'containers/App/actions';
+    deviceChanged,
+    deviceListChanged,
+} from './actions';
 
 
 function* onCallFailed({ reason }) {
@@ -38,85 +46,53 @@ function* onCallDisconnected() {
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
-/*
 
-_onCallConnected = (event) => {
-    console.log('CallScreen: _onCallConnected: ' + this.call.callId);
-    // this.call.sendMessage('Test message');
-    // this.call.sendInfo('rn/info', 'test info');
-    this.callState = CALL_STATES.DISCONNECTED;
-};
+function createEndpointChannel(endpoint) {
+    return eventChannel((emit) => {
+        const handler = (event) => {
+            emit(event.name, event);
+        };
 
-_onCallLocalVideoStreamAdded = (event) => {
-    console.log('CallScreen: _onCallLocalVideoStreamAdded: ' + this.call.callId + ', video stream id: ' + event.videoStream.id);
-    this.setState({localVideoStreamId: event.videoStream.id});
-};
+        Object.keys(Voximplant.EndpointEvents)
+            .forEach((eventName) => endpoint.on(eventName, handler));
 
-_onCallLocalVideoStreamRemoved = (event) => {
-    console.log('CallScreen: _onCallLocalVideoStreamRemoved: ' + this.call.callId);
-    this.setState({localVideoStreamId: null});
-};
-
-_onCallEndpointAdded = (event) => {
-    console.log('CallScreen: _onCallEndpointAdded: callid: ' + this.call.callId + ' endpoint id: ' + event.endpoint.id);
-    this._setupEndpointListeners(event.endpoint, true);
-};
-
-_onEndpointRemoteVideoStreamAdded = (event) => {
-    console.log('CallScreen: _onEndpointRemoteVideoStreamAdded: callid: ' + this.call.callId + ' endpoint id: ' + event.endpoint.id);
-    this.setState({remoteVideoStreamId: event.videoStream.id});
-};
-
-_onEndpointRemoteVideoStreamRemoved = (event) => {
-    console.log('CallScreen: _onEndpointRemoteVideoStreamRemoved: callid: ' + this.call.callId + ' endpoint id: ' + event.endpoint.id);
-    this.setState({remoteVideoStreamId: null});
-};
-
-_onEndpointRemoved = (event) => {
-    console.log('CallScreen: _onEndpointRemoved: callid: ' + this.call.callId + ' endpoint id: ' + event.endpoint.id);
-    this._setupEndpointListeners(event.endpoint, false);
-};
-
-_onEndpointInfoUpdated = (event) => {
-    console.log('CallScreen: _onEndpointInfoUpdated: callid: ' + this.call.callId + ' endpoint id: ' + event.endpoint.id);
-};
-
-_setupEndpointListeners(endpoint, on) {
-    Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
-        const callbackName = `_onEndpoint${eventName}`;
-        if (typeof this[callbackName] !== 'undefined') {
-            endpoint[(on) ? 'on' : 'off'](eventName, this[callbackName]);
-        }
+        return () => {
+            Object.keys(Voximplant.EndpointEvents)
+                .forEach((eventName) => endpoint.off(eventName, handler));
+        };
     });
 }
 
-_onAudioDeviceChanged = (event) => {
-    console.log('CallScreen: _onAudioDeviceChanged:' + event.currentDevice);
-    switch (event.currentDevice) {
-        case Voximplant.Hardware.AudioDevice.BLUETOOTH:
-            this.setState({audioDeviceIcon: 'bluetooth-audio'});
-            break;
-        case Voximplant.Hardware.AudioDevice.SPEAKER:
-            this.setState({audioDeviceIcon: 'volume-up'});
-            break;
-        case Voximplant.Hardware.AudioDevice.WIRED_HEADSET:
-            this.setState({audioDeviceIcon: 'headset'});
-            break;
-        case Voximplant.Hardware.AudioDevice.EARPIECE:
-        default:
-            this.setState({audioDeviceIcon: 'hearing'});
-            break;
-    }
-};
+function* onEndpointAdded({ endpoint }) {
+    const channel = createEndpointChannel();
 
-_onAudioDeviceListChanged = (event) => {
-    (async () => {
-        let device = await Voximplant.Hardware.AudioDeviceManager.getInstance().getActiveDevice();
-        console.log(device);
-    })();
-    this.setState({audioDevices: event.newDeviceList});
-};
-*/
+    yield takeEvery(endpoint, function* onEndpointEvent(eventName, event) {
+        switch (eventName) {
+        case Voximplant.EndpointEvents.Removed: {
+            yield put(endpointRemoved(event.endpoint));
+            break;
+        }
+        case Voximplant.EndpointEvents.RemoteVideoStreamAdded: {
+            yield put(endpointRemoveVideoStreamChanged(event.videoStream));
+            break;
+        }
+        case Voximplant.EndpointEvents.RemoteVideoStreamRemoved: {
+            yield put(endpointRemoveVideoStreamChanged(null));
+            break;
+        }
+        default:
+            console.log(`Unhandled endpoint event ${eventName}`);
+        }
+    });
+
+    while (true) {
+        const targetEndpoint = yield take(ENDPOINT_REMOVED);
+        if (targetEndpoint.id === endpoint.id) {
+            channel.close();
+            break;
+        }
+    }
+}
 
 function createCallChannel(activeCall) {
     return eventChannel((emit) => {
@@ -135,19 +111,37 @@ function createCallChannel(activeCall) {
 }
 
 export function* onSubscribeToCallEvents({ call: activeCall }) {
-    const callChannel = createCallChannel(activeCall);
+    const channel = createCallChannel(activeCall);
 
-    yield takeEvery(callChannel, function* onCallEvent(eventName, event) {
+    yield takeEvery(channel, function* onCallEvent(eventName, event) {
         switch (eventName) {
-        case Voximplant.CallEvents.Failed:
+        case Voximplant.CallEvents.Failed: {
             yield put(callFailed());
-        case Voximplant.CallEvents.Disconnected:
+            break;
+        }
+        case Voximplant.CallEvents.Disconnected: {
             yield put(callDisconnected());
+            break;
+        }
+        case Voximplant.CallEvents.LocalVideoStreamAdded: {
+            yield put(callLocalVideoStreamChanged(event.videoStream));
+            break;
+        }
+        case Voximplant.CallEvents.LocalVideoStreamRemoved: {
+            yield put(callLocalVideoStreamChanged(null));
+            break;
+        }
+        case Voximplant.CallEvents.EndpointAdded: {
+            yield put(endpointAdded(event.endpoint));
+            break;
+        }
+        default:
+            console.log(`Unhandled call event ${eventName}`);
         }
     });
 
     yield take(UNSUBSCRIBE_FROM_CALL_EVENTS);
-    callChannel.close();
+    channel.close();
 }
 
 function createAudioDeviceChannel() {
@@ -169,16 +163,25 @@ function createAudioDeviceChannel() {
 }
 
 export function* onSubscribeToAudioDeviceEvents() {
-    const callChannel = createAudioDeviceChannel();
+    const channel = createAudioDeviceChannel();
 
-    yield takeEvery(callChannel, function* onCallEvent(eventName, event) {
+    yield takeEvery(channel, function* onCallEvent(eventName, event) {
         switch (eventName) {
-
+        case Voximplant.Hardware.AudioDeviceEvents.DeviceChanged: {
+            yield put(deviceChanged(event.currentDevice));
+            break;
+        }
+        case Voximplant.Hardware.AudioDeviceEvents.DeviceListChanged: {
+            yield put(deviceListChanged(event.newDeviceList));
+            break;
+        }
+        default:
+            console.log(`Unhandled audio device event ${eventName}`);
         }
     });
 
-    yield take(UNSUBSCRIBE_FROM_CALL_EVENTS);
-    callChannel.close();
+    yield take(UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS);
+    channel.close();
 }
 
 export function* onMuteAudio() {
@@ -252,7 +255,8 @@ export default function* incomingCallSaga() {
         takeLatest(SWITCH_AUDIO_DEVICE, onSwitchAudioDevice),
         takeLatest(SELECT_AUDIO_DEVICE, onSelectAudioDevice),
 
-        takeLatest(CALL_FAILED, onCallFailed),
-        takeLatest(CALL_DISCONNECTED, onCallDisconnected),
+        takeEvery(CALL_FAILED, onCallFailed),
+        takeEvery(CALL_DISCONNECTED, onCallDisconnected),
+        takeEvery(ENDPOINT_ADDED, onEndpointAdded),
     ]);
 }
