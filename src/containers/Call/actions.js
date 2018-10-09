@@ -13,8 +13,6 @@ export const toggleKeypad = createAction();
 export const toggleAudioDeviceSelector = createAction((isAudioDeviceSelectorVisible) => ({ isAudioDeviceSelectorVisible }));
 export const selectAudioDevice = createAction((device) => ({ device }));
 
-// TODO: think about better name, such as changeDevice instead of deviceChanged
-// TODO: because now they look like an event handlers, not actions
 export const callFailed = createAction((reason) => ({ reason }));
 export const callDisconnected = createAction();
 export const callConnected = createAction();

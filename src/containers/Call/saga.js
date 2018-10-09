@@ -222,8 +222,9 @@ function* onToggleAudioDeviceSelector({ payload: { isAudioDeviceSelectorVisible 
 }
 
 function* onSelectAudioDevice({ payload: { device } }) {
+    Voximplant.Hardware.AudioDeviceManager.getInstance()
+        .selectAudioDevice(device);
     yield put(toggleAudioDeviceSelector(false));
-    yield put(deviceChanged(device));
 }
 
 export default function* incomingCallSaga() {
