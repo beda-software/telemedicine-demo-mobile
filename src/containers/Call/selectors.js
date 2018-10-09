@@ -30,20 +30,6 @@ export function makeSelectIsKeypadVisible() {
     );
 }
 
-export function makeSelectIsModalOpen() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.isModalOpen
-    );
-}
-
-export function makeSelectModalText() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.modalText
-    );
-}
-
 export function makeSelectLocalVideoStreamId() {
     return createSelector(
         selectCall,

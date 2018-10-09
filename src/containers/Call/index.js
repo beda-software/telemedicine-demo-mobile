@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     StatusBar,
     TouchableHighlight,
+    TouchableOpacity,
     FlatList,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -25,8 +26,6 @@ import {
     makeSelectIsAudioMuted,
     makeSelectIsVideoBeingSent,
     makeSelectIsKeypadVisible,
-    makeSelectIsModalOpen,
-    makeSelectModalText,
     makeSelectLocalVideoStreamId,
     makeSelectRemoteVideoStreamId,
     makeSelectIsAudioDeviceSelectorVisible,
@@ -160,7 +159,7 @@ class CallScreen extends React.Component {
                                 icon_name={this.props.audioDeviceIcon}
                                 color={COLOR.ACCENT}
                                 buttonPressed={() => this.props.toggleAudioDeviceSelector(
-                                    !this.props.isAudioDeviceSelectorVisible
+                                    !this.props.isAudioDeviceSelectorVisible,
                                 )}
                             />
                             <CallButton
@@ -186,7 +185,7 @@ class CallScreen extends React.Component {
                     >
                         <TouchableHighlight
                             onPress={() => this.props.toggleAudioDeviceSelector(
-                                !this.props.isAudioDeviceSelectorVisible
+                                !this.props.isAudioDeviceSelectorVisible,
                             )}
                             style={styles.container}
                         >
@@ -197,13 +196,15 @@ class CallScreen extends React.Component {
                                         keyExtractor={(item) => item}
                                         ItemSeparatorComponent={this.flatListItemSeparator}
                                         renderItem={({ item }) => (
-                                            <Text
+                                            <TouchableOpacity
                                                 onPress={() => {
                                                     this.props.selectAudioDevice(item);
                                                 }}
                                             >
-                                                {item}
-                                            </Text>
+                                                <Text>
+                                                    {item}
+                                                </Text>
+                                            </TouchableOpacity>
                                         )}
                                     />
                                 </View>
@@ -225,8 +226,6 @@ const mapStateToProps = createStructuredSelector({
     isAudioMuted: makeSelectIsAudioMuted(),
     isVideoBeingSent: makeSelectIsVideoBeingSent(),
     isKeypadVisible: makeSelectIsKeypadVisible(),
-    isModalOpen: makeSelectIsModalOpen(),
-    modalText: makeSelectModalText(),
     localVideoStreamId: makeSelectLocalVideoStreamId(),
     remoteVideoStreamId: makeSelectRemoteVideoStreamId(),
     isAudioDeviceSelectorVisible: makeSelectIsAudioDeviceSelectorVisible(),

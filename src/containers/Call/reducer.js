@@ -58,7 +58,7 @@ export default createReducer(
             ...state,
             remoteVideoStreamId: stream ? stream.id : null,
         }),
-        [deviceChanged]: (state, { currentDevice }) => function selectDevice() {
+        [deviceChanged]: (state, { currentDevice }) => {
             const devices = Voximplant.Hardware.AudioDevice;
             const icons = {
                 [devices.BLUETOOTH]: 'bluetooth-audio',
@@ -66,7 +66,7 @@ export default createReducer(
                 [devices.WIRED_HEADSET]: 'headset',
                 [devices.EARPIECE]: 'hearing',
             };
-            console.log('device changed', currentDevice)
+
             return {
                 ...state,
                 audioDeviceIcon: icons[currentDevice],

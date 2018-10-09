@@ -222,7 +222,7 @@ function* onToggleAudioDeviceSelector({ payload: { isAudioDeviceSelectorVisible 
 }
 
 function* onSelectAudioDevice({ payload: { device } }) {
-    // yield put(toggleAudioDeviceSelector(false));
+    yield put(toggleAudioDeviceSelector(false));
     yield put(deviceChanged(device));
 }
 
