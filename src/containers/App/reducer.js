@@ -1,83 +1,60 @@
+import { createReducer } from 'redux-act';
+
 import {
-    SAVE_VOX_IMPLANT_TOKENS,
-    SAVE_API_TOKEN,
-    SAVE_USERNAME,
-    LOGOUT,
-    SAVE_CONTACT_LIST,
-    SHOW_MODAL,
-    HIDE_MODAL,
-    SET_ACTIVE_CALL,
-} from './constants';
+    saveVoxImplantTokens,
+    saveApiToken,
+    saveUsername,
+    logout,
+    saveContactList,
+    showModal,
+    hideModal,
+    setActiveCall,
+} from './actions';
 
 const initialState = {
     isModalVisible: false,
     modalText: '',
 };
 
-export default function appReducer(state = initialState, action) {
-    switch (action.type) {
-    case SAVE_API_TOKEN: {
-        const { apiToken } = action;
-        return {
-            ...state,
-            apiToken,
-        };
-    }
-    case SAVE_USERNAME: {
-        const { username } = action;
-        return {
-            ...state,
-            username,
-        };
-    }
-    case SAVE_VOX_IMPLANT_TOKENS: {
-        const { tokens } = action;
-
+export default createReducer({
+    [saveApiToken]: (state, { apiToken }) => ({
+        ...state,
+        apiToken,
+    }),
+    [saveUsername]: (state, { username }) => ({
+        ...state,
+        username,
+    }),
+    [saveVoxImplantTokens]: (state, { tokens }) => ({
         // TODO: move to SAGA
         // DefaultPreference.set('accessToken', tokens.accessToken);
         // DefaultPreference.set('refreshToken', tokens.refreshToken);
         // DefaultPreference.set('accessExpire', tokens.accessExpire.toString());
         // DefaultPreference.set('refreshExpire', tokens.refreshExpire.toString());
-        return {
-            ...state,
-            tokens,
-        };
-    }
-    case SAVE_CONTACT_LIST: {
-        const { contactList } = action;
-        return {
-            ...state,
-            contactList,
-        };
-    }
-    case LOGOUT: {
-        return {
-            ...state,
-            tokens: {},
-            apiToken: {},
-        };
-    }
-    case SHOW_MODAL: {
-        return {
-            ...state,
-            isModalVisible: true,
-            modalText: action.text,
-        };
-    }
-    case HIDE_MODAL: {
-        return {
-            ...state,
-            isModalVisible: false,
-        };
-    }
-    case SET_ACTIVE_CALL: {
-        const { activeCall } = action;
-        return {
-            ...state,
-            activeCall,
-        };
-    }
-    default:
-        return state;
-    }
-}
+        ...state,
+        tokens,
+    }),
+    [saveContactList]: (state, { contactList }) => ({
+        ...state,
+        contactList,
+    }),
+    [logout]: (state) => ({
+        ...state,
+        tokens: {},
+        apiToken: {},
+    }),
+    [showModal]: (state, { text }) => ({
+        ...state,
+        isModalVisible: true,
+        modalText: text,
+    }),
+    [hideModal]: (state) => ({
+        ...state,
+        isModalVisible: false,
+    }),
+    [setActiveCall]: (state, { activeCall }) => ({
+        ...state,
+        activeCall,
+    }),
+}, initialState);
+

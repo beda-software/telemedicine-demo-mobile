@@ -3,12 +3,11 @@ import { NavigationActions } from 'react-navigation';
 
 import { makePost } from 'utils/request';
 import { showModal } from 'containers/App/actions';
-import { SIGN_UP, SIGN_UP_SUCCESS, SIGN_UP_FAILED } from './constants';
-import { signUpSuccess, signUpFailed } from './actions';
+import { signUp, signUpSuccess, signUpFailed } from './actions';
 
-function* onSignUp({ values }) {
+function* onSignUp({ payload }) {
     try {
-        yield call(makePost, '/td/signup/', values);
+        yield call(makePost, '/td/signup/', payload.values);
         yield put(signUpSuccess());
     } catch (err) {
         yield put(signUpFailed(err.data));
@@ -20,14 +19,14 @@ function* onSignUpSuccess() {
     yield put(showModal('You\'ve successfully registered.'));
 }
 
-function* onSignUpFailed({ error }) {
-    yield put(showModal(error.message));
+function* onSignUpFailed({ payload }) {
+    yield put(showModal(payload.error.msg));
 }
 
 export default function* signUpSaga() {
     yield all([
-        takeEvery(SIGN_UP, onSignUp),
-        takeEvery(SIGN_UP_SUCCESS, onSignUpSuccess),
-        takeEvery(SIGN_UP_FAILED, onSignUpFailed),
+        takeEvery(signUp, onSignUp),
+        takeEvery(signUpSuccess, onSignUpSuccess),
+        takeEvery(signUpFailed, onSignUpFailed),
     ]);
 }

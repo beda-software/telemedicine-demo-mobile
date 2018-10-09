@@ -1,11 +1,6 @@
-import {} from './constants';
+import { createReducer } from 'redux-act';
 
-const initialState = {
-};
+const initialState = {};
 
-export default function incomingCallReducer(state = initialState, action) {
-    switch (action.type) {
-    default:
-        return state;
-    }
-}
+export default createReducer({
+}, initialState);

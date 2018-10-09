@@ -3,11 +3,15 @@ import { Voximplant } from 'react-native-voximplant';
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 
 import { makePost } from 'utils/request';
-import { saveUsername, saveVoxImplantTokens, saveApiToken, showModal, initApp } from 'containers/App/actions';
-import { LOGIN_FAILED, LOGIN_SUCCESS } from 'containers/Login/constants';
+import {
+    saveUsername,
+    saveVoxImplantTokens,
+    saveApiToken,
+    showModal,
+    initApp
+} from 'containers/App/actions';
 import { makeSelectApiToken, makeSelectUsername } from 'containers/App/selectors';
-import { voxImplantLogin, loginSuccess, loginFailed } from './actions';
-import { LOGIN, VOX_IMPLANT_LOGIN } from './constants';
+import { login, voxImplantLogin, loginSuccess, loginFailed } from './actions';
 
 // eslint-disable-next-line consistent-return
 async function requestOneTimeLoginKey(client, fullUsername) {
@@ -21,8 +25,8 @@ async function requestOneTimeLoginKey(client, fullUsername) {
     }
 }
 
-export function* onLogin({ values }) {
-    const { username, password } = values;
+export function* onLogin({ payload }) {
+    const { username, password } = payload.values;
 
     try {
         const result = yield makePost('/td/signin/', {
@@ -74,15 +78,15 @@ function* onLoginSuccess() {
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
-function* onLoginFailed({ error }) {
-    yield put(showModal(error.message));
+function* onLoginFailed({ payload }) {
+    yield put(showModal(payload.error.message));
 }
 
 export default function* loginSaga() {
     yield all([
-        takeLatest(LOGIN, onLogin),
-        takeLatest(VOX_IMPLANT_LOGIN, onVoxImplantLogin),
-        takeLatest(LOGIN_SUCCESS, onLoginSuccess),
-        takeLatest(LOGIN_FAILED, onLoginFailed),
+        takeLatest(login, onLogin),
+        takeLatest(voxImplantLogin, onVoxImplantLogin),
+        takeLatest(loginSuccess, onLoginSuccess),
+        takeLatest(loginFailed, onLoginFailed),
     ]);
 }

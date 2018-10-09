@@ -1,103 +1,20 @@
-import {
-    SAVE_VOX_IMPLANT_TOKENS,
-    SAVE_API_TOKEN,
-    SAVE_USERNAME,
-    SAVE_CONTACT_LIST,
-    LOGOUT,
-    MAKE_CALL,
-    FETCH_CONTACTS,
-    HIDE_MODAL,
-    SHOW_MODAL,
-    INIT_APP,
-    DEINIT_APP,
-    SET_ACTIVE_CALL,
-} from './constants';
+import { createAction } from 'redux-act';
 
-export function saveVoxImplantTokens(tokens) {
-    return {
-        type: SAVE_VOX_IMPLANT_TOKENS,
-        tokens,
-    };
-}
+export const saveVoxImplantTokens = createAction((tokens) => ({ tokens }));
+export const saveContactList = createAction((contactList) => ({ contactList }));
+export const saveApiToken = createAction((apiToken) => ({ apiToken }));
+export const saveUsername = createAction((username) => ({ username }));
+export const logout = createAction();
+export const initApp = createAction();
+export const deinitApp = createAction();
+export const fetchContacts = createAction();
+export const showModal = createAction((text) => ({ text }));
+export const hideModal = createAction();
+export const setActiveCall = createAction((activeCall) => ({ activeCall }));
 
-export function saveContactList(contactList) {
-    return {
-        type: SAVE_CONTACT_LIST,
-        contactList,
-    };
-}
-
-export function saveApiToken(apiToken) {
-    return {
-        type: SAVE_API_TOKEN,
-        apiToken,
-    };
-}
-
-export function saveUsername(username) {
-    return {
-        type: SAVE_USERNAME,
-        username,
-    };
-}
-
-
-export function logout() {
-    return {
-        type: LOGOUT,
-    };
-}
-
-export function initApp() {
-    return {
-        type: INIT_APP,
-    };
-}
-
-export function deinitApp() {
-    return {
-        type: DEINIT_APP,
-    };
-}
-
-export function fetchContacts() {
-    return {
-        type: FETCH_CONTACTS,
-    };
-}
-
-export function makeCall(contactUsername) {
-    return {
-        type: MAKE_CALL,
-        contactUsername,
-        isVideo: false,
-    };
-}
-
-export function makeVideoCall(contactUsername) {
-    return {
-        type: MAKE_CALL,
-        contactUsername,
-        isVideo: true,
-    };
-}
-
-export function showModal(text) {
-    return {
-        type: SHOW_MODAL,
-        text,
-    };
-}
-
-export function hideModal() {
-    return {
-        type: HIDE_MODAL,
-    };
-}
-
-export function setActiveCall(activeCall) {
-    return {
-        type: SET_ACTIVE_CALL,
-        activeCall,
-    };
-}
+export const makeCall = createAction(
+    (contactUsername) => ({ contactUsername, isVideo: false })
+);
+export const makeVideoCall = createAction(
+    (contactUsername) => ({ contactUsername, isVideo: true })
+);

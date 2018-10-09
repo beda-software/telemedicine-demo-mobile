@@ -3,10 +3,11 @@ import { all, takeLatest, takeEvery, put, select } from 'redux-saga/effects';
 import { requestPermissions } from 'containers/App/saga';
 import { showModal, setActiveCall } from 'containers/App/actions';
 import { makeSelectActiveCall } from 'containers/App/selectors';
-import { ANSWER_CALL, DECLINE_CALL, INCOMING_CALL } from './constants';
+import { answerCall, answerVideoCall, declineCall, incomingCall } from './actions';
 
-function* onAnswerCall({ call, isVideo }) {
+function* onAnswerCall({ payload }) {
     try {
+        const { call, isVideo } = payload;
         yield requestPermissions(isVideo);
         yield put(NavigationActions.navigate({
             routeName: 'Call',
@@ -21,13 +22,14 @@ function* onAnswerCall({ call, isVideo }) {
     }
 }
 
-function* onDeclineCall({ call }) {
-    call.decline();
+function* onDeclineCall({ payload }) {
+    payload.call.decline();
     yield put(setActiveCall(null));
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
-function* onIncomingCall({ call }) {
+function* onIncomingCall({ payload }) {
+    const { call } = payload;
     const activeCall = yield select(makeSelectActiveCall());
     if (activeCall && activeCall.id !== call.id) {
         call.decline();
@@ -45,8 +47,9 @@ function* onIncomingCall({ call }) {
 
 export default function* incomingCallSaga() {
     yield all([
-        takeLatest(ANSWER_CALL, onAnswerCall),
-        takeLatest(DECLINE_CALL, onDeclineCall),
-        takeEvery(INCOMING_CALL, onIncomingCall),
+        takeLatest(answerCall, onAnswerCall),
+        takeLatest(answerVideoCall, onAnswerCall),
+        takeLatest(declineCall, onDeclineCall),
+        takeEvery(incomingCall, onIncomingCall),
     ]);
 }

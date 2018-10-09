@@ -6,9 +6,18 @@ import { Voximplant } from 'react-native-voximplant';
 import { makeGet } from 'utils/request';
 
 import { incomingCall } from 'containers/IncomingCall/actions';
-import { LOGOUT, FETCH_CONTACTS, MAKE_CALL, INIT_APP, DEINIT_APP } from './constants';
 import { makeSelectApiToken } from './selectors';
-import { setActiveCall, saveContactList, showModal, deinitApp } from './actions';
+import {
+    logout,
+    fetchContacts,
+    initApp,
+    makeCall,
+    makeVideoCall,
+    setActiveCall,
+    saveContactList,
+    showModal,
+    deinitApp
+} from './actions';
 
 function* onLogout() {
     const client = Voximplant.getInstance();
@@ -64,7 +73,8 @@ export function* requestPermissions(isVideo) {
     return true;
 }
 
-function* onMakeCall({ contactUsername, isVideo = false }) {
+function* onMakeCall({ payload }) {
+    const { contactUsername, isVideo = false } = payload;
     try {
         yield requestPermissions(isVideo);
         const callSettings = {
@@ -111,15 +121,16 @@ function* onInitApp() {
         yield put(incomingCall(newIncomingCall));
     });
 
-    yield take(DEINIT_APP);
+    yield take(deinitApp);
     incomingCallChannel.close();
 }
 
 export default function* appSaga() {
     yield all([
-        takeLatest(LOGOUT, onLogout),
-        takeLatest(FETCH_CONTACTS, onFetchContacts),
-        takeLatest(INIT_APP, onInitApp),
-        takeLatest(MAKE_CALL, onMakeCall),
+        takeLatest(logout, onLogout),
+        takeLatest(fetchContacts, onFetchContacts),
+        takeLatest(initApp, onInitApp),
+        takeLatest(makeCall, onMakeCall),
+        takeLatest(makeVideoCall, onMakeCall),
     ]);
 }
