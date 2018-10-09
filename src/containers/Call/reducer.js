@@ -1,104 +1,81 @@
 import { Voximplant } from 'react-native-voximplant';
-import {
-    SET_CALL_STATUS,
-    CALL_STATUS_DISCONNECTED,
-    TOGGLE_KEYPAD,
-    TOGGLE_AUDIO_MUTE,
-    TOGGLE_VIDEO_SEND,
+import { createReducer } from 'redux-act';
 
-    CALL_LOCAL_VIDEO_STREAM_CHANGED,
-    ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED,
-    DEVICE_CHANGED,
-    DEVICE_LIST_CHANGED,
-} from './constants';
+import {
+    resetCallState,
+    setCallStatus,
+    toggleKeypad,
+    toggleAudioMute,
+    toggleVideoSend,
+    toggleAudioDeviceSelector,
+
+    callLocalVideoStreamChanged,
+    endpointRemoveVideoStreamChanged,
+    deviceChanged,
+    deviceListChanged,
+} from './actions';
 
 const initialState = {
-    callStatus: CALL_STATUS_DISCONNECTED,
+    callStatus: 'disconnected',
     isAudioMuted: false,
     isVideoBeingSent: false,
     isKeypadVisible: false,
-    isModalOpen: false,
-    modalText: '',
     localVideoStreamId: null,
     remoteVideoStreamId: null,
-    isAudioDeviceSelectionVisible: false,
+    isAudioDeviceSelectorVisible: false,
     audioDeviceIcon: 'hearing',
     audioDeviceList: [],
 };
 
-export default function incomingCallReducer(state = initialState, action) {
-    switch (action.type) {
-    case SET_CALL_STATUS: {
-        const { callStatus } = action;
-        return {
+export default createReducer(
+    {
+        [resetCallState]: () => initialState,
+        [setCallStatus]: (state, { callStatus }) => ({
             ...state,
             callStatus,
-        };
-    }
-    case TOGGLE_KEYPAD: {
-        const { isKeypadVisible } = state;
-        return {
+        }),
+        [toggleAudioDeviceSelector]: (state, { isAudioDeviceSelectorVisible }) => ({
             ...state,
-            isKeypadVisible: !isKeypadVisible,
-        };
-    }
-    case TOGGLE_AUDIO_MUTE: {
-        return {
+            isAudioDeviceSelectorVisible,
+        }),
+        [toggleKeypad]: (state,) => ({
             ...state,
-            isAudioMuted: action.isAudioMuted,
-        };
-    }
-    case TOGGLE_VIDEO_SEND: {
-        return {
+            isKeypadVisible: !state.isKeypadVisible,
+        }),
+        [toggleAudioMute]: (state, { isAudioMuted }) => ({
             ...state,
-            isVideoBeingSent: action.isVideoBeingSent,
-        };
-    }
-    case CALL_LOCAL_VIDEO_STREAM_CHANGED: {
-        return {
+            isAudioMuted,
+        }),
+        [toggleVideoSend]: (state, { isVideoBeingSent }) => ({
             ...state,
-            localVideoStreamId: action.stream ? action.stream.id : null,
-        };
-    }
-    case ENDPOINT_REMOTE_VIDEO_STREAM_CHANGED: {
-        return {
+            isVideoBeingSent,
+        }),
+        [callLocalVideoStreamChanged]: (state, { stream }) => ({
             ...state,
-            remoteVideoStreamId: action.stream ? action.stream.id : null,
-        };
-    }
-    case DEVICE_CHANGED: {
-        switch (action.currentDevice) {
-        case Voximplant.Hardware.AudioDevice.BLUETOOTH:
+            localVideoStreamId: stream ? stream.id : null,
+        }),
+        [endpointRemoveVideoStreamChanged]: (state, { stream }) => ({
+            ...state,
+            remoteVideoStreamId: stream ? stream.id : null,
+        }),
+        [deviceChanged]: (state, { currentDevice }) => function selectDevice() {
+            const devices = Voximplant.Hardware.AudioDevice;
+            const icons = {
+                [devices.BLUETOOTH]: 'bluetooth-audio',
+                [devices.SPEAKER]: 'volume-up',
+                [devices.WIRED_HEADSET]: 'headset',
+                [devices.EARPIECE]: 'hearing',
+            };
+            console.log('device changed', currentDevice)
             return {
                 ...state,
-                audioDeviceIcon: 'bluetooth-audio',
+                audioDeviceIcon: icons[currentDevice],
             };
-        case Voximplant.Hardware.AudioDevice.SPEAKER:
-            return {
-                ...state,
-                audioDeviceIcon: 'volume-up',
-            };
-
-        case Voximplant.Hardware.AudioDevice.WIRED_HEADSET:
-            return {
-                ...state,
-                audioDeviceIcon: 'headset',
-            };
-        case Voximplant.Hardware.AudioDevice.EARPIECE:
-        default:
-            return {
-                ...state,
-                audioDeviceIcon: 'hearing',
-            };
-        }
-    }
-    case DEVICE_LIST_CHANGED: {
-        return {
+        },
+        [deviceListChanged]: (state, { newDeviceList }) => ({
             ...state,
-            audioDeviceList: action.newDeviceList,
-        };
-    }
-    default:
-        return state;
-    }
-}
+            audioDeviceList: newDeviceList,
+        }),
+    },
+    initialState
+);

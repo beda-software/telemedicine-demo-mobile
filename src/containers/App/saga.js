@@ -115,14 +115,14 @@ function createIncomingCallChannel() {
 }
 
 function* onInitApp() {
-    const incomingCallChannel = yield createIncomingCallChannel();
+    const channel = yield createIncomingCallChannel();
 
-    yield takeEvery(incomingCallChannel, function* onIncomingCall(newIncomingCall) {
+    yield takeEvery(channel, function* onIncomingCall(newIncomingCall) {
         yield put(incomingCall(newIncomingCall));
     });
 
     yield take(deinitApp);
-    incomingCallChannel.close();
+    channel.close();
 }
 
 export default function* appSaga() {

@@ -1,43 +1,38 @@
 import { Voximplant } from 'react-native-voximplant';
 import { NavigationActions } from 'react-navigation';
 import { eventChannel } from 'redux-saga';
-import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effects';
-import { makeSelectActiveCall } from 'containers/App/selectors';
+import { all, takeLatest, takeEvery, take, put } from 'redux-saga/effects';
 import { setActiveCall, showModal } from 'containers/App/actions';
+import { requestPermissions } from 'containers/App/saga';
 
 import {
-    SUBSCRIBE_TO_CALL_EVENTS,
-    SUBSCRIBE_TO_AUDIO_DEVICE_EVENTS,
-    UNSUBSCRIBE_FROM_CALL_EVENTS,
-    UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS,
-    TOGGLE_AUDIO_MUTE,
-    TOGGLE_VIDEO_SEND,
-    HOLD,
-    RECEIVE_VIDEO,
-    END_CALL,
-    SWITCH_AUDIO_DEVICE,
-    SELECT_AUDIO_DEVICE,
+    subscribeToCallEvents,
+    subscribeToAudioDeviceEvents,
+    unsubscribeFromCallEvents,
+    unsubscribeFromAudioDeviceEvents,
+    toggleVideoSend,
+    toggleAudioMute,
+    toggleAudioDeviceSelector,
+    endCall,
+    selectAudioDevice,
+    setCallStatus,
 
-    CALL_FAILED,
-    CALL_DISCONNECTED,
-    ENDPOINT_ADDED,
-    ENDPOINT_REMOVED,
-} from './constants';
-import {
     callFailed,
+    callConnected,
     callDisconnected,
     callLocalVideoStreamChanged,
     endpointAdded,
     endpointRemoved,
     endpointRemoveVideoStreamChanged,
-
     deviceChanged,
     deviceListChanged,
 } from './actions';
-import { requestPermissions } from 'containers/App/saga';
 
+function* onCallConnected() {
+    yield put(setCallStatus('connected'));
+}
 
-function* onCallFailed({ reason }) {
+function* onCallFailed({ payload: { reason } }) {
     yield put(setActiveCall(null));
     yield put(showModal(`Call failed: ${reason}`));
     yield put(NavigationActions.navigate({ routeName: 'App' }));
@@ -47,7 +42,6 @@ function* onCallDisconnected() {
     yield put(setActiveCall(null));
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
-
 
 function createEndpointChannel(endpoint) {
     return eventChannel((emit) => {
@@ -65,7 +59,7 @@ function createEndpointChannel(endpoint) {
     });
 }
 
-function* onEndpointAdded({ endpoint }) {
+function* onEndpointAdded({ payload: { endpoint } }) {
     const channel = createEndpointChannel(endpoint);
 
     yield takeEvery(channel, function* onEndpointEvent(event) {
@@ -90,7 +84,7 @@ function* onEndpointAdded({ endpoint }) {
     });
 
     while (true) {
-        const targetEndpoint = yield take(ENDPOINT_REMOVED);
+        const targetEndpoint = yield take(endpointRemoved);
         if (targetEndpoint.id === endpoint.id) {
             channel.close();
             break;
@@ -114,11 +108,12 @@ function createCallChannel(activeCall) {
     });
 }
 
-export function* onSubscribeToCallEvents({ call: activeCall, isIncoming }) {
+function* onSubscribeToCallEvents({ payload: { call: activeCall, isIncoming } }) {
     if (isIncoming) {
-        activeCall.getEndpoints().forEach(function* onEachEndpoint(endpoint) {
-            yield put(endpointAdded(endpoint));
-        });
+        activeCall.getEndpoints()
+            .forEach(function* onEachEndpoint(endpoint) {
+                yield put(endpointAdded(endpoint));
+            });
     }
 
     const channel = createCallChannel(activeCall);
@@ -126,8 +121,12 @@ export function* onSubscribeToCallEvents({ call: activeCall, isIncoming }) {
     yield takeEvery(channel, function* onCallEvent(event) {
         console.log(`Call event: ${event.name}`, event);
         switch (event.name) {
-        case Voximplant.CallEvents.Failed: {
-            yield put(callFailed());
+        case Voximplant.CallEvents.Connected: {
+            yield put(callConnected());
+            break;
+        }
+            case Voximplant.CallEvents.Failed: {
+            yield put(callFailed(event.reason));
             break;
         }
         case Voximplant.CallEvents.Disconnected: {
@@ -151,7 +150,7 @@ export function* onSubscribeToCallEvents({ call: activeCall, isIncoming }) {
         }
     });
 
-    yield take(UNSUBSCRIBE_FROM_CALL_EVENTS);
+    yield take(unsubscribeFromCallEvents);
     channel.close();
 }
 
@@ -173,7 +172,7 @@ function createAudioDeviceChannel() {
     });
 }
 
-export function* onSubscribeToAudioDeviceEvents() {
+function* onSubscribeToAudioDeviceEvents() {
     const channel = createAudioDeviceChannel();
 
     yield takeEvery(channel, function* onCallEvent(event) {
@@ -193,15 +192,15 @@ export function* onSubscribeToAudioDeviceEvents() {
         }
     });
 
-    yield take(UNSUBSCRIBE_FROM_AUDIO_DEVICE_EVENTS);
+    yield take(unsubscribeFromAudioDeviceEvents);
     channel.close();
 }
 
-export function onToggleAudioMute({ call: activeCall, isAudioMuted }) {
+function onToggleAudioMute({ payload: { call: activeCall, isAudioMuted } }) {
     activeCall.sendAudio(!isAudioMuted);
 }
 
-export function* onToggleVideoSend({ call: activeCall, isVideoBeingSent }) {
+function* onToggleVideoSend({ payload: { call: activeCall, isVideoBeingSent } }) {
     try {
         yield requestPermissions();
         yield activeCall.sendVideo(isVideoBeingSent);
@@ -210,34 +209,36 @@ export function* onToggleVideoSend({ call: activeCall, isVideoBeingSent }) {
     }
 }
 
-export function onEndCall({ call: activeCall }) {
+function onEndCall({ payload: { call: activeCall } }) {
     activeCall.hangup();
 }
 
-export function* onSwitchAudioDevice() {
-    // console.log('CallScreen[' + this.callId + '] switchAudioDevice');
-    // let devices = await Voximplant.Hardware.AudioDeviceManager.getInstance().getAudioDevices();
-    // this.setState({audioDevices: devices, audioDeviceSelectionVisible: true});
+function* onToggleAudioDeviceSelector({ payload: { isAudioDeviceSelectorVisible } }) {
+    if (isAudioDeviceSelectorVisible) {
+        const devices = yield Voximplant.Hardware.AudioDeviceManager.getInstance()
+            .getAudioDevices();
+        yield put(deviceListChanged(devices));
+    }
 }
 
-export function* onSelectAudioDevice({ device }) {
-    // console.log('CallScreen[' + this.callId + '] selectAudioDevice: ' + device);
-    // Voximplant.Hardware.AudioDeviceManager.getInstance().selectAudioDevice(device);
-    // this.setState({audioDeviceSelectionVisible: false});
+function* onSelectAudioDevice({ payload: { device } }) {
+    // yield put(toggleAudioDeviceSelector(false));
+    yield put(deviceChanged(device));
 }
 
 export default function* incomingCallSaga() {
     yield all([
-        takeLatest(SUBSCRIBE_TO_CALL_EVENTS, onSubscribeToCallEvents),
-        takeLatest(SUBSCRIBE_TO_AUDIO_DEVICE_EVENTS, onSubscribeToAudioDeviceEvents),
-        takeLatest(TOGGLE_AUDIO_MUTE, onToggleAudioMute),
-        takeLatest(TOGGLE_VIDEO_SEND, onToggleVideoSend),
-        takeLatest(END_CALL, onEndCall),
-        takeLatest(SWITCH_AUDIO_DEVICE, onSwitchAudioDevice),
-        takeLatest(SELECT_AUDIO_DEVICE, onSelectAudioDevice),
+        takeLatest(subscribeToCallEvents, onSubscribeToCallEvents),
+        takeLatest(subscribeToAudioDeviceEvents, onSubscribeToAudioDeviceEvents),
+        takeLatest(toggleAudioMute, onToggleAudioMute),
+        takeLatest(toggleVideoSend, onToggleVideoSend),
+        takeLatest(endCall, onEndCall),
+        takeLatest(toggleAudioDeviceSelector, onToggleAudioDeviceSelector),
+        takeLatest(selectAudioDevice, onSelectAudioDevice),
 
-        takeEvery(CALL_FAILED, onCallFailed),
-        takeEvery(CALL_DISCONNECTED, onCallDisconnected),
-        takeEvery(ENDPOINT_ADDED, onEndpointAdded),
+        takeEvery(callConnected, onCallConnected),
+        takeEvery(callFailed, onCallFailed),
+        takeEvery(callDisconnected, onCallDisconnected),
+        takeEvery(endpointAdded, onEndpointAdded),
     ]);
 }

@@ -2,10 +2,11 @@ import React from 'react';
 import {
     Text,
     View,
-    TouchableHighlight,
     Platform,
+    Modal,
     SafeAreaView,
     StatusBar,
+    TouchableHighlight,
     FlatList,
 } from 'react-native';
 import { connect } from 'react-redux';
@@ -13,11 +14,12 @@ import { createStructuredSelector } from 'reselect';
 
 import { Voximplant } from 'react-native-voximplant';
 import CallButton from 'components/CallButton';
-import Modal from 'components/Modal';
+import GlobalModal from 'components/Modal';
 import { Keypad } from 'components/Keypad';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import styles from 'styles/Styles';
+import { makeSelectActiveCall } from 'containers/App/selectors';
 import {
     makeSelectCallStatus,
     makeSelectIsAudioMuted,
@@ -27,12 +29,13 @@ import {
     makeSelectModalText,
     makeSelectLocalVideoStreamId,
     makeSelectRemoteVideoStreamId,
-    makeSelectIsAudioDeviceSelectionVisible,
+    makeSelectIsAudioDeviceSelectorVisible,
     makeSelectAudioDeviceIcon,
     makeSelectAudioDeviceList,
 } from './selectors';
 import {
-    setCallStatusConnecting,
+    resetCallState,
+    setCallStatus,
     subscribeToCallEvents,
     subscribeToAudioDeviceEvents,
     unsubscribeFromCallEvents,
@@ -41,20 +44,20 @@ import {
     toggleVideoSend,
     endCall,
     toggleKeypad,
-    switchAudioDevice,
+    toggleAudioDeviceSelector,
     selectAudioDevice,
 } from './actions';
-import { makeSelectActiveCall } from 'containers/App/selectors';
 
 
 class CallScreen extends React.Component {
     componentDidMount() {
         const { isIncoming, isVideo } = this.props.navigation.state.params;
+        const { activeCall } = this.props;
 
-        this.props.subscribeToCallEvents(this.props.activeCall, isIncoming);
+        this.props.resetCallState();
+        this.props.subscribeToCallEvents(activeCall, isIncoming);
         this.props.subscribeToAudioDeviceEvents();
-        this.props.setCallStatusConnecting();
-        this.props.toggleVideoSend(this.props.activeCall, isVideo);
+        this.props.toggleVideoSend(activeCall, isVideo);
 
         if (isIncoming) {
             const callSettings = {
@@ -63,7 +66,10 @@ class CallScreen extends React.Component {
                     receiveVideo: isVideo,
                 },
             };
-            this.props.activeCall.answer(callSettings);
+            activeCall.answer(callSettings);
+            this.props.setCallStatus('connected');
+        } else {
+            this.props.setCallStatus('connecting');
         }
     }
 
@@ -97,7 +103,6 @@ class CallScreen extends React.Component {
                     barStyle={Platform.OS === 'ios' ? COLOR_SCHEME.DARK : COLOR_SCHEME.LIGHT}
                     backgroundColor={COLOR.PRIMARY_DARK}
                 />
-                <View><Text>CALL!</Text></View>
                 <View style={styles.useragent}>
                     <View style={styles.videoPanel}>
                         {this.props.isVideoBeingSent ? (
@@ -151,11 +156,13 @@ class CallScreen extends React.Component {
                                 color={COLOR.ACCENT}
                                 buttonPressed={this.props.toggleKeypad}
                             />
-                            {/* <CallButton
+                            <CallButton
                                 icon_name={this.props.audioDeviceIcon}
                                 color={COLOR.ACCENT}
-                                buttonPressed={this.props.switchAudioDevice}
-                            />*/}
+                                buttonPressed={() => this.props.toggleAudioDeviceSelector(
+                                    !this.props.isAudioDeviceSelectorVisible
+                                )}
+                            />
                             <CallButton
                                 icon_name={this.props.isVideoBeingSent ? 'videocam-off' : 'video-call'}
                                 color={COLOR.ACCENT}
@@ -170,37 +177,41 @@ class CallScreen extends React.Component {
                             />
                         </View>
                     </View>
-                    {/*<Modal
+                    <Modal
                         animationType="fade"
                         transparent
-                        visible={this.state.audioDeviceSelectionVisible}
+                        visible={this.props.isAudioDeviceSelectorVisible}
                         onRequestClose={() => {
                         }}
                     >
                         <TouchableHighlight
-                            onPress={() => {
-                                this.setState({ audioDeviceSelectionVisible: false });
-                            }}
+                            onPress={() => this.props.toggleAudioDeviceSelector(
+                                !this.props.isAudioDeviceSelectorVisible
+                            )}
                             style={styles.container}
                         >
                             <View style={[styles.container, styles.modalBackground]}>
                                 <View style={[styles.innerContainer, styles.innerContainerTransparent]}>
                                     <FlatList
-                                        data={this.state.audioDevices}
-                                        keyExtractor={(item, index) => item}
+                                        data={this.props.audioDeviceList}
+                                        keyExtractor={(item) => item}
                                         ItemSeparatorComponent={this.flatListItemSeparator}
-                                        renderItem={({ item }) => <Text
-                                            onPress={() => {
-                                                this.props.selectAudioDevice(item);
-                                            }}
-                                        > {item} </Text>}
+                                        renderItem={({ item }) => (
+                                            <Text
+                                                onPress={() => {
+                                                    this.props.selectAudioDevice(item);
+                                                }}
+                                            >
+                                                {item}
+                                            </Text>
+                                        )}
                                     />
                                 </View>
                             </View>
                         </TouchableHighlight>
-                    </Modal>*/}
+                    </Modal>
 
-                    <Modal />
+                    <GlobalModal />
                 </View>
 
             </SafeAreaView>
@@ -218,22 +229,23 @@ const mapStateToProps = createStructuredSelector({
     modalText: makeSelectModalText(),
     localVideoStreamId: makeSelectLocalVideoStreamId(),
     remoteVideoStreamId: makeSelectRemoteVideoStreamId(),
-    isAudioDeviceSelectionVisible: makeSelectIsAudioDeviceSelectionVisible(),
+    isAudioDeviceSelectorVisible: makeSelectIsAudioDeviceSelectorVisible(),
     audioDeviceIcon: makeSelectAudioDeviceIcon(),
     audioDeviceList: makeSelectAudioDeviceList(),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-    setCallStatusConnecting: () => dispatch(setCallStatusConnecting()),
+    resetCallState: () => dispatch(resetCallState()),
+    setCallStatus: (status) => dispatch(setCallStatus(status)),
     subscribeToCallEvents: (activeCall) => dispatch(subscribeToCallEvents(activeCall)),
     subscribeToAudioDeviceEvents: () => dispatch(subscribeToAudioDeviceEvents()),
     unsubscribeFromCallEvents: () => dispatch(unsubscribeFromCallEvents()),
     unsubscribeFromAudioDeviceEvents: () => dispatch(unsubscribeFromAudioDeviceEvents()),
-    toggleAudioMute: (call, isAudioMuted) => dispatch(toggleAudioMute(call, isAudioMuted)),
-    toggleVideoSend: (call, isVideoBeingSent) => dispatch(toggleVideoSend(call, isVideoBeingSent)),
+    toggleAudioMute: (call, status) => dispatch(toggleAudioMute(call, status)),
+    toggleVideoSend: (call, status) => dispatch(toggleVideoSend(call, status)),
     endCall: (activeCall) => dispatch(endCall(activeCall)),
     toggleKeypad: () => dispatch(toggleKeypad()),
-    switchAudioDevice: () => dispatch(switchAudioDevice()),
+    toggleAudioDeviceSelector: (status) => dispatch(toggleAudioDeviceSelector(status)),
     selectAudioDevice: (device) => dispatch(selectAudioDevice(device)),
 });
 

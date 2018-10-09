@@ -2,93 +2,79 @@ import { createSelector } from 'reselect';
 
 const selectCall = (state) => state.call;
 
-function makeSelectCallStatus() {
+export function makeSelectCallStatus() {
     return createSelector(
         selectCall,
         (callState) => callState.callStatus
     );
 }
 
-function makeSelectIsAudioMuted() {
+export function makeSelectIsAudioMuted() {
     return createSelector(
         selectCall,
         (callState) => callState.isAudioMuted
     );
 }
 
-function makeSelectIsVideoBeingSent() {
+export function makeSelectIsVideoBeingSent() {
     return createSelector(
         selectCall,
         (callState) => callState.isVideoBeingSent
     );
 }
 
-function makeSelectIsKeypadVisible() {
+export function makeSelectIsKeypadVisible() {
     return createSelector(
         selectCall,
         (callState) => callState.isKeypadVisible
     );
 }
 
-function makeSelectIsModalOpen() {
+export function makeSelectIsModalOpen() {
     return createSelector(
         selectCall,
         (callState) => callState.isModalOpen
     );
 }
 
-function makeSelectModalText() {
+export function makeSelectModalText() {
     return createSelector(
         selectCall,
         (callState) => callState.modalText
     );
 }
 
-function makeSelectLocalVideoStreamId() {
+export function makeSelectLocalVideoStreamId() {
     return createSelector(
         selectCall,
         (callState) => callState.localVideoStreamId
     );
 }
 
-function makeSelectRemoteVideoStreamId() {
+export function makeSelectRemoteVideoStreamId() {
     return createSelector(
         selectCall,
         (callState) => callState.remoteVideoStreamId
     );
 }
 
-function makeSelectIsAudioDeviceSelectionVisible() {
+export function makeSelectIsAudioDeviceSelectorVisible() {
     return createSelector(
         selectCall,
-        (callState) => callState.isAudioDeviceSelectionVisible
+        (callState) => callState.isAudioDeviceSelectorVisible
     );
 }
 
-function makeSelectAudioDeviceIcon() {
+export function makeSelectAudioDeviceIcon() {
     return createSelector(
         selectCall,
         (callState) => callState.audioDeviceIcon
     );
 }
 
-function makeSelectAudioDeviceList() {
+export function makeSelectAudioDeviceList() {
     return createSelector(
         selectCall,
         (callState) => callState.audioDeviceList
     );
 }
-
-export {
-    makeSelectCallStatus,
-    makeSelectIsAudioMuted,
-    makeSelectIsVideoBeingSent,
-    makeSelectIsKeypadVisible,
-    makeSelectIsModalOpen,
-    makeSelectModalText,
-    makeSelectLocalVideoStreamId,
-    makeSelectRemoteVideoStreamId,
-    makeSelectIsAudioDeviceSelectionVisible,
-    makeSelectAudioDeviceIcon,
-    makeSelectAudioDeviceList,
-};
