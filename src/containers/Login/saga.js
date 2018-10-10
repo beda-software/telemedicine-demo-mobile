@@ -83,26 +83,6 @@ function* onVoxImplantLogin() {
         }
         default:
             yield put(loginFailed({ message: `Something went wrong. Code: ${err.code}` }));
-            /*
-
- switch (errorCode) {
-            case 401:
-                this.setState({ isModalOpen: true, modalText: 'Invalid password' });
-                break;
-            case 403:
-                this.setState({ isModalOpen: true, modalText: 'Account frozen' });
-                break;
-            case 404:
-                this.setState({ isModalOpen: true, modalText: 'Invalid username' });
-                break;
-            case 701:
-                this.setState({ isModalOpen: true, modalText: 'Token expired' });
-                break;
-            default:
-            case 500:
-                this.setState({ isModalOpen: true, modalText: 'Internal error' });
-        }*/
-
         }
     }
 }
