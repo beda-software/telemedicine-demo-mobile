@@ -41,6 +41,10 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         padding: 20
     },
+    preloaderBackground: {
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        padding: 20
+    },
     innerContainer: {
         borderRadius: 10,
     },

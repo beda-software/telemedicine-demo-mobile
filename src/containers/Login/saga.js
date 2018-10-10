@@ -8,6 +8,8 @@ import {
     saveVoxImplantTokens,
     saveApiToken,
     showModal,
+    showPreloader,
+    hidePreloader,
     initApp
 } from 'containers/App/actions';
 import { selectApiToken, selectUsername } from 'containers/App/selectors';
@@ -27,6 +29,8 @@ async function requestOneTimeLoginKey(client, fullUsername) {
 
 export function* onLogin({ payload }) {
     const { username, password } = payload.values;
+
+    yield put(showPreloader());
 
     try {
         const result = yield makePost('/td/signin/', {
@@ -75,10 +79,12 @@ function* onVoxImplantLogin() {
 
 function* onLoginSuccess() {
     yield put(initApp());
+    yield put(hidePreloader());
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
 function* onLoginFailed({ payload }) {
+    yield put(hidePreloader());
     yield put(showModal(payload.error.message));
 }
 

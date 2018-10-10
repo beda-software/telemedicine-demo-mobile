@@ -9,6 +9,8 @@ export const initApp = createAction();
 export const deinitApp = createAction();
 export const showModal = createAction((text) => ({ text }));
 export const hideModal = createAction();
+export const showPreloader = createAction();
+export const hidePreloader = createAction();
 export const setActiveCall = createAction((activeCall) => ({ activeCall }));
 
 // Events actions

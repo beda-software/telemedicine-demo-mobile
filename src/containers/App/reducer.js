@@ -8,11 +8,14 @@ import {
     saveContactList,
     showModal,
     hideModal,
+    showPreloader,
+    hidePreloader,
     setActiveCall,
 } from './actions';
 
 const initialState = {
     isModalVisible: false,
+    isPreloaderVisible: false,
     modalText: '',
 };
 
@@ -51,6 +54,14 @@ export default createReducer({
     [hideModal]: (state) => ({
         ...state,
         isModalVisible: false,
+    }),
+    [showPreloader]: (state) => ({
+        ...state,
+        isPreloaderVisible: true,
+    }),
+    [hidePreloader]: (state) => ({
+        ...state,
+        isPreloaderVisible: false,
     }),
     [setActiveCall]: (state, { activeCall }) => ({
         ...state,

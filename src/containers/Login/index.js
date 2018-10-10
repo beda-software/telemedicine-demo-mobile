@@ -15,6 +15,7 @@ import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
 import Modal from 'components/Modal';
+import Preloader from 'components/Preloader';
 import { login } from './actions';
 import Form from './Form';
 
@@ -34,6 +35,7 @@ class Login extends React.PureComponent {
                             goToSignUp={this.props.goToSignUp}
                         />
                         <Modal />
+                        <Preloader />
                     </View>
                 </KeyboardAwareView>
             </SafeAreaView>
