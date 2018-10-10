@@ -10,7 +10,7 @@ import {
     showModal,
     initApp
 } from 'containers/App/actions';
-import { makeSelectApiToken, makeSelectUsername } from 'containers/App/selectors';
+import { selectApiToken, selectUsername } from 'containers/App/selectors';
 import { login, voxImplantLogin, loginSuccess, loginFailed } from './actions';
 
 // eslint-disable-next-line consistent-return
@@ -42,8 +42,8 @@ export function* onLogin({ payload }) {
 }
 
 function* onVoxImplantLogin() {
-    const username = yield select(makeSelectUsername());
-    const token = yield select(makeSelectApiToken());
+    const username = yield select(selectUsername);
+    const token = yield select(selectApiToken);
 
     const client = Voximplant.getInstance();
     const fullUsername = `${username}@voice-chat.beda-software.voximplant.com`;

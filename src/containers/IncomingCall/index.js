@@ -11,7 +11,7 @@ import Modal from 'components/Modal';
 import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
-import { makeSelectActiveCall } from 'containers/App/selectors';
+import { selectActiveCall } from 'containers/App/selectors';
 import {
     subscribeToIncomingCallEvents,
     unsubscribeFromIncomingCallEvents,
@@ -19,7 +19,7 @@ import {
     answerVideoCall,
     declineCall,
 } from './actions';
-import { makeSelectCallerDisplayName } from './selectors';
+import { selectCallerDisplayName } from './selectors';
 
 class IncomingCall extends React.Component {
     componentDidMount() {
@@ -69,8 +69,8 @@ class IncomingCall extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-    activeCall: makeSelectActiveCall(),
-    callerDisplayName: makeSelectCallerDisplayName(),
+    activeCall: selectActiveCall,
+    callerDisplayName: selectCallerDisplayName,
 });
 
 const mapDispatchToProps = {

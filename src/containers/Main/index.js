@@ -16,7 +16,7 @@ import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
 import { fetchContacts, makeCall, makeVideoCall } from './actions';
-import { makeSelectContactList } from './selectors';
+import { selectContactList } from './selectors';
 
 class App extends React.Component {
     componentDidMount() {
@@ -63,7 +63,7 @@ class App extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-  contactList: makeSelectContactList(),
+  contactList: selectContactList,
 });
 
 const mapDispatchToProps = {

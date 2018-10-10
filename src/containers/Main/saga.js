@@ -2,7 +2,7 @@ import { all, takeLatest, put, select, call } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import { makeGet } from 'utils/request';
-import { makeSelectApiToken } from 'containers/App/selectors';
+import { selectApiToken } from 'containers/App/selectors';
 import { requestPermissions } from 'containers/App/saga';
 import { showModal, setActiveCall } from 'containers/App/actions';
 
@@ -22,7 +22,7 @@ function flattenUserEntry({ username, displayName, voxImplantId }) {
 }
 
 function* onFetchContacts() {
-    const apiToken = yield select(makeSelectApiToken());
+    const apiToken = yield select(selectApiToken);
     const users = yield call(
         () => makeGet('/User/', {}, apiToken),
     );

@@ -2,65 +2,47 @@ import { createSelector } from 'reselect';
 
 const selectCall = (state) => state.call;
 
-export function makeSelectCallStatus() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.callStatus
-    );
-}
+export const selectCallStatus = createSelector(
+    selectCall,
+    (callState) => callState.callStatus,
+);
 
-export function makeSelectIsAudioMuted() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.isAudioMuted
-    );
-}
+export const selectIsAudioMuted = createSelector(
+    selectCall,
+    (callState) => callState.isAudioMuted,
+);
 
-export function makeSelectIsVideoBeingSent() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.isVideoBeingSent
-    );
-}
+export const selectIsVideoBeingSent = createSelector(
+    selectCall,
+    (callState) => callState.isVideoBeingSent,
+);
 
-export function makeSelectIsKeypadVisible() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.isKeypadVisible
-    );
-}
+export const selectIsKeypadVisible = createSelector(
+    selectCall,
+    (callState) => callState.isKeypadVisible,
+);
 
-export function makeSelectLocalVideoStreamId() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.localVideoStreamId
-    );
-}
+export const selectLocalVideoStreamId = createSelector(
+    selectCall,
+    (callState) => callState.localVideoStreamId,
+);
 
-export function makeSelectRemoteVideoStreamId() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.remoteVideoStreamId
-    );
-}
+export const selectRemoteVideoStreamId = createSelector(
+    selectCall,
+    (callState) => callState.remoteVideoStreamId,
+);
 
-export function makeSelectIsAudioDeviceSelectorVisible() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.isAudioDeviceSelectorVisible
-    );
-}
+export const selectIsAudioDeviceSelectorVisible = createSelector(
+    selectCall,
+    (callState) => callState.isAudioDeviceSelectorVisible,
+);
 
-export function makeSelectAudioDeviceIcon() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.audioDeviceIcon
-    );
-}
+export const selectAudioDeviceIcon = createSelector(
+    selectCall,
+    (callState) => callState.audioDeviceIcon,
+);
 
-export function makeSelectAudioDeviceList() {
-    return createSelector(
-        selectCall,
-        (callState) => callState.audioDeviceList
-    );
-}
+export const selectAudioDeviceList = createSelector(
+    selectCall,
+    (callState) => callState.audioDeviceList,
+);

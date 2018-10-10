@@ -14,7 +14,7 @@ import {
     incomingCallReceived,
     appStateChanged,
 } from './actions';
-import { makeSelectActiveCall } from './selectors';
+import { selectActiveCall } from './selectors';
 
 function* onLogout() {
     const client = Voximplant.getInstance();
@@ -126,7 +126,7 @@ function* onInitApp() {
 
 function* onIncomingCallReceived({ payload }) {
     const { call } = payload;
-    const activeCall = yield select(makeSelectActiveCall());
+    const activeCall = yield select(selectActiveCall);
     if (activeCall && activeCall.id !== call.id) {
         call.decline();
         yield put(showModal('You\'ve received one another call, but we declined it.'));

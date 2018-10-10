@@ -11,7 +11,7 @@ export const toggleVideoSend = createAction((call, isVideoBeingSent) => ({ call,
 export const endCall = createAction((call) => ({ call }));
 export const toggleKeypad = createAction();
 export const toggleAudioDeviceSelector = createAction((isAudioDeviceSelectorVisible) => ({ isAudioDeviceSelectorVisible }));
-export const selectAudioDevice = createAction((device) => ({ device }));
+export const setAudioDevice = createAction((device) => ({ device }));
 
 // Events actions
 export const callFailed = createAction((reason) => ({ reason }));

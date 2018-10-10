@@ -20,17 +20,17 @@ import { Keypad } from 'components/Keypad';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import styles from 'styles/Styles';
-import { makeSelectActiveCall } from 'containers/App/selectors';
+import { selectActiveCall } from 'containers/App/selectors';
 import {
-    makeSelectCallStatus,
-    makeSelectIsAudioMuted,
-    makeSelectIsVideoBeingSent,
-    makeSelectIsKeypadVisible,
-    makeSelectLocalVideoStreamId,
-    makeSelectRemoteVideoStreamId,
-    makeSelectIsAudioDeviceSelectorVisible,
-    makeSelectAudioDeviceIcon,
-    makeSelectAudioDeviceList,
+    selectCallStatus,
+    selectIsAudioMuted,
+    selectIsVideoBeingSent,
+    selectIsKeypadVisible,
+    selectLocalVideoStreamId,
+    selectRemoteVideoStreamId,
+    selectIsAudioDeviceSelectorVisible,
+    selectAudioDeviceIcon,
+    selectAudioDeviceList,
 } from './selectors';
 import {
     resetCallState,
@@ -44,7 +44,7 @@ import {
     endCall,
     toggleKeypad,
     toggleAudioDeviceSelector,
-    selectAudioDevice,
+    setAudioDevice,
 } from './actions';
 
 
@@ -198,7 +198,7 @@ class CallScreen extends React.Component {
                                         renderItem={({ item }) => (
                                             <TouchableOpacity
                                                 onPress={() => {
-                                                    this.props.selectAudioDevice(item);
+                                                    this.props.setAudioDevice(item);
                                                 }}
                                             >
                                                 <Text>
@@ -221,16 +221,16 @@ class CallScreen extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-    activeCall: makeSelectActiveCall(),
-    callStatus: makeSelectCallStatus(),
-    isAudioMuted: makeSelectIsAudioMuted(),
-    isVideoBeingSent: makeSelectIsVideoBeingSent(),
-    isKeypadVisible: makeSelectIsKeypadVisible(),
-    localVideoStreamId: makeSelectLocalVideoStreamId(),
-    remoteVideoStreamId: makeSelectRemoteVideoStreamId(),
-    isAudioDeviceSelectorVisible: makeSelectIsAudioDeviceSelectorVisible(),
-    audioDeviceIcon: makeSelectAudioDeviceIcon(),
-    audioDeviceList: makeSelectAudioDeviceList(),
+    activeCall: selectActiveCall,
+    callStatus: selectCallStatus,
+    isAudioMuted: selectIsAudioMuted,
+    isVideoBeingSent: selectIsVideoBeingSent,
+    isKeypadVisible: selectIsKeypadVisible,
+    localVideoStreamId: selectLocalVideoStreamId,
+    remoteVideoStreamId: selectRemoteVideoStreamId,
+    isAudioDeviceSelectorVisible: selectIsAudioDeviceSelectorVisible,
+    audioDeviceIcon: selectAudioDeviceIcon,
+    audioDeviceList: selectAudioDeviceList,
 });
 
 const mapDispatchToProps = {
@@ -245,7 +245,7 @@ const mapDispatchToProps = {
     endCall,
     toggleKeypad,
     toggleAudioDeviceSelector,
-    selectAudioDevice,
+    setAudioDevice,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CallScreen);

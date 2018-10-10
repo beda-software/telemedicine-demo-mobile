@@ -14,7 +14,7 @@ import {
     toggleAudioMute,
     toggleAudioDeviceSelector,
     endCall,
-    selectAudioDevice,
+    setAudioDevice,
     setCallStatus,
 
     callFailed,
@@ -206,7 +206,7 @@ function* onToggleAudioDeviceSelector({ payload: { isAudioDeviceSelectorVisible 
     }
 }
 
-function* onSelectAudioDevice({ payload: { device } }) {
+function* onSetAudioDevice({ payload: { device } }) {
     Voximplant.Hardware.AudioDeviceManager.getInstance()
         .selectAudioDevice(device);
     yield put(toggleAudioDeviceSelector(false));
@@ -220,7 +220,7 @@ export default function* incomingCallSaga() {
         takeLatest(toggleVideoSend, onToggleVideoSend),
         takeLatest(endCall, onEndCall),
         takeLatest(toggleAudioDeviceSelector, onToggleAudioDeviceSelector),
-        takeLatest(selectAudioDevice, onSelectAudioDevice),
+        takeLatest(setAudioDevice, onSetAudioDevice),
 
         takeEvery(callConnected, onCallConnected),
         takeEvery(callFailed, onCallFailed),
