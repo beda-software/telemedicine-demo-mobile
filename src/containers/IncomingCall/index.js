@@ -12,13 +12,22 @@ import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
 import { makeSelectActiveCall } from 'containers/App/selectors';
-import { answerCall, answerVideoCall, declineCall } from './actions';
+import {
+    subscribeToIncomingCallEvents,
+    unsubscribeFromIncomingCallEvents,
+    answerCall,
+    answerVideoCall,
+    declineCall,
+} from './actions';
+import { makeSelectCallerDisplayName } from './selectors';
 
 class IncomingCall extends React.Component {
-    constructor(props) {
-        super(props);
+    componentDidMount() {
+        this.props.subscribeToIncomingCallEvents(this.props.activeCall);
+    }
 
-        this.call = props.activeCall;
+    componentWillUnmount() {
+        this.props.unsubscribeFromIncomingCallEvents();
     }
 
     render() {
@@ -28,7 +37,7 @@ class IncomingCall extends React.Component {
                     Incoming call from:
                 </Text>
                 <Text style={styles.incoming_call}>
-                    Somebody
+                    {this.props.callerDisplayName}
                 </Text>
                 <View
                     style={{
@@ -40,17 +49,17 @@ class IncomingCall extends React.Component {
                     <CallButton
                         icon_name="call"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerCall(this.call)}
+                        buttonPressed={() => this.props.answerCall(this.props.activeCall)}
                     />
                     <CallButton
                         icon_name="videocam"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerVideoCall(this.call)}
+                        buttonPressed={() => this.props.answerVideoCall(this.props.activeCall)}
                     />
                     <CallButton
                         icon_name="call-end"
                         color={COLOR.RED}
-                        buttonPressed={() => this.props.declineCall(this.call)}
+                        buttonPressed={() => this.props.declineCall(this.props.activeCall)}
                     />
                 </View>
                 <Modal />
@@ -61,9 +70,12 @@ class IncomingCall extends React.Component {
 
 const mapStateToProps = createStructuredSelector({
     activeCall: makeSelectActiveCall(),
+    callerDisplayName: makeSelectCallerDisplayName(),
 });
 
 const mapDispatchToProps = {
+    subscribeToIncomingCallEvents,
+    unsubscribeFromIncomingCallEvents,
     answerCall,
     answerVideoCall,
     declineCall,

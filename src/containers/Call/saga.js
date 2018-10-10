@@ -3,7 +3,7 @@ import { NavigationActions } from 'react-navigation';
 import { eventChannel } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put } from 'redux-saga/effects';
 import { setActiveCall, showModal } from 'containers/App/actions';
-import { requestPermissions } from 'containers/App/saga';
+import { requestPermissions, createCallChannel } from 'containers/App/saga';
 
 import {
     subscribeToCallEvents,
@@ -33,8 +33,9 @@ function* onCallConnected() {
 }
 
 function* onCallFailed({ payload: { reason } }) {
-    yield put(setActiveCall(null));
     yield put(showModal(`Call failed: ${reason}`));
+
+    yield put(setActiveCall(null));
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
@@ -92,22 +93,6 @@ function* onEndpointAdded({ payload: { endpoint } }) {
     }
 }
 
-function createCallChannel(activeCall) {
-    return eventChannel((emit) => {
-        const handler = (event) => {
-            emit(event);
-        };
-
-        Object.keys(Voximplant.CallEvents)
-            .forEach((eventName) => activeCall.on(eventName, handler));
-
-        return () => {
-            Object.keys(Voximplant.CallEvents)
-                .forEach((eventName) => activeCall.off(eventName, handler));
-        };
-    });
-}
-
 function* onSubscribeToCallEvents({ payload: { call: activeCall, isIncoming } }) {
     if (isIncoming) {
         activeCall.getEndpoints()
@@ -125,7 +110,7 @@ function* onSubscribeToCallEvents({ payload: { call: activeCall, isIncoming } })
             yield put(callConnected());
             break;
         }
-            case Voximplant.CallEvents.Failed: {
+        case Voximplant.CallEvents.Failed: {
             yield put(callFailed(event.reason));
             break;
         }

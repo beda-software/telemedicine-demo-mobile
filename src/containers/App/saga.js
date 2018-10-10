@@ -51,6 +51,22 @@ export function* requestPermissions(isVideo) {
     return true;
 }
 
+export function createCallChannel(activeCall) {
+    return eventChannel((emit) => {
+        const handler = (event) => {
+            emit(event);
+        };
+
+        Object.keys(Voximplant.CallEvents)
+            .forEach((eventName) => activeCall.on(eventName, handler));
+
+        return () => {
+            Object.keys(Voximplant.CallEvents)
+                .forEach((eventName) => activeCall.off(eventName, handler));
+        };
+    });
+}
+
 function createIncomingCallChannel() {
     const client = Voximplant.getInstance();
 
