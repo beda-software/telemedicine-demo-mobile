@@ -1,23 +1,18 @@
 import { Platform, PermissionsAndroid } from 'react-native';
 import { eventChannel } from 'redux-saga';
-import { all, takeLatest, takeEvery, take, put, select, call } from 'redux-saga/effects';
+import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
-import { makeGet } from 'utils/request';
 
-import { incomingCall } from 'containers/IncomingCall/actions';
-import { makeSelectApiToken } from './selectors';
 import {
     logout,
-    fetchContacts,
     initApp,
-    makeCall,
-    makeVideoCall,
+    deinitApp,
     setActiveCall,
-    saveContactList,
     showModal,
-    deinitApp
+    incomingCallReceived,
 } from './actions';
+import { makeSelectActiveCall } from './selectors';
 
 function* onLogout() {
     const client = Voximplant.getInstance();
@@ -28,23 +23,6 @@ function* onLogout() {
     }
     yield put(deinitApp());
     yield put(NavigationActions.navigate({ routeName: 'Login' }));
-}
-
-function flattenUserEntry({ username, displayName, voxImplantId }) {
-    return {
-        username,
-        displayName,
-        voxImplantId,
-    };
-}
-
-function* onFetchContacts() {
-    const apiToken = yield select(makeSelectApiToken());
-    const users = yield call(
-        () => makeGet('/User/', {}, apiToken),
-    );
-    const contactList = users.entry.map((user) => flattenUserEntry(user.resource));
-    yield put(saveContactList(contactList));
 }
 
 export function* requestPermissions(isVideo) {
@@ -73,32 +51,6 @@ export function* requestPermissions(isVideo) {
     return true;
 }
 
-function* onMakeCall({ payload }) {
-    const { contactUsername, isVideo = false } = payload;
-    try {
-        yield requestPermissions(isVideo);
-        const callSettings = {
-            video: {
-                sendVideo: isVideo,
-                receiveVideo: isVideo,
-            },
-        };
-        const newCall = yield Voximplant.getInstance()
-            .call(contactUsername, callSettings);
-        yield put(setActiveCall(newCall));
-        yield put(NavigationActions.navigate({
-            routeName: 'Call',
-            params: {
-                callId: newCall.callId,
-                isVideo,
-                isIncoming: false,
-            },
-        }));
-    } catch (err) {
-        yield put(showModal(`Сall failed:\n${err.message}`));
-    }
-}
-
 function createIncomingCallChannel() {
     const client = Voximplant.getInstance();
 
@@ -118,19 +70,35 @@ function* onInitApp() {
     const channel = yield createIncomingCallChannel();
 
     yield takeEvery(channel, function* onIncomingCall(newIncomingCall) {
-        yield put(incomingCall(newIncomingCall));
+        yield put(incomingCallReceived(newIncomingCall));
     });
 
     yield take(deinitApp);
     channel.close();
 }
 
+function* onIncomingCallReceived({ payload }) {
+    const { call } = payload;
+    const activeCall = yield select(makeSelectActiveCall());
+    if (activeCall && activeCall.id !== call.id) {
+        call.decline();
+        yield put(showModal('You\'ve received one another call, but we declined it.'));
+    } else {
+        yield put(setActiveCall(call));
+        yield put(NavigationActions.navigate({
+            routeName: 'IncomingCall',
+            params: {
+                callId: call.callId,
+            },
+        }));
+    }
+}
+
 export default function* appSaga() {
     yield all([
         takeLatest(logout, onLogout),
-        takeLatest(fetchContacts, onFetchContacts),
         takeLatest(initApp, onInitApp),
-        takeLatest(makeCall, onMakeCall),
-        takeLatest(makeVideoCall, onMakeCall),
+
+        takeEvery(incomingCallReceived, onIncomingCallReceived),
     ]);
 }

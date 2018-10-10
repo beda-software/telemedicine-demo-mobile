@@ -1,29 +1,17 @@
 import React from 'react';
 import { View, Text, FlatList } from 'react-native';
-import { Field, reduxForm } from 'redux-form';
 
 import styles from 'styles/Styles';
-import TextInput from 'components/TextInput';
 import COLOR from 'styles/Color';
 import CallButton from 'components/CallButton';
 
 function AppForm(props) {
     return (
         <View style={styles.useragent}>
-            {/*<Field
-                component={TextInput}
-                name="callTo"
-                underlineColorAndroid="transparent"
-                style={[styles.forminput, styles.margin]}
-                placeholder="Search for contacts"
-                autoCapitalize="none"
-                autoCorrect={false}
-            />*/}
-
             <FlatList
                 data={props.contactList}
                 keyExtractor={(item) => item.voxImplantId}
-                renderItem={({ item }) =>
+                renderItem={({ item }) => (
                     <View
                         style={{
                             alignSelf: 'center',
@@ -41,22 +29,20 @@ function AppForm(props) {
                             <CallButton
                                 icon_name="call"
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => props.makeCall(item)}
+                                buttonPressed={() => props.makeCall(item.username)}
                             />
                             <CallButton
                                 icon_name="videocam"
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => props.makeVideoCall(item)}
+                                buttonPressed={() => props.makeVideoCall(item.username)}
                             />
                         </View>
                     </View>
-                }
+                )}
             />
 
         </View>
     );
 }
 
-export default reduxForm({
-    form: 'app',
-})(AppForm);
+export default AppForm;

@@ -13,6 +13,7 @@ export const toggleKeypad = createAction();
 export const toggleAudioDeviceSelector = createAction((isAudioDeviceSelectorVisible) => ({ isAudioDeviceSelectorVisible }));
 export const selectAudioDevice = createAction((device) => ({ device }));
 
+// Events actions
 export const callFailed = createAction((reason) => ({ reason }));
 export const callDisconnected = createAction();
 export const callConnected = createAction();

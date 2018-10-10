@@ -10,10 +10,6 @@ export function makeSelectUsername() {
     return createSelector(selectGlobal, (globalState) => globalState.username);
 }
 
-export function makeSelectContactList() {
-    return createSelector(selectGlobal, (globalState) => globalState.contactList);
-}
-
 export function makeSelectActiveCall() {
     return createSelector(selectGlobal, (globalState) => globalState.activeCall);
 }

@@ -3,6 +3,7 @@ import { reducer as formReducer } from 'redux-form';
 import { createNavigationReducer } from 'react-navigation-redux-helpers';
 
 import globalReducer from 'containers/App/reducer';
+import mainReducer from 'containers/Main/reducer';
 import loginReducer from 'containers/Login/reducer';
 import signUpReducer from 'containers/SignUp/reducer';
 import callReducer from 'containers/Call/reducer';
@@ -13,6 +14,7 @@ const navigationReducer = createNavigationReducer(RootNavigator);
 
 export default function createReducer() {
     return combineReducers({
+        main: mainReducer,
         login: loginReducer,
         signUp: signUpReducer,
         global: globalReducer,

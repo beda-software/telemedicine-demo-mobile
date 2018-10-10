@@ -9,14 +9,14 @@ import {
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import { makeSelectContactList } from 'containers/App/selectors';
+import { logout } from 'containers/App/actions';
 import Modal from 'components/Modal';
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import Form from './Form';
-import { logout, fetchContacts, makeCall, makeVideoCall } from './actions';
-
+import { fetchContacts, makeCall, makeVideoCall } from './actions';
+import { makeSelectContactList } from './selectors';
 
 class App extends React.Component {
     componentDidMount() {
@@ -24,8 +24,6 @@ class App extends React.Component {
     }
 
     static navigationOptions = ({ navigation }) => {
-        const params = navigation.state.params || {};
-
         return {
             headerLeft: (
                 <View>

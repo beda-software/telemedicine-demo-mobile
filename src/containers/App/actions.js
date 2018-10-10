@@ -18,3 +18,6 @@ export const makeCall = createAction(
 export const makeVideoCall = createAction(
     (contactUsername) => ({ contactUsername, isVideo: true })
 );
+
+// Events actions
+export const incomingCallReceived = createAction((call) => ({ call }));

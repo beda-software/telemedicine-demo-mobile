@@ -1,25 +1,19 @@
 import { SwitchNavigator, StackNavigator } from 'react-navigation';
 import { createReactNavigationReduxMiddleware, reduxifyNavigator } from 'react-navigation-redux-helpers';
+import { connect } from 'react-redux';
 
 import Login from 'containers/Login';
 import SignUp from 'containers/SignUp';
-import App from 'containers/App';
 import IncomingCall from 'containers/IncomingCall';
 import Call from 'containers/Call';
-// import MainScreen from '../screens/MainScreen';
-// import SettingsScreen from '../screens/SettingsScreen';
-
+import Main from 'containers/Main';
 import COLOR from 'styles/Color';
-import { connect } from 'react-redux';
 
 const AppStack = StackNavigator(
     {
         Main: {
-            screen: App,
+            screen: Main,
         },
-        /*Settings: {
-            screen: Settings,
-        },*/
     },
     {
         navigationOptions: {
