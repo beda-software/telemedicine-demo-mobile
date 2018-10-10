@@ -7,6 +7,9 @@ import {
     TouchableHighlight,
 } from 'react-native';
 import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+
+import { selectIsModalVisible, selectModalText } from 'containers/App/selectors';
 import { hideModal } from 'containers/App/actions';
 
 // TODO: think about moving to containers
@@ -38,9 +41,9 @@ function MyModal(props) {
     );
 }
 
-const mapStateToProps = (state) => ({
-    isModalVisible: state.global.isModalVisible,
-    modalText: state.global.modalText,
+const mapStateToProps = createStructuredSelector({
+    isModalVisible: selectIsModalVisible,
+    modalText: selectModalText,
 });
 
 const mapDispatchToProps = (dispatch) => ({

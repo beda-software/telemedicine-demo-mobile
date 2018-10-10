@@ -12,3 +12,13 @@ export const selectIsPreloaderVisible = createSelector(
     selectGlobal,
     (globalState) => globalState.isPreloaderVisible
 );
+
+export const selectIsModalVisible = createSelector(
+    selectGlobal,
+    (globalState) => globalState.isModalVisible
+);
+
+export const selectModalText = createSelector(
+    selectGlobal,
+    (globalState) => globalState.modalText
+);
