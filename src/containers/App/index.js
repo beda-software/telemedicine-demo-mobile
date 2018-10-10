@@ -68,10 +68,10 @@ const mapStateToProps = createStructuredSelector({
   contactList: makeSelectContactList(),
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    fetchContacts: () => dispatch(fetchContacts()),
-    makeCall: (contact) => dispatch(makeCall(contact.username)),
-    makeVideoCall: (contact) => dispatch(makeVideoCall(contact.username)),
-});
+const mapDispatchToProps = {
+    fetchContacts,
+    makeCall,
+    makeVideoCall,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

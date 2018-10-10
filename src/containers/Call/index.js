@@ -233,19 +233,19 @@ const mapStateToProps = createStructuredSelector({
     audioDeviceList: makeSelectAudioDeviceList(),
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    resetCallState: () => dispatch(resetCallState()),
-    setCallStatus: (status) => dispatch(setCallStatus(status)),
-    subscribeToCallEvents: (activeCall) => dispatch(subscribeToCallEvents(activeCall)),
-    subscribeToAudioDeviceEvents: () => dispatch(subscribeToAudioDeviceEvents()),
-    unsubscribeFromCallEvents: () => dispatch(unsubscribeFromCallEvents()),
-    unsubscribeFromAudioDeviceEvents: () => dispatch(unsubscribeFromAudioDeviceEvents()),
-    toggleAudioMute: (call, status) => dispatch(toggleAudioMute(call, status)),
-    toggleVideoSend: (call, status) => dispatch(toggleVideoSend(call, status)),
-    endCall: (activeCall) => dispatch(endCall(activeCall)),
-    toggleKeypad: () => dispatch(toggleKeypad()),
-    toggleAudioDeviceSelector: (status) => dispatch(toggleAudioDeviceSelector(status)),
-    selectAudioDevice: (device) => dispatch(selectAudioDevice(device)),
-});
+const mapDispatchToProps = {
+    resetCallState,
+    setCallStatus,
+    subscribeToCallEvents,
+    subscribeToAudioDeviceEvents,
+    unsubscribeFromCallEvents,
+    unsubscribeFromAudioDeviceEvents,
+    toggleAudioMute,
+    toggleVideoSend,
+    endCall,
+    toggleKeypad,
+    toggleAudioDeviceSelector,
+    selectAudioDevice,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(CallScreen);

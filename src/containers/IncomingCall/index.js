@@ -63,10 +63,10 @@ const mapStateToProps = createStructuredSelector({
     activeCall: makeSelectActiveCall(),
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    answerCall: (call) => dispatch(answerCall(call)),
-    answerVideoCall: (call) => dispatch(answerVideoCall(call)),
-    declineCall: (call) => dispatch(declineCall(call)),
-});
+const mapDispatchToProps = {
+    answerCall,
+    answerVideoCall,
+    declineCall,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(IncomingCall);

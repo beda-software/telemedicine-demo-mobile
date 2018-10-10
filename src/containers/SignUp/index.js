@@ -43,9 +43,9 @@ class SignUp extends React.PureComponent {
 
 const mapStateToProps = (state) => ({});
 
-const mapDispatchToProps = (dispatch) => ({
-    signUp: (values) => dispatch(signUp(values)),
-    goToLogin: () => dispatch(NavigationActions.navigate({ routeName: 'Login' })),
-});
+const mapDispatchToProps = {
+    signUp,
+    goToLogin: () => NavigationActions.navigate({ routeName: 'Login' }),
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
