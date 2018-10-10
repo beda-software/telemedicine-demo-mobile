@@ -105,7 +105,7 @@ function* onLoginSuccess() {
 
 function* onLoginFailed({ payload }) {
     yield put(hidePreloader());
-    yield put(showModal(payload.error.message));
+    yield put(showModal(payload.error.msg));
 }
 
 export default function* loginSaga() {
