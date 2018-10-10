@@ -1,6 +1,7 @@
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
-import { takeLatest, call, put, all, select } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
+import { takeLatest, put, all, select, race } from 'redux-saga/effects';
 
 import { makePost } from 'utils/request';
 import {
@@ -56,11 +57,20 @@ function* onVoxImplantLogin() {
         // JavaScript code. Calling "disconnect" API here makes the SDK and app states
         // synchronized.
         try {
-            yield call(() => client.disconnect());
+            yield client.disconnect();
         } catch (err) {
         }
-        yield call(() => client.connect());
-        const oneTimeKey = yield requestOneTimeLoginKey(client, fullUsername);
+        yield client.connect();
+
+        // TODO: remove `race` after https://github.com/voximplant/react-native-voximplant/issues/45#issuecomment-427910310
+        // TODO: will be resolved
+        const { oneTimeKey } = yield race({
+            oneTimeKey: requestOneTimeLoginKey(client, fullUsername),
+            timeout: delay(10000),
+        });
+        if (!oneTimeKey) {
+            return yield put(loginFailed({ message: 'Can not fetch one time login key. Please try again.' }));
+        }
         const { hash } = yield makePost('/td/voximplant-hash/', { oneTimeKey }, token);
         const { tokens } = yield client.loginWithOneTimeKey(fullUsername, hash);
         yield put(saveVoxImplantTokens(tokens));
