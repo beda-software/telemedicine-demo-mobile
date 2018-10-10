@@ -9,7 +9,7 @@ import {
 } from './actions';
 
 const initialState = {
-    usename: null,
+    username: null,
     apiToken: null,
     tokens: null,
     activeCall: null,
