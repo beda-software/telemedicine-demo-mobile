@@ -5,18 +5,14 @@ import {
     saveApiToken,
     saveUsername,
     logout,
-    saveContactList,
-    showModal,
-    hideModal,
-    showPreloader,
-    hidePreloader,
     setActiveCall,
 } from './actions';
 
 const initialState = {
-    isModalVisible: false,
-    isPreloaderVisible: false,
-    modalText: '',
+    usename: null,
+    apiToken: null,
+    tokens: null,
+    activeCall: null,
 };
 
 export default createReducer({
@@ -37,31 +33,10 @@ export default createReducer({
         ...state,
         tokens,
     }),
-    [saveContactList]: (state, { contactList }) => ({
-        ...state,
-        contactList,
-    }),
     [logout]: (state) => ({
         ...state,
-        tokens: {},
-        apiToken: {},
-    }),
-    [showModal]: (state, { text }) => ({
-        ...state,
-        isModalVisible: true,
-        modalText: text,
-    }),
-    [hideModal]: (state) => ({
-        ...state,
-        isModalVisible: false,
-    }),
-    [showPreloader]: (state) => ({
-        ...state,
-        isPreloaderVisible: true,
-    }),
-    [hidePreloader]: (state) => ({
-        ...state,
-        isPreloaderVisible: false,
+        tokens: null,
+        apiToken: null,
     }),
     [setActiveCall]: (state, { activeCall }) => ({
         ...state,

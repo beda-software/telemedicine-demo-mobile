@@ -14,8 +14,8 @@ import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import Logo from 'components/Logo';
-import Modal from 'components/Modal';
-import Preloader from 'components/Preloader';
+import Preloader from 'containers/Preloader';
+import GlobalModal from 'containers/Modal';
 import { login } from './actions';
 import Form from './Form';
 
@@ -34,7 +34,7 @@ class Login extends React.PureComponent {
                             onSubmit={this.props.login}
                             goToSignUp={this.props.goToSignUp}
                         />
-                        <Modal />
+                        <GlobalModal />
                         <Preloader />
                     </View>
                 </KeyboardAwareView>
@@ -43,7 +43,10 @@ class Login extends React.PureComponent {
     }
 }
 
-const mapStateToProps = (state) => ({});
+const mapStateToProps = ({ preloader, modal }) => ({
+    preloader,
+    modal,
+});
 
 const mapDispatchToProps = {
     login,

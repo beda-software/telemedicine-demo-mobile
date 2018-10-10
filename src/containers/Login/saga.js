@@ -7,11 +7,10 @@ import {
     saveUsername,
     saveVoxImplantTokens,
     saveApiToken,
-    showModal,
-    showPreloader,
-    hidePreloader,
     initApp,
 } from 'containers/App/actions';
+import { showModal } from 'containers/Modal/actions';
+import { showPreloader, hidePreloader } from 'containers/Preloader/actions';
 import { selectApiToken, selectUsername } from 'containers/App/selectors';
 import { login, voxImplantLogin, loginSuccess, loginFailed } from './actions';
 
@@ -58,7 +57,8 @@ function* onVoxImplantLogin() {
         // synchronized.
         try {
             yield call(() => client.disconnect());
-        } catch (err) {}
+        } catch (err) {
+        }
         yield call(() => client.connect());
         const oneTimeKey = yield requestOneTimeLoginKey(client, fullUsername);
         const { hash } = yield makePost('/td/voximplant-hash/', { oneTimeKey }, token);
@@ -105,7 +105,8 @@ function* onLoginSuccess() {
 
 function* onLoginFailed({ payload }) {
     yield put(hidePreloader());
-    yield put(showModal(payload.error.msg));
+    yield put(showModal(payload.error.message));
+    console.log(yield select());
 }
 
 export default function* loginSaga() {

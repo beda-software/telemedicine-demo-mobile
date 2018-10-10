@@ -8,6 +8,8 @@ import loginReducer from 'containers/Login/reducer';
 import signUpReducer from 'containers/SignUp/reducer';
 import callReducer from 'containers/Call/reducer';
 import incomingCallReducer from 'containers/IncomingCall/reducer';
+import modalReducer from 'containers/Modal/reducer';
+import prelodderReducer from 'containers/Preloader/reducer';
 import { RootNavigator } from './navigators';
 
 const navigationReducer = createNavigationReducer(RootNavigator);
@@ -20,5 +22,7 @@ export default combineReducers({
     call: callReducer,
     incomingCall: incomingCallReducer,
     form: formReducer,
+    modal: modalReducer,
+    preloader: prelodderReducer,
     navigation: navigationReducer,
 });

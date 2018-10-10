@@ -7,10 +7,11 @@ import {
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import Modal from 'components/Modal';
 import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
+import GlobalModal from 'containers/Modal';
+import { selectModal } from 'containers/Modal/selectors';
 import { selectActiveCall } from 'containers/App/selectors';
 import {
     subscribeToIncomingCallEvents,
@@ -62,7 +63,7 @@ class IncomingCall extends React.Component {
                         buttonPressed={() => this.props.declineCall(this.props.activeCall)}
                     />
                 </View>
-                <Modal />
+                <GlobalModal />
             </SafeAreaView>
         );
     }
@@ -71,6 +72,7 @@ class IncomingCall extends React.Component {
 const mapStateToProps = createStructuredSelector({
     activeCall: selectActiveCall,
     callerDisplayName: selectCallerDisplayName,
+    modal: selectModal,
 });
 
 const mapDispatchToProps = {

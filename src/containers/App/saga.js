@@ -4,12 +4,12 @@ import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effect
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
+import { showModal } from 'containers/Modal/actions';
 import {
     logout,
     initApp,
     deinitApp,
     setActiveCall,
-    showModal,
 
     incomingCallReceived,
     appStateChanged,

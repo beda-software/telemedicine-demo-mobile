@@ -8,21 +8,22 @@ import {
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import { selectIsPreloaderVisible } from 'containers/App/selectors';
+import { selectIsPreloaderVisible } from './selectors';
 
 function Preloader(props) {
     return (
         <Modal
             animationType="fade"
-            transparent={true}
-            visible={props.isPreloaderVisible}
-            onRequestClose={() => {}}
+            transparent
+            visible={props.isVisible}
+            onRequestClose={() => {
+            }}
         >
             <View style={[styles.container, styles.preloaderBackground]}>
                 <View
                     style={[styles.innerContainer]}
                 >
-                    <ActivityIndicator size='large' />
+                    <ActivityIndicator size="large" />
                 </View>
             </View>
         </Modal>
@@ -30,7 +31,7 @@ function Preloader(props) {
 }
 
 const mapStateToProps = createStructuredSelector({
-    isPreloaderVisible: selectIsPreloaderVisible,
+    isVisible: selectIsPreloaderVisible,
 });
 
 export default connect(mapStateToProps)(Preloader);

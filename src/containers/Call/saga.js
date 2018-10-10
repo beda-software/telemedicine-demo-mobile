@@ -2,8 +2,9 @@ import { Voximplant } from 'react-native-voximplant';
 import { NavigationActions } from 'react-navigation';
 import { eventChannel } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put } from 'redux-saga/effects';
-import { setActiveCall, showModal } from 'containers/App/actions';
+import { setActiveCall } from 'containers/App/actions';
 import { requestPermissions, createCallChannel } from 'containers/App/saga';
+import { showModal } from 'containers/Modal/actions';
 
 import {
     subscribeToCallEvents,

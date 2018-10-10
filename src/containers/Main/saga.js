@@ -4,7 +4,8 @@ import { Voximplant } from 'react-native-voximplant';
 import { makeGet } from 'utils/request';
 import { selectApiToken } from 'containers/App/selectors';
 import { requestPermissions } from 'containers/App/saga';
-import { showModal, setActiveCall } from 'containers/App/actions';
+import { setActiveCall } from 'containers/App/actions';
+import { showModal } from 'containers/Modal/actions';
 
 import {
     fetchContacts,

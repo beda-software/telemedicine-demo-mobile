@@ -9,17 +9,15 @@ import {
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import { selectIsModalVisible, selectModalText } from 'containers/App/selectors';
-import { hideModal } from 'containers/App/actions';
+import { selectIsModalVisible, selectModalText } from './selectors';
+import { hideModal } from './actions';
 
-// TODO: think about moving to containers
-// TODO: it is a not dumb component!
-function MyModal(props) {
+function GlobalModal(props) {
     return (
         <Modal
             animationType="fade"
             transparent
-            visible={props.isModalVisible}
+            visible={props.isVisible}
             onRequestClose={() => {
             }}
         >
@@ -32,7 +30,7 @@ function MyModal(props) {
                         style={[styles.innerContainer, styles.innerContainerTransparent]}
                     >
                         <Text>
-                            {props.modalText}
+                            {props.text}
                         </Text>
                     </View>
                 </View>
@@ -42,12 +40,12 @@ function MyModal(props) {
 }
 
 const mapStateToProps = createStructuredSelector({
-    isModalVisible: selectIsModalVisible,
-    modalText: selectModalText,
+    isVisible: selectIsModalVisible,
+    text: selectModalText,
 });
 
 const mapDispatchToProps = (dispatch) => ({
     hideModal: () => dispatch(hideModal()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyModal);
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalModal);
