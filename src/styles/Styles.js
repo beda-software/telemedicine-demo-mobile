@@ -78,6 +78,12 @@ export default StyleSheet.create({
         borderWidth: 1,
         borderRadius: 4,
     },
+    forminputError: {
+        marginTop: -5,
+        marginBottom: 15,
+        color: COLOR.RED,
+        textAlign: 'right',
+    },
     useragent: {
         flex: 1,
         flexDirection: 'column',

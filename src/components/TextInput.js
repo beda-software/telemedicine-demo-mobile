@@ -1,5 +1,7 @@
 import React from 'react';
-import { TextInput, View } from 'react-native';
+import { TextInput, Text, View } from 'react-native';
+
+import styles from 'styles/Styles';
 
 export default class MyTextInput extends React.PureComponent {
     constructor(props) {
@@ -12,7 +14,8 @@ export default class MyTextInput extends React.PureComponent {
     }
 
     render() {
-        const { input, ...inputProps } = this.props;
+        const { input, meta, ...inputProps } = this.props;
+        const { touched, error } = meta;
 
         return (
             <View>
@@ -24,6 +27,11 @@ export default class MyTextInput extends React.PureComponent {
                     value={input.value}
                     ref={this.inputRef}
                 />
+                { touched && error &&
+                    <Text style={styles.forminputError}>
+                        {error}
+                    </Text>
+                }
             </View>
         );
     }
