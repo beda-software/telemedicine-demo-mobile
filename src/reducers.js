@@ -12,15 +12,13 @@ import { RootNavigator } from './navigators';
 
 const navigationReducer = createNavigationReducer(RootNavigator);
 
-export default function createReducer() {
-    return combineReducers({
-        main: mainReducer,
-        login: loginReducer,
-        signUp: signUpReducer,
-        global: globalReducer,
-        call: callReducer,
-        incomingCall: incomingCallReducer,
-        form: formReducer,
-        navigation: navigationReducer,
-    });
-}
+export default combineReducers({
+    main: mainReducer,
+    login: loginReducer,
+    signUp: signUpReducer,
+    global: globalReducer,
+    call: callReducer,
+    incomingCall: incomingCallReducer,
+    form: formReducer,
+    navigation: navigationReducer,
+});

@@ -57,4 +57,3 @@ export default createReducer({
         activeCall,
     }),
 }, initialState);
-
