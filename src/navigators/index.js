@@ -1,4 +1,4 @@
-import { SwitchNavigator, StackNavigator } from 'react-navigation';
+import { createSwitchNavigator, createStackNavigator } from 'react-navigation';
 import { createReactNavigationReduxMiddleware, reduxifyNavigator } from 'react-navigation-redux-helpers';
 import { connect } from 'react-redux';
 
@@ -9,7 +9,7 @@ import Call from 'containers/Call';
 import Main from 'containers/Main';
 import COLOR from 'styles/Color';
 
-const AppStack = StackNavigator(
+const AppStack = createStackNavigator(
     {
         Main: {
             screen: Main,
@@ -28,7 +28,7 @@ const AppStack = StackNavigator(
     }
 );
 
-const RootNavigator = SwitchNavigator(
+const RootNavigator = createSwitchNavigator(
     {
         App: AppStack,
         Login,

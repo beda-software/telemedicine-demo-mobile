@@ -1,4 +1,4 @@
-import { Platform, PermissionsAndroid } from 'react-native';
+import { AppState, Platform, PermissionsAndroid } from 'react-native';
 import { eventChannel } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
@@ -10,7 +10,9 @@ import {
     deinitApp,
     setActiveCall,
     showModal,
+
     incomingCallReceived,
+    appStateChanged,
 } from './actions';
 import { makeSelectActiveCall } from './selectors';
 
@@ -82,15 +84,44 @@ function createIncomingCallChannel() {
     });
 }
 
-function* onInitApp() {
-    const channel = yield createIncomingCallChannel();
+function createAppStateChangedChannel() {
+    return eventChannel((emit) => {
+        const handler = (newState) => {
+            emit(newState);
+        };
+        AppState.addEventListener('change', handler);
 
-    yield takeEvery(channel, function* onIncomingCall(newIncomingCall) {
+        return () => {
+            AppState.removeEventListener('change', handler);
+        };
+    });
+}
+
+function* onAppStateChanged({ payload: { newState } }) {
+    console.log('Current app state changed to ' + newState);
+    // if (this.currentAppState === 'active' && this.showIncomingCallScreen && this.call !== null) {
+    //     NavigationService.navigate('IncomingCall', {
+    //         callId: this.call.callId,
+    //         isVideo: null,
+    //         from: null,
+    //     });
+    // }
+}
+
+function* onInitApp() {
+    const incomingCallChannel = yield createIncomingCallChannel();
+    const appStateChangedChannel = yield createAppStateChangedChannel();
+
+    yield takeEvery(incomingCallChannel, function* incomingCallReceivedHandler(newIncomingCall) {
         yield put(incomingCallReceived(newIncomingCall));
+    });
+    yield takeEvery(appStateChangedChannel, function* appStateChangedHandler(newState) {
+        yield put(appStateChanged(newState));
     });
 
     yield take(deinitApp);
-    channel.close();
+    incomingCallChannel.close();
+    appStateChangedChannel.close();
 }
 
 function* onIncomingCallReceived({ payload }) {
@@ -116,5 +147,6 @@ export default function* appSaga() {
         takeLatest(initApp, onInitApp),
 
         takeEvery(incomingCallReceived, onIncomingCallReceived),
+        takeEvery(appStateChanged, onAppStateChanged),
     ]);
 }
