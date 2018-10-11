@@ -8,7 +8,7 @@ function extractPropertyNameToMessage(error) {
 }
 
 export default function makeValidator(jsonSchema) {
-    const ajvInstance = new Ajv({ allErrors: true });
+    const ajvInstance = new Ajv({ 'allErrors': true, '$data': true });
     const validate = ajvInstance.compile(jsonSchema);
     return function (values) {
         if (!validate(values)) {

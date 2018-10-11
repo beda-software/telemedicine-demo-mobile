@@ -6,10 +6,11 @@ import { showPreloader, hidePreloader } from 'containers/Preloader/actions';
 import { showModal } from 'containers/Modal/actions';
 import { signUp, signUpSuccess, signUpFailed } from './actions';
 
-function* onSignUp({ payload }) {
+function* onSignUp({ payload: { values: { username, displayName, password } } }) {
     yield put(showPreloader());
     try {
-        yield call(makePost, '/td/signup/', payload.values);
+        const userCredentials = { username, displayName, password };
+        yield call(makePost, '/td/signup/', userCredentials);
         yield put(signUpSuccess());
     } catch (err) {
         yield put(signUpFailed(err.data));

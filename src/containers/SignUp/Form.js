@@ -9,6 +9,7 @@ class SignUpForm extends React.PureComponent {
         super(props);
         this.displayNameRef = React.createRef();
         this.passwordRef = React.createRef();
+        this.passwordConfirmRef = React.createRef();
     }
 
     render() {
@@ -46,8 +47,20 @@ class SignUpForm extends React.PureComponent {
                         underlineColorAndroid="transparent"
                         style={styles.forminput}
                         placeholder="User password"
-                        onSubmitEditing={this.props.handleSubmit}
+                        onSubmitEditing={() => this.passwordConfirmRef.current.getRenderedComponent().focus()}
                         ref={this.passwordRef}
+                        withRef
+                        blurOnSubmit
+                        secureTextEntry
+                    />
+                    <Field
+                        name="passwordConfirm"
+                        component={TextInput}
+                        underlineColorAndroid="transparent"
+                        style={styles.forminput}
+                        placeholder="Confirm user password"
+                        onSubmitEditing={this.props.handleSubmit}
+                        ref={this.passwordConfirmRef}
                         withRef
                         blurOnSubmit
                         secureTextEntry

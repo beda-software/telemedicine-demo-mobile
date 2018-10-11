@@ -17,8 +17,15 @@ const schema = {
             description: 'user password',
             minLength: 8,
         },
+        passwordConfirm: {
+            type: 'string',
+            description: 'confirm user password',
+            'const': {
+                '$data': '1/password',
+            },
+        },
     },
-    required: ['username', 'displayName', 'password'],
+    required: ['username', 'displayName', 'password', 'passwordConfirm'],
 };
 
 export default validator = makeValidator(schema);
