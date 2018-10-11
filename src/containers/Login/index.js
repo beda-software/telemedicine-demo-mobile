@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { compose } from 'redux';
 import { NavigationActions } from 'react-navigation';
 
 import {
@@ -18,6 +19,7 @@ import Preloader from 'containers/Preloader';
 import GlobalModal from 'containers/Modal';
 import { login } from './actions';
 import Form from './Form';
+import validate from './validator';
 
 class Login extends React.PureComponent {
     render() {
@@ -49,7 +51,7 @@ const mapStateToProps = ({ preloader, modal }) => ({
 });
 
 const mapDispatchToProps = {
-    login,
+    login: compose(login, validate),
     goToSignUp: () => NavigationActions.navigate({ routeName: 'SignUp' }),
 };
 
