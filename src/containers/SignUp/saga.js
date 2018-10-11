@@ -23,9 +23,9 @@ function* onSignUpSuccess() {
     yield put(showModal('You\'ve successfully registered.'));
 }
 
-function* onSignUpFailed({ payload }) {
+function* onSignUpFailed({ payload: { error } }) {
     yield put(hidePreloader());
-    yield put(showModal(payload.error.message));
+    yield put(showModal(error.message));
 }
 
 export default function* signUpSaga() {

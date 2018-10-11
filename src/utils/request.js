@@ -1,7 +1,6 @@
-import { Platform } from 'react-native';
-
-// TODO: get from env
-const baseUrl = Platform.OS === 'ios' ? 'http://192.168.1.3:7777' : 'http://10.0.2.2:7777';
+// // TODO: move into config
+export const baseUrl = 'http://telemedicine-demo.beda.software';
+export const appDomain = 'voice-chat.beda-software.voximplant.com';
 
 function parseJSON(response) {
     if (response.status === 204 || response.status === 205) {
@@ -40,10 +39,14 @@ function* makeRequest(method, path, body, token = null) {
     try {
         return yield request(path, options);
     } catch (err) {
-        const data = yield err.response.json();
         const error = new Error();
         error.code = err.status;
-        error.data = data;
+        if (err.response) {
+            error.data = yield err.response.json();
+        } else {
+            error.data = { message: 'Something went wrong. Can not parse output' };
+        }
+
         throw error;
     }
 }

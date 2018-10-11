@@ -20,7 +20,6 @@ import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import styles from 'styles/Styles';
 import GlobalModal from 'containers/Modal';
-import { selectModal } from 'containers/Modal/selectors';
 import { selectActiveCall } from 'containers/App/selectors';
 import {
     selectCallStatus,
@@ -232,7 +231,6 @@ const mapStateToProps = createStructuredSelector({
     isAudioDeviceSelectorVisible: selectIsAudioDeviceSelectorVisible,
     audioDeviceIcon: selectAudioDeviceIcon,
     audioDeviceList: selectAudioDeviceList,
-    modal: selectModal,
 });
 
 const mapDispatchToProps = {

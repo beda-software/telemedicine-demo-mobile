@@ -26,6 +26,17 @@ export default StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
     },
+    modal: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLOR.GRAY,
+        opacity: 0.6,
+    },
     container: {
         flex: 1,
         justifyContent: 'center',

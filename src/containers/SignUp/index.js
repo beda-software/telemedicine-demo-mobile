@@ -45,10 +45,7 @@ class SignUp extends React.PureComponent {
     }
 }
 
-const mapStateToProps = ({ preloader, modal }) => ({
-    preloader,
-    modal,
-});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
     signUp: compose(signUp, validate),

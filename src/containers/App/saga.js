@@ -1,9 +1,10 @@
 import { AppState, Platform, PermissionsAndroid } from 'react-native';
-import { eventChannel } from 'redux-saga';
-import { all, takeLatest, takeEvery, take, put, select } from 'redux-saga/effects';
+import { eventChannel, delay } from 'redux-saga';
+import { all, takeLatest, takeEvery, take, put, select, race } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
+import { createPushTokenChannel } from 'managers/PushManager';
 import { showModal } from 'containers/Modal/actions';
 import {
     logout,
@@ -109,6 +110,21 @@ function* onAppStateChanged({ payload: { newState } }) {
 }
 
 function* onInitApp() {
+    const pushTokenChannel = yield createPushTokenChannel();
+    const { pushToken } = yield race({
+        pushToken: take(pushTokenChannel),
+        timeout: delay(5000),
+    });
+    if (pushToken) {
+        console.log('push token', pushToken);
+
+        const client = Voximplant.getInstance();
+        client.registerPushNotificationsToken(pushToken);
+    } else {
+        yield put(showModal('Cannot receive push token'));
+    }
+    pushTokenChannel.close();
+
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
 
@@ -122,6 +138,11 @@ function* onInitApp() {
     yield take(deinitApp);
     incomingCallChannel.close();
     appStateChangedChannel.close();
+}
+
+function onDeinitApp() {
+    const client = Voximplant.getInstance();
+    client.unregisterPushNotificationsToken(PushManager.getPushToken());
 }
 
 function* onIncomingCallReceived({ payload }) {
@@ -145,6 +166,7 @@ export default function* appSaga() {
     yield all([
         takeLatest(logout, onLogout),
         takeLatest(initApp, onInitApp),
+        takeLatest(deinitApp, onDeinitApp),
 
         takeEvery(incomingCallReceived, onIncomingCallReceived),
         takeEvery(appStateChanged, onAppStateChanged),

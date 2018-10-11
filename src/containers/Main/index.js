@@ -14,7 +14,6 @@ import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import GlobalModal from 'containers/Modal';
-import { selectModal } from 'containers/Modal/selectors';
 import Form from './Form';
 import { fetchContacts, makeCall, makeVideoCall } from './actions';
 import { selectContactList } from './selectors';
@@ -65,7 +64,6 @@ class App extends React.Component {
 
 const mapStateToProps = createStructuredSelector({
     contactList: selectContactList,
-    modal: selectModal,
 });
 
 const mapDispatchToProps = {

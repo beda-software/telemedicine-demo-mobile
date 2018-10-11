@@ -1,13 +1,23 @@
-/*
- * Copyright (c) 2011-2018, Zingaya, Inc. All rights reserved.
- */
-
-'use strict';
 
 import React from 'react';
 
-import loginManager from './LoginManager';
+// import loginManager from './LoginManager';
 import NotificationsIOS from 'react-native-notifications';
+import { eventChannel } from 'redux-saga';
+
+export function createPushTokenChannel() {
+    return eventChannel((emit) => {
+        const handler = (token) => {
+            emit(token);
+        };
+        NotificationsIOS.addEventListener('pushKitRegistered', handler);
+        NotificationsIOS.registerPushKit();
+
+        return () => {
+            NotificationsIOS.removeEventListener('pushKitRegistered', handler);
+        };
+    });
+}
 
 class PushManager {
   pushToken = '';
@@ -34,17 +44,17 @@ class PushManager {
   }
 
   pushNotificationReceived(notification) {
-    loginManager.getInstance().pushNotificationReceived(notification);
+    // loginManager.getInstance().pushNotificationReceived(notification);
   }
 
   onNotificationReceivedForeground(notification) {
     console.log("Notification Received Foreground: " + notification.getData());
-    loginManager.getInstance().pushNotificationReceived(notification.getData());
+    // loginManager.getInstance().pushNotificationReceived(notification.getData());
   }
 
   onNotificationReceivedBackground(notification) {
     console.log("Notification Received Background: " + notification.getData());
-    loginManager.getInstance().pushNotificationReceived(notification.getData());
+    // loginManager.getInstance().pushNotificationReceived(notification.getData());
   }
 
   showLocalNotification(from) {

@@ -3,7 +3,7 @@ import { Voximplant } from 'react-native-voximplant';
 import { delay } from 'redux-saga';
 import { takeLatest, put, all, select, race } from 'redux-saga/effects';
 
-import { makePost } from 'utils/request';
+import { makePost, appDomain } from 'utils/request';
 import {
     saveUsername,
     saveVoxImplantTokens,
@@ -50,7 +50,7 @@ function* onVoxImplantLogin() {
     const token = yield select(selectApiToken);
 
     const client = Voximplant.getInstance();
-    const fullUsername = `${username}@voice-chat.beda-software.voximplant.com`;
+    const fullUsername = `${username}@${appDomain}`;
 
     try {
         // Connection to the Voximplant Cloud is stayed alive on reloading of the app's
@@ -93,9 +93,9 @@ function* onLoginSuccess() {
     yield put(NavigationActions.navigate({ routeName: 'App' }));
 }
 
-function* onLoginFailed({ payload }) {
+function* onLoginFailed({ payload: { error } }) {
     yield put(hidePreloader());
-    yield put(showModal(payload.error.message));
+    yield put(showModal(error.message));
 }
 
 export default function* loginSaga() {

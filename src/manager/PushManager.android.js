@@ -6,16 +6,33 @@
 
 import React from 'react';
 
-import LoginManager from './LoginManager';
+// import LoginManager from './LoginManager';
 
 import FCM, {FCMEvent} from 'react-native-fcm';
+import { eventChannel } from 'redux-saga';
+
+export function createPushTokenChannel() {
+    return eventChannel((emit) => {
+        const handler = (token) => {
+            emit(token);
+        };
+        FCM.getFCMToken()
+            .then(token => {
+                handler(token);
+            })
+            .catch(() => {
+               console.warn('PushManager android: failed to get FCM token');
+            });
+        return () => {};
+    });
+}
 
 class PushManager {
     pushToken = null;
 
     constructor() { }
 
-    init() {
+    async init() {
         FCM.on(FCMEvent.RefreshToken, (token) => {
             console.log("Refresh token: " + token);
         });
@@ -23,10 +40,10 @@ class PushManager {
             console.log("PushManager: FCM: notification: " + notif.voximplant);
             let remoteData = {};
             remoteData.voximplant = notif.voximplant;
-            LoginManager.getInstance().pushNotificationReceived(remoteData);
+            // LoginManager.getInstance().pushNotificationReceived(remoteData);
         });
 
-        FCM.getFCMToken()
+        await FCM.getFCMToken()
             .then(token => {
                 console.log(token);
                 this.pushToken = token;

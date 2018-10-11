@@ -45,10 +45,7 @@ class Login extends React.PureComponent {
     }
 }
 
-const mapStateToProps = ({ preloader, modal }) => ({
-    preloader,
-    modal,
-});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
     login: compose(login, validate),

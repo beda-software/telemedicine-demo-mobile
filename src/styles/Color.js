@@ -4,6 +4,7 @@ export default {
     ACCENT: '#8b61ff',
     BUTTON: '#662eff',
     WHITE: '#fff',
+    GRAY: '#eee',
     BLACK: '#000',
     RED: '#f54b5e',
 };
