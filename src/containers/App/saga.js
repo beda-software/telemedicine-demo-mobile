@@ -4,6 +4,7 @@ import { all, takeLatest, takeEvery, take, put, select, race } from 'redux-saga/
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
+import { appDomain } from 'utils/request';
 import { showModal } from 'containers/Modal/actions';
 import {
     logout,
@@ -11,21 +12,26 @@ import {
     deinitApp,
     setActiveCall,
     savePushToken,
+    saveVoxImplantTokens,
 
     pushNotificationReceived,
     incomingCallReceived,
     appStateChanged,
 } from './actions';
-import { selectActiveCall, selectPushToken } from './selectors';
-import { createPushTokenChannel, createPushNotificationChannel } from './pushnotification';
+import {
+    selectActiveCall,
+    selectPushToken,
+    selectVoxImplantTokens,
+    selectUsername,
+    selectAppState,
+} from './selectors';
+import {
+    createPushTokenChannel,
+    createPushNotificationChannel,
+    showLocalNotification,
+} from './pushnotification';
 
 function* onLogout() {
-    const client = Voximplant.getInstance();
-
-    try {
-        yield client.disconnect();
-    } catch (err) {
-    }
     yield put(deinitApp());
     yield put(NavigationActions.navigate({ routeName: 'Login' }));
 }
@@ -100,27 +106,14 @@ function createAppStateChangedChannel() {
     });
 }
 
-function* onAppStateChanged({ payload: { newState } }) {
-    console.log('Current app state changed to ' + newState);
-    // if (this.currentAppState === 'active' && this.showIncomingCallScreen && this.call !== null) {
-    //     NavigationService.navigate('IncomingCall', {
-    //         callId: this.call.callId,
-    //         isVideo: null,
-    //         from: null,
-    //     });
-    // }
-}
-
 function* onInitApp() {
     const pushTokenChannel = yield createPushTokenChannel();
     const { pushToken } = yield race({
         pushToken: take(pushTokenChannel),
-        // timeout: delay(5000),
+        timeout: delay(10000),
     });
     if (pushToken) {
         yield put(savePushToken(pushToken));
-        console.log('push token', pushToken);
-
         const client = Voximplant.getInstance();
         client.registerPushNotificationsToken(pushToken);
     } else {
@@ -149,11 +142,21 @@ function* onInitApp() {
 }
 
 function* onDeinitApp() {
+    // TODO: will unregisterPushNotificationsToken get called when connection lost?
+
+    const client = Voximplant.getInstance();
+    try {
+        yield client.disconnect();
+    } catch (err) {
+    }
+    yield client.connect();
+
     const pushToken = yield select(selectPushToken);
     if (pushToken) {
-        const client = Voximplant.getInstance();
         client.unregisterPushNotificationsToken(pushToken);
     }
+
+    yield client.disconnect();
 }
 
 function* onIncomingCallReceived({ payload }) {
@@ -173,8 +176,40 @@ function* onIncomingCallReceived({ payload }) {
     }
 }
 
-function onPushNotificationReceived({ payload: { notification } }) {
+function* onPushNotificationReceived({ payload: { notification } }) {
     console.log('New notification', notification);
+
+    const client = Voximplant.getInstance();
+
+    try {
+        const connectionState = yield client.getClientState();
+        console.log('onPushNotificationReceived: ConnectionState state', connectionState);
+        if (connectionState === Voximplant.ClientState.DISCONNECTED) {
+            yield client.connect();
+        }
+
+        if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
+            const username = yield select(selectUsername);
+            const fullUsername = `${username}@${appDomain}`;
+            const { accessToken } = yield select(selectVoxImplantTokens);
+            console.log('onPushNotificationReceived: loginWithToken: user: ' + username + ', token: ' + accessToken);
+
+            const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
+            yield put(saveVoxImplantTokens(tokens));
+        }
+    } catch (err) {
+        console.log('ERROR: onPushNotificationReceived: loginWithToken: ' + err.message);
+    }
+    client.handlePushNotification({ voximplant: notification.voximplant });
+
+    const appState = yield select(selectAppState);
+    if (appState !== 'active') {
+        showLocalNotification('');
+    }
+}
+
+function onAppStateChanged({ payload: { appState } }) {
+    console.log('Current app state changed to ' + appState);
 }
 
 export default function* appSaga() {

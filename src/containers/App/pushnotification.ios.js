@@ -32,17 +32,11 @@ export function createPushNotificationChannel() {
     });
 }
 
-// class PushManager {
-//
-//     showLocalNotification(from) {
-//         let localNotification = NotificationsIOS.localNotification({
-//             alertBody: 'from: ' + from,
-//             alertTitle: 'Incoming call',
-//             soundName: 'chime.aiff',
-//             silent: false,
-//         });
-//     }
-// }
-//
-// const pushManager = new PushManager();
-// export default pushManager;
+export function showLocalNotification(from) {
+    NotificationsIOS.localNotification({
+        alertBody: `from: ${from}`,
+        alertTitle: 'Incoming call',
+        soundName: 'chime.aiff',
+        silent: false,
+    });
+}

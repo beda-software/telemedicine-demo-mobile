@@ -7,6 +7,8 @@ export function createPushTokenChannel() {
             emit(token);
         };
 
+        FCM.requestPermissions();
+
         FCM.getFCMToken()
             .then((token) => {
                 handler(token);
@@ -32,18 +34,14 @@ export function createPushNotificationChannel() {
     });
 }
 
-// class PushManager {
-//     showLocalNotification(from) {
-//         FCM.presentLocalNotification({
-//             title: 'Incoming call',
-//             body: 'from:' + from,
-//             priority: 'high',
-//             show_in_foreground: false,
-//             icon: 'ic_vox_notification',
-//             number: 10,
-//         });
-//     }
-// }
-//
-// const pushManager = new PushManager();
-// export default pushManager;
+export function showLocalNotification(from) {
+    FCM.presentLocalNotification({
+        title: 'Incoming call',
+        body: `from: ${from}`,
+        priority: 'high',
+        show_in_foreground: true,
+        icon: 'ic_vox_notification',
+        number: 10,
+        local: true,
+    });
+}

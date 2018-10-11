@@ -66,7 +66,7 @@ function* onVoxImplantLogin() {
         // TODO: will be resolved
         const { oneTimeKey } = yield race({
             oneTimeKey: requestOneTimeLoginKey(client, fullUsername),
-            // timeout: delay(10000),
+            timeout: delay(10000),
         });
         if (!oneTimeKey) {
             return yield put(loginFailed({ message: 'Can not fetch one time login key. Please try again.' }));

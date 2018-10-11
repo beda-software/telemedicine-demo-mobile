@@ -6,6 +6,10 @@ export const selectApiToken = createSelector(selectGlobal, (globalState) => glob
 
 export const selectPushToken = createSelector(selectGlobal, (globalState) => globalState.pushToken);
 
+export const selectVoxImplantTokens = createSelector(selectGlobal, (globalState) => globalState.voxImplantTokens);
+
 export const selectUsername = createSelector(selectGlobal, (globalState) => globalState.username);
 
 export const selectActiveCall = createSelector(selectGlobal, (globalState) => globalState.activeCall);
+
+export const selectAppState = createSelector(selectGlobal, (globalState) => globalState.appState);

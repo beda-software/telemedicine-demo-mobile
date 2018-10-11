@@ -7,13 +7,16 @@ import {
     saveUsername,
     logout,
     setActiveCall,
+    appStateChanged,
 } from './actions';
 
 const initialState = {
-    username: null,
+    username: '',
     apiToken: null,
-    tokens: null,
+    pushToken: null,
+    voxImplantTokens: {},
     activeCall: null,
+    appState: 'active',
 };
 
 export default createReducer({
@@ -29,22 +32,29 @@ export default createReducer({
         ...state,
         username,
     }),
-    [saveVoxImplantTokens]: (state, { tokens }) => ({
+    [saveVoxImplantTokens]: (state, { voxImplantTokens }) => ({
         // TODO: move to SAGA
         // DefaultPreference.set('accessToken', tokens.accessToken);
         // DefaultPreference.set('refreshToken', tokens.refreshToken);
         // DefaultPreference.set('accessExpire', tokens.accessExpire.toString());
         // DefaultPreference.set('refreshExpire', tokens.refreshExpire.toString());
         ...state,
-        tokens,
+        voxImplantTokens,
     }),
     [logout]: (state) => ({
         ...state,
-        tokens: null,
+        voxImplantTokens: {},
         apiToken: null,
+        pushToken: null,
+        activeCall: null,
+        username: '',
     }),
     [setActiveCall]: (state, { activeCall }) => ({
         ...state,
         activeCall,
+    }),
+    [appStateChanged]: (state, { appState }) => ({
+        ...state,
+        appState,
     }),
 }, initialState);

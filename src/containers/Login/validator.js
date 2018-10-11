@@ -10,7 +10,6 @@ const schema = {
         password: {
             type: 'string',
             description: 'user password',
-            minLength: 1,
         },
     },
     required: ['username', 'password'],
