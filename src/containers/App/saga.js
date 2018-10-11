@@ -4,7 +4,6 @@ import { all, takeLatest, takeEvery, take, put, select, race } from 'redux-saga/
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
-import { createPushTokenChannel } from 'managers/PushManager';
 import { showModal } from 'containers/Modal/actions';
 import {
     logout,
@@ -13,10 +12,12 @@ import {
     setActiveCall,
     savePushToken,
 
+    pushNotificationReceived,
     incomingCallReceived,
     appStateChanged,
 } from './actions';
 import { selectActiveCall, selectPushToken } from './selectors';
+import { createPushTokenChannel, createPushNotificationChannel } from './pushnotification';
 
 function* onLogout() {
     const client = Voximplant.getInstance();
@@ -114,7 +115,7 @@ function* onInitApp() {
     const pushTokenChannel = yield createPushTokenChannel();
     const { pushToken } = yield race({
         pushToken: take(pushTokenChannel),
-        timeout: delay(5000),
+        // timeout: delay(5000),
     });
     if (pushToken) {
         yield put(savePushToken(pushToken));
@@ -127,9 +128,13 @@ function* onInitApp() {
     }
     pushTokenChannel.close();
 
+    const pushNotificationChannel = createPushNotificationChannel();
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
 
+    yield takeEvery(pushNotificationChannel, function* pushNotificationReceivedHandler(notification) {
+        yield put(pushNotificationReceived(notification));
+    });
     yield takeEvery(incomingCallChannel, function* incomingCallReceivedHandler(newIncomingCall) {
         yield put(incomingCallReceived(newIncomingCall));
     });
@@ -140,6 +145,7 @@ function* onInitApp() {
     yield take(deinitApp);
     incomingCallChannel.close();
     appStateChangedChannel.close();
+    pushNotificationChannel.close();
 }
 
 function* onDeinitApp() {
@@ -167,6 +173,10 @@ function* onIncomingCallReceived({ payload }) {
     }
 }
 
+function onPushNotificationReceived({ payload: { notification } }) {
+    console.log('New notification', notification);
+}
+
 export default function* appSaga() {
     yield all([
         takeLatest(logout, onLogout),
@@ -175,5 +185,6 @@ export default function* appSaga() {
 
         takeEvery(incomingCallReceived, onIncomingCallReceived),
         takeEvery(appStateChanged, onAppStateChanged),
+        takeEvery(pushNotificationReceived, onPushNotificationReceived),
     ]);
 }

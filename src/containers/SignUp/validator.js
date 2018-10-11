@@ -20,12 +20,12 @@ const schema = {
         passwordConfirm: {
             type: 'string',
             description: 'confirm user password',
-            'const': {
-                '$data': '1/password',
+            const: {
+                $data: '1/password',
             },
         },
     },
     required: ['username', 'displayName', 'password', 'passwordConfirm'],
 };
 
-export default validator = makeValidator(schema);
+export default makeValidator(schema);

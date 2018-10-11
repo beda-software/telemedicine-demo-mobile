@@ -10,10 +10,10 @@ const schema = {
         password: {
             type: 'string',
             description: 'user password',
-            minLength: 8,
+            minLength: 1,
         },
     },
     required: ['username', 'password'],
 };
 
-export default validator = makeValidator(schema);
+export default makeValidator(schema);

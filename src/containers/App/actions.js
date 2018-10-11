@@ -10,5 +10,6 @@ export const deinitApp = createAction();
 export const setActiveCall = createAction((activeCall) => ({ activeCall }));
 
 // Events actions
+export const pushNotificationReceived = createAction((notification) => ({ notification }));
 export const incomingCallReceived = createAction((call) => ({ call }));
 export const appStateChanged = createAction((newState) => ({ newState }));
