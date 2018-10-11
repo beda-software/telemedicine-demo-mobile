@@ -16,6 +16,7 @@ export function createPushTokenChannel() {
         const handler = (token) => {
             emit(token);
         };
+
         FCM.getFCMToken()
             .then(token => {
                 handler(token);

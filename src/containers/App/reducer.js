@@ -3,6 +3,7 @@ import { createReducer } from 'redux-act';
 import {
     saveVoxImplantTokens,
     saveApiToken,
+    savePushToken,
     saveUsername,
     logout,
     setActiveCall,
@@ -19,6 +20,10 @@ export default createReducer({
     [saveApiToken]: (state, { apiToken }) => ({
         ...state,
         apiToken,
+    }),
+    [savePushToken]: (state, { pushToken }) => ({
+        ...state,
+        pushToken,
     }),
     [saveUsername]: (state, { username }) => ({
         ...state,

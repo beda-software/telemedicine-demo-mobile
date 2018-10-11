@@ -11,11 +11,12 @@ import {
     initApp,
     deinitApp,
     setActiveCall,
+    savePushToken,
 
     incomingCallReceived,
     appStateChanged,
 } from './actions';
-import { selectActiveCall } from './selectors';
+import { selectActiveCall, selectPushToken } from './selectors';
 
 function* onLogout() {
     const client = Voximplant.getInstance();
@@ -116,6 +117,7 @@ function* onInitApp() {
         timeout: delay(5000),
     });
     if (pushToken) {
+        yield put(savePushToken(pushToken));
         console.log('push token', pushToken);
 
         const client = Voximplant.getInstance();
@@ -140,9 +142,12 @@ function* onInitApp() {
     appStateChangedChannel.close();
 }
 
-function onDeinitApp() {
-    const client = Voximplant.getInstance();
-    client.unregisterPushNotificationsToken(PushManager.getPushToken());
+function* onDeinitApp() {
+    const pushToken = yield select(selectPushToken);
+    if (pushToken) {
+        const client = Voximplant.getInstance();
+        client.unregisterPushNotificationsToken(pushToken);
+    }
 }
 
 function* onIncomingCallReceived({ payload }) {
