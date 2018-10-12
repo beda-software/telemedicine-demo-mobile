@@ -19,7 +19,7 @@ export function createPushTokenChannel() {
 export function createPushNotificationChannel() {
     return eventChannel((emit) => {
         const handler = (notification) => {
-            emit(notification);
+            emit(notification.getData());
         };
         NotificationsIOS.consumeBackgroundQueue();
         NotificationsIOS.addEventListener('notificationReceivedBackground', handler);
