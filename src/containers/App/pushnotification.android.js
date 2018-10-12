@@ -6,14 +6,9 @@ export function createPushTokenChannel() {
         const handler = (token) => {
             emit(token);
         };
+        // TODO: handle token refresh event
 
         FCM.requestPermissions();
-        FCM.createNotificationChannel({
-            id: 'default',
-            name: 'Default',
-            description: 'Default',
-            priority: 'high',
-        });
 
         FCM.getFCMToken()
             .then((token) => {
@@ -36,6 +31,12 @@ export function createPushNotificationChannel() {
             emit(notification);
         };
 
+        FCM.createNotificationChannel({
+            id: 'default',
+            name: 'Default',
+            description: 'Default',
+            priority: 'high',
+        });
         FCM.on(FCMEvent.Notification, handler);
         return () => {
             FCM.off(FCMEvent.Notification, handler);

@@ -41,6 +41,7 @@ function* onMakeCall({ payload }) {
                 receiveVideo: isVideo,
             },
         };
+
         const newCall = yield Voximplant.getInstance()
             .call(contactUsername, callSettings);
         yield put(setActiveCall(newCall));

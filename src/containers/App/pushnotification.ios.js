@@ -6,6 +6,7 @@ export function createPushTokenChannel() {
         const handler = (token) => {
             emit(token);
         };
+        NotificationsIOS.requestPermissions();
         NotificationsIOS.addEventListener('pushKitRegistered', handler);
         NotificationsIOS.registerPushKit();
 
@@ -18,7 +19,6 @@ export function createPushTokenChannel() {
 export function createPushNotificationChannel() {
     return eventChannel((emit) => {
         const handler = (notification) => {
-            console.log('New notification', notification);
             emit(notification);
         };
         NotificationsIOS.consumeBackgroundQueue();

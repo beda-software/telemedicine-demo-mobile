@@ -36,6 +36,29 @@ function* onLogout() {
     yield put(NavigationActions.navigate({ routeName: 'Login' }));
 }
 
+export function* reLogin() {
+    const client = Voximplant.getInstance();
+
+    try {
+        const connectionState = yield client.getClientState();
+        if (connectionState === Voximplant.ClientState.DISCONNECTED) {
+            yield client.connect();
+        }
+
+        if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
+            const username = yield select(selectUsername);
+            const fullUsername = `${username}@${appDomain}`;
+            const { accessToken } = yield select(selectVoxImplantTokens);
+            console.log('reLogin: loginWithToken: user: ' + username + ', token: ' + accessToken);
+
+            const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
+            yield put(saveVoxImplantTokens(tokens));
+        }
+    } catch (err) {
+        yield put(showModal(`Cannot re-login:\n${err.message}`));
+    }
+}
+
 export function* requestPermissions(isVideo) {
     if (Platform.OS === 'android') {
         let permissions = [
@@ -107,20 +130,6 @@ function createAppStateChangedChannel() {
 }
 
 function* onInitApp() {
-    const pushTokenChannel = yield createPushTokenChannel();
-    const { pushToken } = yield race({
-        pushToken: take(pushTokenChannel),
-        timeout: delay(10000),
-    });
-    if (pushToken) {
-        yield put(savePushToken(pushToken));
-        const client = Voximplant.getInstance();
-        client.registerPushNotificationsToken(pushToken);
-    } else {
-        yield put(showModal('Cannot receive push token'));
-    }
-    pushTokenChannel.close();
-
     const pushNotificationChannel = createPushNotificationChannel();
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
@@ -134,6 +143,20 @@ function* onInitApp() {
     yield takeEvery(appStateChangedChannel, function* appStateChangedHandler(newState) {
         yield put(appStateChanged(newState));
     });
+
+    const pushTokenChannel = yield createPushTokenChannel();
+    const { pushToken } = yield race({
+        pushToken: take(pushTokenChannel),
+        timeout: delay(3000),
+    });
+    if (pushToken) {
+        yield put(savePushToken(pushToken));
+        const client = Voximplant.getInstance();
+        client.registerPushNotificationsToken(pushToken);
+    } else {
+        yield put(showModal('Cannot receive push token'));
+    }
+    pushTokenChannel.close();
 
     yield take(deinitApp);
     incomingCallChannel.close();
@@ -171,43 +194,29 @@ function* onIncomingCallReceived({ payload }) {
                 callId: call.callId,
             },
         }));
+
+        const appState = yield select(selectAppState);
+        if (appState !== 'active') {
+            showLocalNotification('');
+        }
     }
 }
 
 function* onPushNotificationReceived({ payload: { notification } }) {
     console.log('New notification', notification);
 
+    yield* reLogin();
+
     const client = Voximplant.getInstance();
-
-    try {
-        const connectionState = yield client.getClientState();
-        console.log('onPushNotificationReceived: ConnectionState state', connectionState);
-        if (connectionState === Voximplant.ClientState.DISCONNECTED) {
-            yield client.connect();
-        }
-
-        if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
-            const username = yield select(selectUsername);
-            const fullUsername = `${username}@${appDomain}`;
-            const { accessToken } = yield select(selectVoxImplantTokens);
-            console.log('onPushNotificationReceived: loginWithToken: user: ' + username + ', token: ' + accessToken);
-
-            const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
-            yield put(saveVoxImplantTokens(tokens));
-        }
-    } catch (err) {
-        console.log('ERROR: onPushNotificationReceived: loginWithToken: ' + err.message);
-    }
     client.handlePushNotification({ voximplant: notification.voximplant });
-
-    const appState = yield select(selectAppState);
-    if (appState !== 'active') {
-        showLocalNotification('');
-    }
 }
 
-function onAppStateChanged({ payload: { appState } }) {
+function* onAppStateChanged({ payload: { appState } }) {
     console.log('Current app state changed to ' + appState);
+
+    if (appState === 'active') {
+        yield* reLogin();
+    }
 }
 
 export default function* appSaga() {
