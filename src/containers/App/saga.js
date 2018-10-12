@@ -142,8 +142,6 @@ function* onInitApp() {
 }
 
 function* onDeinitApp() {
-    // TODO: will unregisterPushNotificationsToken get called when connection lost?
-
     const client = Voximplant.getInstance();
     try {
         yield client.disconnect();

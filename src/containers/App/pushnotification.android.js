@@ -8,6 +8,12 @@ export function createPushTokenChannel() {
         };
 
         FCM.requestPermissions();
+        FCM.createNotificationChannel({
+            id: 'default',
+            name: 'Default',
+            description: 'Default',
+            priority: 'high',
+        });
 
         FCM.getFCMToken()
             .then((token) => {
@@ -24,6 +30,9 @@ export function createPushTokenChannel() {
 export function createPushNotificationChannel() {
     return eventChannel((emit) => {
         const handler = (notification) => {
+            if (notification.local_notification) {
+                return;
+            }
             emit(notification);
         };
 
@@ -36,12 +45,12 @@ export function createPushNotificationChannel() {
 
 export function showLocalNotification(from) {
     FCM.presentLocalNotification({
+        channel: 'default',
         title: 'Incoming call',
         body: `from: ${from}`,
         priority: 'high',
         show_in_foreground: true,
         icon: 'ic_vox_notification',
         number: 10,
-        local: true,
     });
 }
