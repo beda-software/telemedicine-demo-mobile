@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "609052811148",
+    "firebase_url": "https://tdapp-6818d.firebaseio.com",
+    "project_id": "tdapp-6818d",
+    "storage_bucket": "tdapp-6818d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609052811148:android:e00667ec168e4e3e",
+        "android_client_info": {
+          "package_name": "software.beda.telemedicinedemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "609052811148-uuh48ft30pamagimognb2gi8iaf9di93.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "software.beda.telemedicinedemo",
+            "certificate_hash": "2aae6aa185a3946315fcd67ff91a6b205903d08a"
+          }
+        },
+        {
+          "client_id": "609052811148-jbvro86ll4qr8kg455288c3f3q1d4udp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAX1Y-oTMJvWzpHJvp8fKUAn0Qos0zEjws"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "609052811148-jbvro86ll4qr8kg455288c3f3q1d4udp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -37,7 +37,6 @@
               <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
           </intent-filter>
       </service>
-
       <receiver android:name="com.evollu.react.fcm.FIRLocalMessagingPublisher"/>
       <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
                  android:resource="@drawable/ic_vox_notification"/>
