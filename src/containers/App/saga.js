@@ -194,6 +194,7 @@ function* onDeinitApp() {
 
     yield client.disconnect();
     yield put(setAppInitializedStatus(false));
+    yield* clearSessionData();
 }
 
 function* onIncomingCallReceived({ payload }) {
@@ -236,7 +237,7 @@ function* onAppStateChanged({ payload: { appState } }) {
     }
 }
 
-function* restoreData() {
+function* restoreSessionData() {
     const apiToken = yield DefaultPreference.get('apiToken');
     const accessToken = yield DefaultPreference.get('accessToken');
     const username = yield DefaultPreference.get('username');
@@ -246,9 +247,16 @@ function* restoreData() {
     yield put(saveUsername(username));
 }
 
+function* clearSessionData() {
+    // TODO: use clearMultiple
+    yield DefaultPreference.clear('apiToken');
+    yield DefaultPreference.clear('accessToken');
+    yield DefaultPreference.clear('username');
+}
+
 function* init() {
     if (yield isAuthenticated()) {
-        yield* restoreData();
+        yield* restoreSessionData();
         yield* reLogin();
         const isAppInitialized = yield select(selectIsAppInitialized);
         if (!isAppInitialized) {
@@ -259,22 +267,22 @@ function* init() {
     }
 }
 
-function onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
+function* onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
     console.log('set accessToken', voxImplantTokens.accessToken);
 
-    DefaultPreference.set('accessToken', voxImplantTokens.accessToken);
+    yield DefaultPreference.set('accessToken', voxImplantTokens.accessToken);
 }
 
-function onSaveApiToken({ payload: { apiToken } }) {
+function* onSaveApiToken({ payload: { apiToken } }) {
     console.log('set apiToken', apiToken);
 
-    DefaultPreference.set('apiToken', apiToken);
+    yield DefaultPreference.set('apiToken', apiToken);
 }
 
-function onSaveUsername({ payload: { username } }) {
+function* onSaveUsername({ payload: { username } }) {
     console.log('set username', username);
 
-    DefaultPreference.set('username', username);
+    yield DefaultPreference.set('username', username);
 }
 
 export default function* appSaga() {

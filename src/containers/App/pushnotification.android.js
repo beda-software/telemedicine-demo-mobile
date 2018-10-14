@@ -38,9 +38,7 @@ export function createPushNotificationChannel() {
             priority: 'high',
         });
         FCM.on(FCMEvent.Notification, handler);
-        return () => {
-            FCM.off(FCMEvent.Notification, handler);
-        };
+        return () => {};
     });
 }
 
