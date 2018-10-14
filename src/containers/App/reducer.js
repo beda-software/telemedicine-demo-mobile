@@ -8,6 +8,7 @@ import {
     logout,
     setActiveCall,
     appStateChanged,
+    setAppInitializedStatus,
 } from './actions';
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
     voxImplantTokens: {},
     activeCall: null,
     appState: 'active',
+    isAppInitialized: false,
 };
 
 export default createReducer({
@@ -56,5 +58,9 @@ export default createReducer({
     [appStateChanged]: (state, { appState }) => ({
         ...state,
         appState,
+    }),
+    [setAppInitializedStatus]: (state, { isAppInitialized }) => ({
+        ...state,
+        isAppInitialized,
     }),
 }, initialState);

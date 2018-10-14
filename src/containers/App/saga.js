@@ -1,8 +1,9 @@
 import { AppState, Platform, PermissionsAndroid } from 'react-native';
 import { eventChannel, delay } from 'redux-saga';
-import { all, takeLatest, takeEvery, take, put, select, race } from 'redux-saga/effects';
+import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
+import DefaultPreference from 'react-native-default-preference';
 
 import { appDomain } from 'utils/request';
 import { showModal } from 'containers/Modal/actions';
@@ -12,7 +13,10 @@ import {
     deinitApp,
     setActiveCall,
     savePushToken,
+    saveApiToken,
+    saveUsername,
     saveVoxImplantTokens,
+    setAppInitializedStatus,
 
     pushNotificationReceived,
     incomingCallReceived,
@@ -24,12 +28,20 @@ import {
     selectVoxImplantTokens,
     selectUsername,
     selectAppState,
+    selectIsAppInitialized,
 } from './selectors';
 import {
     createPushTokenChannel,
     createPushNotificationChannel,
     showLocalNotification,
 } from './pushnotification';
+
+function* isAuthenticated() {
+    const username = yield DefaultPreference.get('username');
+    const accessToken = yield DefaultPreference.get('accessToken');
+
+    return !!(username && accessToken);
+}
 
 function* onLogout() {
     yield put(deinitApp());
@@ -56,6 +68,7 @@ export function* reLogin() {
         }
     } catch (err) {
         yield put(showModal(`Cannot re-login:\n${err.message}`));
+        throw err;
     }
 }
 
@@ -130,9 +143,11 @@ function createAppStateChangedChannel() {
 }
 
 function* onInitApp() {
-    const pushNotificationChannel = createPushNotificationChannel();
+    const pushNotificationChannel = yield createPushNotificationChannel();
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
+
+    yield put(setAppInitializedStatus(true));
 
     yield takeEvery(pushNotificationChannel, function* pushNotificationReceivedHandler(notification) {
         yield put(pushNotificationReceived(notification));
@@ -178,6 +193,7 @@ function* onDeinitApp() {
     }
 
     yield client.disconnect();
+    yield put(setAppInitializedStatus(false));
 }
 
 function* onIncomingCallReceived({ payload }) {
@@ -206,7 +222,6 @@ function* onPushNotificationReceived({ payload: { notification } }) {
     console.log('New notification', notification);
 
     yield* reLogin();
-
     const client = Voximplant.getInstance();
     client.handlePushNotification({ voximplant: notification.voximplant });
 }
@@ -215,8 +230,51 @@ function* onAppStateChanged({ payload: { appState } }) {
     console.log('Current app state changed to ' + appState);
 
     if (appState === 'active') {
-        yield* reLogin();
+        if (yield isAuthenticated()) {
+            yield* reLogin();
+        }
     }
+}
+
+function* restoreData() {
+    const apiToken = yield DefaultPreference.get('apiToken');
+    const accessToken = yield DefaultPreference.get('accessToken');
+    const username = yield DefaultPreference.get('username');
+
+    yield put(saveApiToken(apiToken));
+    yield put(saveVoxImplantTokens({ accessToken }));
+    yield put(saveUsername(username));
+}
+
+function* init() {
+    if (yield isAuthenticated()) {
+        yield* restoreData();
+        yield* reLogin();
+        const isAppInitialized = yield select(selectIsAppInitialized);
+        if (!isAppInitialized) {
+            yield put(initApp());
+            // TODO: check that current routeName is Login
+            yield put(NavigationActions.navigate({ routeName: 'App' }));
+        }
+    }
+}
+
+function onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
+    console.log('set accessToken', voxImplantTokens.accessToken);
+
+    DefaultPreference.set('accessToken', voxImplantTokens.accessToken);
+}
+
+function onSaveApiToken({ payload: { apiToken } }) {
+    console.log('set apiToken', apiToken);
+
+    DefaultPreference.set('apiToken', apiToken);
+}
+
+function onSaveUsername({ payload: { username } }) {
+    console.log('set username', username);
+
+    DefaultPreference.set('username', username);
 }
 
 export default function* appSaga() {
@@ -228,5 +286,9 @@ export default function* appSaga() {
         takeEvery(incomingCallReceived, onIncomingCallReceived),
         takeEvery(appStateChanged, onAppStateChanged),
         takeEvery(pushNotificationReceived, onPushNotificationReceived),
+        takeEvery(saveApiToken, onSaveApiToken),
+        takeEvery(saveVoxImplantTokens, onSaveVoxImplantTokens),
+        takeEvery(saveUsername, onSaveUsername),
+        fork(init),
     ]);
 }

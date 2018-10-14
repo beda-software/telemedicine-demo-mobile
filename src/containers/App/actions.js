@@ -8,6 +8,7 @@ export const logout = createAction();
 export const initApp = createAction();
 export const deinitApp = createAction();
 export const setActiveCall = createAction((activeCall) => ({ activeCall }));
+export const setAppInitializedStatus = createAction((isAppInitialized) => ({ isAppInitialized }));
 
 // Events actions
 export const pushNotificationReceived = createAction((notification) => ({ notification }));

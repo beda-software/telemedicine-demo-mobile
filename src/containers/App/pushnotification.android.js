@@ -52,6 +52,7 @@ export function showLocalNotification(from) {
         priority: 'high',
         show_in_foreground: true,
         icon: 'ic_vox_notification',
+        wake_screen: true,
         number: 10,
     });
 }

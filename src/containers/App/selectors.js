@@ -13,3 +13,5 @@ export const selectUsername = createSelector(selectGlobal, (globalState) => glob
 export const selectActiveCall = createSelector(selectGlobal, (globalState) => globalState.activeCall);
 
 export const selectAppState = createSelector(selectGlobal, (globalState) => globalState.appState);
+
+export const selectIsAppInitialized = createSelector(selectGlobal, (globalState) => globalState.isAppInitialized);
