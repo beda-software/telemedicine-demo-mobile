@@ -200,6 +200,12 @@ function* onIncomingCallReceived({ payload }) {
         yield put(showModal('You\'ve received one another call, but we declined it.'));
     } else {
         yield put(setActiveCall(call));
+        // TODO:
+        // call yield createCallChannel(call) and catch Disconnect event
+        // on disconnect:
+        // yield put(setActiveCall(null));
+        // yield put(NavigationActions.navigate({ routeName: 'App' }));
+        // and remove these lines from incomming call saga
         yield put(NavigationActions.navigate({
             routeName: 'IncomingCall',
             params: {
