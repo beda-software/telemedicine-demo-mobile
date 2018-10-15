@@ -30,7 +30,7 @@ function* onSubscribeToIncomingCallEvents({ payload: { call: activeCall } }) {
     const channel = createCallChannel(activeCall);
 
     yield takeEvery(channel, function* onCallEvent(event) {
-        console.log(`Incoming call event: ${event.name}`, event);
+        console.log(`Incoming call event: ${event.name}`);
         switch (event.name) {
         case Voximplant.CallEvents.Disconnected: {
             yield put(incomingCallDisconnected());

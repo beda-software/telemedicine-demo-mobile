@@ -1,9 +1,8 @@
-import { AppState, Platform, PermissionsAndroid } from 'react-native';
+import { AppState, Platform, PermissionsAndroid, AsyncStorage } from 'react-native';
 import { eventChannel, delay } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
-import DefaultPreference from 'react-native-default-preference';
 
 import { appDomain } from 'utils/request';
 import { showModal } from 'containers/Modal/actions';
@@ -37,8 +36,8 @@ import {
 } from './pushnotification';
 
 function* hasSession() {
-    const [apiToken, accessToken, username] = yield DefaultPreference.getMultiple([
-        'apiToken', 'accessToken', 'username']);
+    const [[, apiToken], [, accessToken], [, username]] =
+        yield AsyncStorage.multiGet(['apiToken', 'accessToken', 'username']);
 
     return !!(username && accessToken && apiToken);
 }
@@ -239,8 +238,8 @@ function* onAppStateChanged({ payload: { appState } }) {
 }
 
 function* restoreSessionData() {
-    const [apiToken, accessToken, username] = yield DefaultPreference.getMultiple([
-        'apiToken', 'accessToken', 'username']);
+    const [[, apiToken], [, accessToken], [, username]] =
+        yield AsyncStorage.multiGet(['apiToken', 'accessToken', 'username']);
 
     if (apiToken && accessToken && username) {
         yield put(saveApiToken(apiToken));
@@ -254,7 +253,7 @@ function* restoreSessionData() {
 }
 
 function* clearSessionData() {
-    yield DefaultPreference.clearMultiple(['apiToken', 'accessToken', 'username']);
+    yield AsyncStorage.multiRemove(['apiToken', 'accessToken', 'username']);
 }
 
 function* initPushNotifications() {
@@ -291,19 +290,19 @@ function* bootstrap() {
 function* onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
     console.log('set accessToken', voxImplantTokens.accessToken);
 
-    yield DefaultPreference.set('accessToken', voxImplantTokens.accessToken);
+    yield AsyncStorage.setItem('accessToken', voxImplantTokens.accessToken);
 }
 
 function* onSaveApiToken({ payload: { apiToken } }) {
     console.log('set apiToken', apiToken);
 
-    yield DefaultPreference.set('apiToken', apiToken);
+    yield AsyncStorage.setItem('apiToken', apiToken);
 }
 
 function* onSaveUsername({ payload: { username } }) {
     console.log('set username', username);
 
-    yield DefaultPreference.set('username', username);
+    yield AsyncStorage.setItem('username', username);
 }
 
 export default function* appSaga() {
