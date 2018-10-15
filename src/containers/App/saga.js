@@ -143,15 +143,11 @@ function createAppStateChangedChannel() {
 }
 
 function* onInitApp() {
-    const pushNotificationChannel = yield createPushNotificationChannel();
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
 
     yield put(setAppInitializedStatus(true));
 
-    yield takeEvery(pushNotificationChannel, function* pushNotificationReceivedHandler(notification) {
-        yield put(pushNotificationReceived(notification));
-    });
     yield takeEvery(incomingCallChannel, function* incomingCallReceivedHandler(newIncomingCall) {
         yield put(incomingCallReceived(newIncomingCall));
     });
@@ -176,7 +172,6 @@ function* onInitApp() {
     yield take(deinitApp);
     incomingCallChannel.close();
     appStateChangedChannel.close();
-    pushNotificationChannel.close();
 }
 
 function* onDeinitApp() {
@@ -256,11 +251,28 @@ function* clearSessionData() {
     yield DefaultPreference.clearMultiple(['apiToken', 'accessToken', 'username']);
 }
 
+function* initPushNotifications() {
+    const pushNotificationChannel = yield createPushNotificationChannel();
+
+    // Wait until app will be initialized (login and etc.)
+    yield take(initApp);
+
+    yield takeEvery(pushNotificationChannel, function* pushNotificationReceivedHandler(notification) {
+        yield put(pushNotificationReceived(notification));
+    });
+
+    yield take(deinitApp);
+    pushNotificationChannel.close();
+}
+
 function* bootstrap() {
+    yield fork(initPushNotifications);
+
     if (yield* restoreSessionData()) {
         yield put(NavigationActions.navigate({ routeName: 'App' }));
 
         yield* reLoginVoxImplant();
+        // TODO: isAppInitialized is always false
         const isAppInitialized = yield select(selectIsAppInitialized);
         if (!isAppInitialized) {
             yield put(initApp());

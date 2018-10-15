@@ -1,5 +1,5 @@
 import FCM, { FCMEvent } from 'react-native-fcm';
-import { eventChannel } from 'redux-saga';
+import { eventChannel, buffers } from 'redux-saga';
 
 export function createPushTokenChannel() {
     return eventChannel((emit) => {
@@ -23,6 +23,7 @@ export function createPushTokenChannel() {
 }
 
 export function createPushNotificationChannel() {
+    // We use fixed buffer for the first initial message
     return eventChannel((emit) => {
         const handler = (notification) => {
             if (notification.local_notification) {
@@ -38,8 +39,9 @@ export function createPushNotificationChannel() {
             priority: 'high',
         });
         FCM.on(FCMEvent.Notification, handler);
+
         return () => {};
-    });
+    }, buffers.fixed(1));
 }
 
 export function showLocalNotification(from) {
