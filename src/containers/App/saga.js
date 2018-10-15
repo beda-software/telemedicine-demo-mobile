@@ -36,11 +36,11 @@ import {
     showLocalNotification,
 } from './pushnotification';
 
-function* isAuthenticated() {
-    const username = yield DefaultPreference.get('username');
-    const accessToken = yield DefaultPreference.get('accessToken');
+function* hasSession() {
+    const [apiToken, accessToken, username] = yield DefaultPreference.getMultiple([
+        'apiToken', 'accessToken', 'username']);
 
-    return !!(username && accessToken);
+    return !!(username && accessToken && apiToken);
 }
 
 function* onLogout() {
@@ -48,7 +48,7 @@ function* onLogout() {
     yield put(NavigationActions.navigate({ routeName: 'Login' }));
 }
 
-export function* reLogin() {
+export function* reLoginVoxImplant() {
     const client = Voximplant.getInstance();
 
     try {
@@ -61,7 +61,7 @@ export function* reLogin() {
             const username = yield select(selectUsername);
             const fullUsername = `${username}@${appDomain}`;
             const { accessToken } = yield select(selectVoxImplantTokens);
-            console.log('reLogin: loginWithToken: user: ' + username + ', token: ' + accessToken);
+            console.log('reLoginVoxImplant: loginWithToken: user: ' + username + ', token: ' + accessToken);
 
             const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
             yield put(saveVoxImplantTokens(tokens));
@@ -222,7 +222,7 @@ function* onIncomingCallReceived({ payload }) {
 function* onPushNotificationReceived({ payload: { notification } }) {
     console.log('New notification', notification);
 
-    yield* reLogin();
+    yield* reLoginVoxImplant();
     const client = Voximplant.getInstance();
     client.handlePushNotification({ voximplant: notification.voximplant });
 }
@@ -231,39 +231,42 @@ function* onAppStateChanged({ payload: { appState } }) {
     console.log('Current app state changed to ' + appState);
 
     if (appState === 'active') {
-        if (yield isAuthenticated()) {
-            yield* reLogin();
+        if (yield hasSession()) {
+            yield* reLoginVoxImplant();
         }
     }
 }
 
 function* restoreSessionData() {
-    const apiToken = yield DefaultPreference.get('apiToken');
-    const accessToken = yield DefaultPreference.get('accessToken');
-    const username = yield DefaultPreference.get('username');
+    const [apiToken, accessToken, username] = yield DefaultPreference.getMultiple([
+        'apiToken', 'accessToken', 'username']);
 
-    yield put(saveApiToken(apiToken));
-    yield put(saveVoxImplantTokens({ accessToken }));
-    yield put(saveUsername(username));
+    if (apiToken && accessToken && username) {
+        yield put(saveApiToken(apiToken));
+        yield put(saveVoxImplantTokens({ accessToken }));
+        yield put(saveUsername(username));
+
+        return true;
+    }
+
+    return false;
 }
 
 function* clearSessionData() {
-    // TODO: use clearMultiple
-    yield DefaultPreference.clear('apiToken');
-    yield DefaultPreference.clear('accessToken');
-    yield DefaultPreference.clear('username');
+    yield DefaultPreference.clearMultiple(['apiToken', 'accessToken', 'username']);
 }
 
-function* init() {
-    if (yield isAuthenticated()) {
-        yield* restoreSessionData();
-        yield* reLogin();
+function* bootstrap() {
+    if (yield* restoreSessionData()) {
+        yield put(NavigationActions.navigate({ routeName: 'App' }));
+
+        yield* reLoginVoxImplant();
         const isAppInitialized = yield select(selectIsAppInitialized);
         if (!isAppInitialized) {
             yield put(initApp());
-            // TODO: check that current routeName is Login
-            yield put(NavigationActions.navigate({ routeName: 'App' }));
         }
+    } else {
+        yield put(NavigationActions.navigate({ routeName: 'Login' }));
     }
 }
 
@@ -297,6 +300,7 @@ export default function* appSaga() {
         takeEvery(saveApiToken, onSaveApiToken),
         takeEvery(saveVoxImplantTokens, onSaveVoxImplantTokens),
         takeEvery(saveUsername, onSaveUsername),
-        fork(init),
+
+        fork(bootstrap),
     ]);
 }

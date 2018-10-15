@@ -2,6 +2,7 @@ import { createSwitchNavigator, createStackNavigator } from 'react-navigation';
 import { createReactNavigationReduxMiddleware, reduxifyNavigator } from 'react-navigation-redux-helpers';
 import { connect } from 'react-redux';
 
+import Bootstrap from 'containers/Bootstrap';
 import Login from 'containers/Login';
 import SignUp from 'containers/SignUp';
 import IncomingCall from 'containers/IncomingCall';
@@ -30,6 +31,7 @@ const AppStack = createStackNavigator(
 
 const RootNavigator = createSwitchNavigator(
     {
+        Bootstrap,
         App: AppStack,
         Login,
         SignUp,
@@ -37,7 +39,7 @@ const RootNavigator = createSwitchNavigator(
         IncomingCall,
     },
     {
-        initialRouteName: 'Login',
+        initialRouteName: 'Bootstrap',
     }
 );
 

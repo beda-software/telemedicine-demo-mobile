@@ -48,7 +48,7 @@ import {
 } from './actions';
 
 
-class CallScreen extends React.Component {
+class Call extends React.Component {
     componentDidMount() {
         const { isIncoming, isVideo } = this.props.navigation.state.params;
         const { activeCall } = this.props;
@@ -248,4 +248,4 @@ const mapDispatchToProps = {
     setAudioDevice,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(CallScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(Call);
