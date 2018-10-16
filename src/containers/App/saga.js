@@ -1,4 +1,10 @@
-import { AppState, Platform, PermissionsAndroid, AsyncStorage } from 'react-native';
+import {
+    AppState,
+    Platform,
+    PermissionsAndroid,
+    AsyncStorage,
+    NativeModules,
+} from 'react-native';
 import { eventChannel, delay } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
@@ -213,8 +219,8 @@ function* onIncomingCallReceived({ payload }) {
         }));
 
         const appState = yield select(selectAppState);
-        if (appState !== 'active') {
-            showLocalNotification('');
+        if (AppState.currentState !== 'active') {
+            NativeModules.ActivityLauncher.openMainActivity();
         }
     }
 }

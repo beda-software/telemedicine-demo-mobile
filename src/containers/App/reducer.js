@@ -1,3 +1,4 @@
+import { AppState } from 'react-native';
 import { createReducer } from 'redux-act';
 
 import {
@@ -17,7 +18,7 @@ const initialState = {
     pushToken: null,
     voxImplantTokens: {},
     activeCall: null,
-    appState: 'active',
+    appState: AppState.currentState,
     isAppInitialized: false,
 };
 
@@ -35,11 +36,6 @@ export default createReducer({
         username,
     }),
     [saveVoxImplantTokens]: (state, { voxImplantTokens }) => ({
-        // TODO: move to SAGA
-        // DefaultPreference.set('accessToken', tokens.accessToken);
-        // DefaultPreference.set('refreshToken', tokens.refreshToken);
-        // DefaultPreference.set('accessExpire', tokens.accessExpire.toString());
-        // DefaultPreference.set('refreshExpire', tokens.refreshExpire.toString());
         ...state,
         voxImplantTokens,
     }),

@@ -3,7 +3,6 @@ package software.beda.telemedicinedemo;
 import android.app.Application;
 
 import com.voximplant.reactnative.VoxImplantReactPackage;
-import com.reactlibrary.RNDefaultPreferencePackage;
 import com.evollu.react.fcm.FIRMessagingPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 
@@ -27,11 +26,11 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-        new MainReactPackage(),
-        new VoxImplantReactPackage(),
-        new RNDefaultPreferencePackage(),
-        new FIRMessagingPackage(),
-        new VectorIconsPackage()
+          new MainReactPackage(),
+          new VoxImplantReactPackage(),
+          new FIRMessagingPackage(),
+          new VectorIconsPackage(),
+          new ActivityLauncherPackage()
       );
     }
 
