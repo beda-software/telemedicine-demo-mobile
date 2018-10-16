@@ -220,7 +220,9 @@ function* onIncomingCallReceived({ payload }) {
 
         const appState = yield select(selectAppState);
         if (AppState.currentState !== 'active') {
-            NativeModules.ActivityLauncher.openMainActivity();
+            if (Platform.OS === 'android') {
+                NativeModules.ActivityLauncher.openMainActivity();
+            }
         }
     }
 }
