@@ -201,25 +201,29 @@ function* onIncomingCallReceived({ payload }) {
         yield put(showModal('You\'ve received one another call, but we declined it.'));
     } else {
         yield put(setActiveCall(call));
-        // TODO:
-        // call yield createCallChannel(call) and catch Disconnect event
-        // on disconnect:
-        // yield put(setActiveCall(null));
-        // yield put(NavigationActions.navigate({ routeName: 'App' }));
-        // and remove these lines from incomming call saga
-        yield put(NavigationActions.navigate({
-            routeName: 'IncomingCall',
-            params: {
-                callId: call.callId,
-            },
-        }));
 
-        const appState = yield select(selectAppState);
-        if (AppState.currentState !== 'active') {
-            if (Platform.OS === 'android') {
+        if (Platform.OS === 'android') {
+            // TODO:
+            // call yield createCallChannel(call) and catch Disconnect event
+            // on disconnect:
+            // yield put(setActiveCall(null));
+            // yield put(NavigationActions.navigate({ routeName: 'App' }));
+            // and remove these lines from incomming call saga
+            yield put(NavigationActions.navigate({
+                routeName: 'IncomingCall',
+                params: {
+                    callId: call.callId,
+                },
+            }));
+
+            const appState = yield select(selectAppState);
+            if (AppState.currentState !== 'active') {
                 NativeModules.ActivityLauncher.openMainActivity();
             }
+        } else {
+            handleiOSCallKitIncomingCall();
         }
+
     }
 }
 
@@ -301,6 +305,9 @@ function* bootstrap() {
     } else {
         yield put(NavigationActions.navigate({ routeName: 'Login' }));
     }
+}
+
+function handleiOSCallKitIncomingCall() {
     let options = {
         appName: 'TelemedicineDemo',
     };
@@ -312,7 +319,7 @@ function* bootstrap() {
     }
 
     function handler(event) {
-        console.log('event',event)
+        console.log('event',event);
     }
 
     RNCallKit.addEventListener('didReceiveStartCallAction', handler);
@@ -321,16 +328,15 @@ function* bootstrap() {
     RNCallKit.addEventListener('didActivateAudioSession',handler);
     RNCallKit.addEventListener('didDisplayIncomingCall', handler);
     RNCallKit.addEventListener('didPerformSetMutedCallAction', handler);
-    setTimeout(() => {
-    let _uuid = uuid.v4();
-    console.log(_uuid, 'started')
-    RNCallKit.startCall(_uuid, "886900000000")
-        setTimeout(() => {
-            RNCallKit.endCall(_uuid)
-            console.log('ended')
-        }, 5000);
 
-    }, 5000);
+    let _uuid = uuid.v4();
+    console.log(_uuid, 'started');
+    // RNCallKit.startCall(_uuid, "886900000000");
+    RNCallKit.displayIncomingCall(_uuid, 'test', 'number', true);
+    // setTimeout(() => {
+    //     RNCallKit.endCall(_uuid);
+    //     console.log('ended');
+    // }, 5000);
 }
 
 function* onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
