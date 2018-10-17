@@ -24,11 +24,15 @@ function flattenUserEntry({ username, displayName, voxImplantId }) {
 
 function* onFetchContacts() {
     const apiToken = yield select(selectApiToken);
-    const users = yield call(
-        () => makeGet('/User/', {}, apiToken),
-    );
-    const contactList = users.entry.map((user) => flattenUserEntry(user.resource));
-    yield put(saveContactList(contactList));
+    try {
+        const users = yield call(
+            () => makeGet('/User/', {}, apiToken)
+        );
+        const contactList = users.entry.map((user) => flattenUserEntry(user.resource));
+        yield put(saveContactList(contactList));
+    } catch (err) {
+        yield put(showModal(`Cannot fetch users list.\n${err.message}`));
+    }
 }
 
 function* onMakeCall({ payload }) {

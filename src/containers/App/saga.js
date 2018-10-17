@@ -3,7 +3,6 @@ import {
     Platform,
     PermissionsAndroid,
     AsyncStorage,
-    NativeModules,
 } from 'react-native';
 import { eventChannel, delay } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
@@ -40,6 +39,8 @@ import {
     createPushNotificationChannel,
     showLocalNotification,
 } from './pushnotification';
+import RNCallKit from 'react-native-callkit';
+import uuid from 'uuid';
 
 function* hasSession() {
     const [[, apiToken], [, accessToken], [, username]] =
@@ -56,24 +57,19 @@ function* onLogout() {
 export function* reLoginVoxImplant() {
     const client = Voximplant.getInstance();
 
-    try {
-        const connectionState = yield client.getClientState();
-        if (connectionState === Voximplant.ClientState.DISCONNECTED) {
-            yield client.connect();
-        }
+    const connectionState = yield client.getClientState();
+    if (connectionState === Voximplant.ClientState.DISCONNECTED) {
+        yield client.connect();
+    }
 
-        if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
-            const username = yield select(selectUsername);
-            const fullUsername = `${username}@${appDomain}`;
-            const { accessToken } = yield select(selectVoxImplantTokens);
-            console.log('reLoginVoxImplant: loginWithToken: user: ' + username + ', token: ' + accessToken);
+    if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
+        const username = yield select(selectUsername);
+        const fullUsername = `${username}@${appDomain}`;
+        const { accessToken } = yield select(selectVoxImplantTokens);
+        console.log('reLoginVoxImplant: loginWithToken: user: ' + username + ', token: ' + accessToken);
 
-            const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
-            yield put(saveVoxImplantTokens(tokens));
-        }
-    } catch (err) {
-        yield put(showModal(`Cannot re-login:\n${err.message}`));
-        throw err;
+        const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
+        yield put(saveVoxImplantTokens(tokens));
     }
 }
 
@@ -230,9 +226,13 @@ function* onIncomingCallReceived({ payload }) {
 function* onPushNotificationReceived({ payload: { notification } }) {
     console.log('New notification', notification);
 
-    yield* reLoginVoxImplant();
-    const client = Voximplant.getInstance();
-    client.handlePushNotification({ voximplant: notification.voximplant });
+    try {
+        yield* reLoginVoxImplant();
+        const client = Voximplant.getInstance();
+        client.handlePushNotification({ voximplant: notification.voximplant });
+    } catch (err) {
+        yield put(showModal(`Can not handle push notification.\n${err.message}`));
+    }
 }
 
 function* onAppStateChanged({ payload: { appState } }) {
@@ -240,7 +240,11 @@ function* onAppStateChanged({ payload: { appState } }) {
 
     if (appState === 'active') {
         if (yield hasSession()) {
-            yield* reLoginVoxImplant();
+            try {
+                yield* reLoginVoxImplant();
+            } catch (err) {
+                yield put(showModal(`Can not relogin.\n${err.message}`));
+            }
         }
     }
 }
@@ -284,15 +288,49 @@ function* bootstrap() {
     if (yield* restoreSessionData()) {
         yield put(NavigationActions.navigate({ routeName: 'App' }));
 
-        yield* reLoginVoxImplant();
-        // TODO: isAppInitialized is always false
-        const isAppInitialized = yield select(selectIsAppInitialized);
-        if (!isAppInitialized) {
-            yield put(initApp());
+        try {
+            yield* reLoginVoxImplant();
+            // TODO: isAppInitialized is always false??? I'm not sure
+            const isAppInitialized = yield select(selectIsAppInitialized);
+            if (!isAppInitialized) {
+                yield put(initApp());
+            }
+        } catch (err) {
+            yield put(showModal(`Can not bootstrap.\n${err.message}`));
         }
     } else {
         yield put(NavigationActions.navigate({ routeName: 'Login' }));
     }
+    let options = {
+        appName: 'TelemedicineDemo',
+    };
+    try {
+        RNCallKit.setup(options);
+        console.log('initialzied');
+    } catch (err) {
+        console.log('CallKitManager: CallKit setup error:', err.message);
+    }
+
+    function handler(event) {
+        console.log('event',event)
+    }
+
+    RNCallKit.addEventListener('didReceiveStartCallAction', handler);
+    RNCallKit.addEventListener('answerCall', handler);
+    RNCallKit.addEventListener('endCall', handler);
+    RNCallKit.addEventListener('didActivateAudioSession',handler);
+    RNCallKit.addEventListener('didDisplayIncomingCall', handler);
+    RNCallKit.addEventListener('didPerformSetMutedCallAction', handler);
+    setTimeout(() => {
+    let _uuid = uuid.v4();
+    console.log(_uuid, 'started')
+    RNCallKit.startCall(_uuid, "886900000000")
+        setTimeout(() => {
+            RNCallKit.endCall(_uuid)
+            console.log('ended')
+        }, 5000);
+
+    }, 5000);
 }
 
 function* onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {

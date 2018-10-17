@@ -14,6 +14,7 @@
 #import <PushKit/PushKit.h>
 #import <UIKit/UIKit.h>
 #import "RNNotifications.h"
+#import "RNCallKit.h"
 
 
 @implementation AppDelegate
@@ -24,10 +25,24 @@
 
   jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index" fallbackResource:nil];
 
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
-                                                      moduleName:@"TelemedicineDemo"
-                                               initialProperties:nil
-                                                   launchOptions:launchOptions];
+//  RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
+//                                                      moduleName:@"TelemedicineDemo"
+//                                               initialProperties:nil
+//                                                   launchOptions:launchOptions];
+  
+  // Initialise RNCallKit
+  RNCallKit *rncallkit = [[RNCallKit alloc] init];
+  
+  // Initialise React Bridge with RNCallKit
+  RCTBridge *bridge = [[RCTBridge alloc] initWithBundleURL:jsCodeLocation
+                                            moduleProvider:^{ return @[rncallkit]; }
+                                             launchOptions:launchOptions];
+  
+  // Initialise React Root View with React Bridge you've just created
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
+                                                   moduleName:@"TelemedicineDemo"
+                                            initialProperties:nil];
+  
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
