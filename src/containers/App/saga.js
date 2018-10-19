@@ -36,6 +36,8 @@ function* hasSession() {
 }
 
 function* onLogout() {
+    yield put(NavigationActions.navigate({ routeName: 'Login' }));
+
     const client = Voximplant.getInstance();
     try {
         yield client.disconnect();
@@ -51,8 +53,6 @@ function* onLogout() {
     yield client.disconnect();
     yield put(setAppInitializedStatus(false));
     yield* clearSessionData();
-
-    yield put(NavigationActions.navigate({ routeName: 'Login' }));
 }
 
 export function* reLoginVoxImplant() {
