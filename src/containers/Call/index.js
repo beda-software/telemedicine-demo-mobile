@@ -19,7 +19,6 @@ import { Keypad } from 'components/Keypad';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import styles from 'styles/Styles';
-import { endCall } from 'containers/App/actions';
 import GlobalModal from 'containers/Modal';
 import {
     selectCallStatus,
@@ -40,6 +39,7 @@ import {
     toggleKeypad,
     toggleAudioDeviceSelector,
     setAudioDevice,
+    endCall,
 } from './actions';
 
 

@@ -11,3 +11,8 @@ export const changeLocalVideoStream = createAction((stream) => ({ stream }));
 export const changeRemoteVideoStream = createAction((stream) => ({ stream }));
 export const changeDevice = createAction((currentDevice) => ({ currentDevice }));
 export const changeDeviceList = createAction((newDeviceList) => ({ newDeviceList }));
+export const answerCall = createAction((isVideo) => ({ isVideo }));
+export const endCall = createAction();
+export const makeOutgoingCall = createAction(
+    (contact, isVideo) => ({ contact, isVideo })
+);

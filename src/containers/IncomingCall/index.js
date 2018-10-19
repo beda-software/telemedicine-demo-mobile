@@ -14,7 +14,7 @@ import GlobalModal from 'containers/Modal';
 import {
     answerCall,
     endCall,
-} from 'containers/App/actions';
+} from 'containers/Call/actions';
 import { selectCallerDisplayName } from './selectors';
 
 class IncomingCall extends React.Component {

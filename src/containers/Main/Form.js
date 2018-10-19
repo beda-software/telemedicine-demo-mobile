@@ -29,12 +29,12 @@ function AppForm(props) {
                             <CallButton
                                 icon_name="call"
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => props.makeCall(item.username, false)}
+                                buttonPressed={() => props.makeOutgoingCall(item, false)}
                             />
                             <CallButton
                                 icon_name="videocam"
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => props.makeCall(item.username, true)}
+                                buttonPressed={() => props.makeOutgoingCall(item, true)}
                             />
                         </View>
                     </View>

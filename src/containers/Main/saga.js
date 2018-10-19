@@ -1,13 +1,10 @@
 import { all, takeLatest, put, select, call } from 'redux-saga/effects';
-import { Voximplant } from 'react-native-voximplant';
 import { makeGet } from 'utils/request';
 import { selectApiToken } from 'containers/App/selectors';
-import { requestPermissions, initNewCall } from 'containers/App/saga';
 import { showModal } from 'containers/Modal/actions';
 
 import {
     fetchContacts,
-    makeCall,
     saveContactList,
 } from './actions';
 
