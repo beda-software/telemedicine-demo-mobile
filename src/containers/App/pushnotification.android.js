@@ -43,16 +43,3 @@ export function createPushNotificationChannel() {
         return () => {};
     }, buffers.fixed(1));
 }
-
-export function showLocalNotification(from) {
-    FCM.presentLocalNotification({
-        channel: 'default',
-        title: 'Incoming call',
-        body: `from: ${from}`,
-        priority: 'high',
-        show_in_foreground: true,
-        icon: 'ic_vox_notification',
-        wake_screen: true,
-        number: 10,
-    });
-}

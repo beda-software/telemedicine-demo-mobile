@@ -6,6 +6,8 @@ import {
 } from 'react-native';
 import styles from 'styles/Styles';
 
+import GlobalModal from 'containers/Modal';
+
 class Bootstrap extends React.Component {
     render() {
         return (
@@ -16,6 +18,7 @@ class Bootstrap extends React.Component {
                     >
                         <ActivityIndicator size="large" />
                         <StatusBar barStyle="default" />
+                        <GlobalModal />
                     </View>
                 </View>
             </View>

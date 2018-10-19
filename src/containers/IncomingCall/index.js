@@ -11,25 +11,13 @@ import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
 import GlobalModal from 'containers/Modal';
-import { selectActiveCall } from 'containers/App/selectors';
 import {
-    subscribeToIncomingCallEvents,
-    unsubscribeFromIncomingCallEvents,
     answerCall,
-    answerVideoCall,
-    declineCall,
-} from './actions';
+    endCall,
+} from 'containers/App/actions';
 import { selectCallerDisplayName } from './selectors';
 
 class IncomingCall extends React.Component {
-    componentDidMount() {
-        this.props.subscribeToIncomingCallEvents(this.props.activeCall);
-    }
-
-    componentWillUnmount() {
-        this.props.unsubscribeFromIncomingCallEvents();
-    }
-
     render() {
         return (
             <SafeAreaView style={[styles.safearea, styles.aligncenter]}>
@@ -49,17 +37,17 @@ class IncomingCall extends React.Component {
                     <CallButton
                         icon_name="call"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerCall(this.props.activeCall)}
+                        buttonPressed={() => this.props.answerCall(false)}
                     />
                     <CallButton
                         icon_name="videocam"
                         color={COLOR.ACCENT}
-                        buttonPressed={() => this.props.answerVideoCall(this.props.activeCall)}
+                        buttonPressed={() => this.props.answerCall(true)}
                     />
                     <CallButton
                         icon_name="call-end"
                         color={COLOR.RED}
-                        buttonPressed={() => this.props.declineCall(this.props.activeCall)}
+                        buttonPressed={() => this.props.endCall()}
                     />
                 </View>
                 <GlobalModal />
@@ -69,16 +57,12 @@ class IncomingCall extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-    activeCall: selectActiveCall,
     callerDisplayName: selectCallerDisplayName,
 });
 
 const mapDispatchToProps = {
-    subscribeToIncomingCallEvents,
-    unsubscribeFromIncomingCallEvents,
     answerCall,
-    answerVideoCall,
-    declineCall,
+    endCall,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(IncomingCall);

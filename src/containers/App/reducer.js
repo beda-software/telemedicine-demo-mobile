@@ -7,8 +7,6 @@ import {
     savePushToken,
     saveUsername,
     logout,
-    setActiveCall,
-    appStateChanged,
     setAppInitializedStatus,
 } from './actions';
 
@@ -17,7 +15,6 @@ const initialState = {
     apiToken: null,
     pushToken: null,
     voxImplantTokens: {},
-    activeCall: null,
     appState: AppState.currentState,
     isAppInitialized: false,
 };
@@ -44,16 +41,7 @@ export default createReducer({
         voxImplantTokens: {},
         apiToken: null,
         pushToken: null,
-        activeCall: null,
         username: '',
-    }),
-    [setActiveCall]: (state, { activeCall }) => ({
-        ...state,
-        activeCall,
-    }),
-    [appStateChanged]: (state, { appState }) => ({
-        ...state,
-        appState,
     }),
     [setAppInitializedStatus]: (state, { isAppInitialized }) => ({
         ...state,

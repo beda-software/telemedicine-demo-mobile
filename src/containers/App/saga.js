@@ -3,44 +3,55 @@ import {
     Platform,
     PermissionsAndroid,
     AsyncStorage,
+    NativeModules,
 } from 'react-native';
-import { eventChannel, delay } from 'redux-saga';
-import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
+import { delay } from 'redux-saga';
+import { all, takeLatest, takeEvery, take, put, select, race, fork, cancel } from 'redux-saga/effects';
 import { NavigationActions } from 'react-navigation';
 import { Voximplant } from 'react-native-voximplant';
+import RNCallKit from 'react-native-callkit';
+import uuid from 'uuid';
+import storage from 'storage';
 
+import {
+    toggleVideoSend,
+    setCallStatus,
+    changeLocalVideoStream,
+    changeRemoteVideoStream,
+    resetCallState,
+} from 'containers/Call/actions';
 import { appDomain } from 'utils/request';
 import { showModal } from 'containers/Modal/actions';
 import {
     logout,
     initApp,
     deinitApp,
-    setActiveCall,
     savePushToken,
     saveApiToken,
     saveUsername,
     saveVoxImplantTokens,
     setAppInitializedStatus,
-
-    pushNotificationReceived,
-    incomingCallReceived,
-    appStateChanged,
+    makeCall,
+    answerCall,
+    endCall,
 } from './actions';
 import {
-    selectActiveCall,
     selectPushToken,
     selectVoxImplantTokens,
     selectUsername,
-    selectAppState,
     selectIsAppInitialized,
 } from './selectors';
 import {
     createPushTokenChannel,
     createPushNotificationChannel,
-    showLocalNotification,
 } from './pushnotification';
-import RNCallKit from 'react-native-callkit';
-import uuid from 'uuid';
+import {
+    createCallChannel,
+    createAppStateChangedChannel,
+    createCallKitChannel,
+    createIncomingCallChannel,
+    createEndpointChannel,
+} from './channels';
 
 function* hasSession() {
     const [[, apiToken], [, accessToken], [, username]] =
@@ -66,7 +77,7 @@ export function* reLoginVoxImplant() {
         const username = yield select(selectUsername);
         const fullUsername = `${username}@${appDomain}`;
         const { accessToken } = yield select(selectVoxImplantTokens);
-        console.log('reLoginVoxImplant: loginWithToken: user: ' + username + ', token: ' + accessToken);
+        console.log(`reLoginVoxImplant: loginWithToken: user: ${username}, token: ${accessToken}`);
 
         const { tokens } = yield client.loginWithToken(fullUsername, accessToken);
         yield put(saveVoxImplantTokens(tokens));
@@ -99,62 +110,14 @@ export function* requestPermissions(isVideo) {
     return true;
 }
 
-export function createCallChannel(activeCall) {
-    return eventChannel((emit) => {
-        const handler = (event) => {
-            emit(event);
-        };
-
-        Object.keys(Voximplant.CallEvents)
-            .forEach((eventName) => activeCall.on(eventName, handler));
-
-        return () => {
-            Object.keys(Voximplant.CallEvents)
-                .forEach((eventName) => activeCall.off(eventName, handler));
-        };
-    });
-}
-
-function createIncomingCallChannel() {
-    const client = Voximplant.getInstance();
-
-    return eventChannel((emit) => {
-        const incomingCallHandler = (event) => {
-            emit(event.call);
-        };
-        client.on(Voximplant.ClientEvents.IncomingCall, incomingCallHandler);
-
-        return () => {
-            client.off(Voximplant.ClientEvents.IncomingCall, incomingCallHandler);
-        };
-    });
-}
-
-function createAppStateChangedChannel() {
-    return eventChannel((emit) => {
-        const handler = (newState) => {
-            emit(newState);
-        };
-        AppState.addEventListener('change', handler);
-
-        return () => {
-            AppState.removeEventListener('change', handler);
-        };
-    });
-}
-
 function* onInitApp() {
     const incomingCallChannel = yield createIncomingCallChannel();
     const appStateChangedChannel = yield createAppStateChangedChannel();
 
     yield put(setAppInitializedStatus(true));
 
-    yield takeEvery(incomingCallChannel, function* incomingCallReceivedHandler(newIncomingCall) {
-        yield put(incomingCallReceived(newIncomingCall));
-    });
-    yield takeEvery(appStateChangedChannel, function* appStateChangedHandler(newState) {
-        yield put(appStateChanged(newState));
-    });
+    yield takeEvery(incomingCallChannel, onIncomingCallReceived);
+    yield takeEvery(appStateChangedChannel, onAppStateChanged);
 
     const pushTokenChannel = yield createPushTokenChannel();
     const { pushToken } = yield race({
@@ -193,41 +156,282 @@ function* onDeinitApp() {
     yield* clearSessionData();
 }
 
-function* onIncomingCallReceived({ payload }) {
-    const { call } = payload;
-    const activeCall = yield select(selectActiveCall);
-    if (activeCall && activeCall.id !== call.id) {
-        call.decline();
-        yield put(showModal('You\'ve received one another call, but we declined it.'));
-    } else {
-        yield put(setActiveCall(call));
+function* initCallKit() {
+    try {
+        let options = {
+            appName: 'TelemedicineDemo',
+        };
+        RNCallKit.setup(options);
 
-        if (Platform.OS === 'android') {
-            // TODO:
-            // call yield createCallChannel(call) and catch Disconnect event
-            // on disconnect:
-            // yield put(setActiveCall(null));
-            // yield put(NavigationActions.navigate({ routeName: 'App' }));
-            // and remove these lines from incomming call saga
-            yield put(NavigationActions.navigate({
-                routeName: 'IncomingCall',
-                params: {
-                    callId: call.callId,
-                },
-            }));
+        const channel = yield createCallKitChannel();
 
-            const appState = yield select(selectAppState);
-            if (AppState.currentState !== 'active') {
-                NativeModules.ActivityLauncher.openMainActivity();
+        // Wait until app will be initialized (login and etc.)
+        yield take(initApp);
+
+        yield takeEvery(channel, function* callKitEventHandler(event) {
+            console.log(`CallKit event: ${event.name}`, event);
+            switch (event.name) {
+            case 'AnswerCall': {
+                yield* onCallKitAnswerCall(event);
+                break;
             }
-        } else {
-            handleiOSCallKitIncomingCall();
-        }
-
+            case 'EndCall': {
+                yield* onCallKitEndCall(event);
+                break;
+            }
+            case 'DidActivateAudioSession': {
+                yield* onCallKitDidActivateAudioSession(event);
+                break;
+            }
+            case 'DidDisplayIncomingCall': {
+                yield* onCallKitDidDisplayIncomingCall(event);
+                break;
+            }
+            case 'DidReceiveStartCallAction': {
+                yield* onCallKitDidReceiveStartCallAction(event);
+                break;
+            }
+            default:
+                console.log(`Unhandled CallKit event ${event.name}`);
+            }
+        });
+    } catch (err) {
+        yield put(showModal(`CallKit setup error.\n${err.message}`));
     }
 }
 
-function* onPushNotificationReceived({ payload: { notification } }) {
+function* onCallKitAnswerCall() {
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitConfigureAudioSession();
+
+    const isVideo = false;
+    yield* onAnswerCall({ payload: { isVideo } });
+}
+
+function* onCallKitEndCall() {
+    if (storage.activeCall) {
+        yield put(endCall());
+    }
+
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStopAudio();
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitReleaseAudioSession();
+}
+
+function onCallKitDidActivateAudioSession() {
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStartAudio();
+}
+
+function onCallKitDidDisplayIncomingCall() {
+    storage.isCallKitWaitingForResponse = true;
+}
+
+function* onCallKitDidReceiveStartCallAction(event) {
+    console.log('!!!onCallKitDidReceiveStartCallAction', event)
+}
+
+function* onAnswerCall({ payload: { isVideo } }) {
+    try {
+        const { activeCall } = storage;
+        yield* requestPermissions(isVideo);
+        yield put(NavigationActions.navigate({
+            routeName: 'Call',
+            params: {
+                callId: storage.activeCall.callId,
+                isVideo,
+                isIncoming: true,
+            },
+        }));
+        const callSettings = {
+            video: {
+                sendVideo: isVideo,
+                receiveVideo: isVideo,
+            },
+        };
+        activeCall.answer(callSettings);
+    } catch (err) {
+        yield put(showModal(`Incoming call failed:\n${err.message}`));
+    }
+}
+
+function onEndCall() {
+    const { activeCall } = storage;
+
+    activeCall.hangup();
+}
+
+function* onCallConnected(isIncoming) {
+    yield put(setCallStatus('connected'));
+    if (!isIncoming) {
+        if (Platform.OS === 'ios') {
+            RNCallKit.reportConnectedOutgoingCallWithUUID(storage.activeCallKitId);
+        }
+    }
+}
+
+function* onCallFailed(reason) {
+    yield put(showModal(`Call failed: ${reason}`));
+
+    yield* onCallDisconnected();
+}
+
+function* onCallDisconnected() {
+    yield all(storage.endpointsTasks.map((task) => cancel(task)));
+
+    storage.endpointsTasks = [];
+    storage.activeCall = null;
+    yield put(NavigationActions.navigate({ routeName: 'App' }));
+
+    if (Platform.OS === 'ios') {
+        RNCallKit.endCall(storage.activeCallKitId);
+        storage.activeCallKitId = null;
+    }
+}
+
+function* onEndpointAdded(endpoint) {
+    const channel = yield createEndpointChannel(endpoint);
+    try {
+        while (true) {
+            const event = yield take(channel);
+            console.log(`Endpoint event: ${event.name}`, event);
+
+            switch (event.name) {
+            case Voximplant.EndpointEvents.RemoteVideoStreamAdded: {
+                yield put(changeRemoteVideoStream(event.videoStream));
+                break;
+            }
+            case Voximplant.EndpointEvents.RemoteVideoStreamRemoved: {
+                yield put(changeRemoteVideoStream(null));
+                break;
+            }
+            default:
+                console.log(`Unhandled endpoint event ${event.name}`);
+            }
+        }
+    } finally {
+    }
+}
+
+function* subscribeToCallEvents(newCall, isIncoming) {
+    const channel = yield createCallChannel(newCall);
+
+    yield takeEvery(channel, function* onCallEvent(event) {
+        console.log(`Call event: ${event.name}`, event);
+        switch (event.name) {
+        case Voximplant.CallEvents.Connected: {
+            yield* onCallConnected(isIncoming);
+            break;
+        }
+        case Voximplant.CallEvents.Failed: {
+            yield* onCallFailed(event.reason);
+            break;
+        }
+        case Voximplant.CallEvents.Disconnected: {
+            yield* onCallDisconnected();
+            break;
+        }
+        case Voximplant.CallEvents.LocalVideoStreamAdded: {
+            yield put(changeLocalVideoStream(event.videoStream));
+            break;
+        }
+        case Voximplant.CallEvents.LocalVideoStreamRemoved: {
+            yield put(changeLocalVideoStream(null));
+            break;
+        }
+        case Voximplant.CallEvents.EndpointAdded: {
+            const task = yield fork(onEndpointAdded, event.endpoint);
+            storage.endpointsTasks.push(task);
+            break;
+        }
+        default:
+            console.log(`Unhandled call event ${event.name}`);
+        }
+    });
+}
+
+function* onIncomingCallReceived(newCall) {
+    const { activeCall } = storage;
+    if (activeCall && activeCall.id !== newCall.id) {
+        newCall.decline();
+        yield put(showModal('You\'ve received one another call, but we declined it.'));
+    } else {
+        storage.activeCall = newCall;
+        yield* initIncomingCall(newCall, false);
+        yield put(NavigationActions.navigate({
+            routeName: 'IncomingCall',
+            params: {
+                callId: newCall.callId,
+            },
+        }));
+        if (Platform.OS === 'ios') {
+            storage.activeCallKitId = uuid.v4();
+            RNCallKit.displayIncomingCall(storage.activeCallKitId, 'who calling', 'number', false);
+        } else {
+            if (AppState.currentState !== 'active') {
+                NativeModules.ActivityLauncher.openMainActivity();
+            }
+        }
+    }
+}
+
+function* onMakeCall({ payload }) {
+    const { contactUsername, isVideo = false } = payload;
+    try {
+        yield requestPermissions(isVideo);
+        const callSettings = {
+            video: {
+                sendVideo: isVideo,
+                receiveVideo: isVideo,
+            },
+        };
+        const newCall = yield Voximplant.getInstance().call(contactUsername, callSettings);
+        yield* initOutgoingCall(newCall, isVideo);
+    } catch (err) {
+        yield put(showModal(`Outgoing call failed.\n${err.message}`));
+    }
+}
+
+function* initCall(newCall, isVideo, isIncoming) {
+    yield fork(subscribeToCallEvents, newCall, isIncoming);
+    yield put(resetCallState());
+    yield put(toggleVideoSend(isVideo));
+}
+
+function* initIncomingCall(newCall, isVideo) {
+    yield* initCall(newCall, isVideo, true);
+
+    yield put(setCallStatus('connected'));
+}
+
+function* initOutgoingCall(newCall, isVideo) {
+    storage.activeCall = newCall;
+    yield put(NavigationActions.navigate({
+        routeName: 'Call',
+        params: {
+            callId: newCall.callId,
+            isVideo,
+            isIncoming: false,
+        },
+    }));
+
+    if (Platform.OS === 'ios') {
+        storage.activeCallKitId = uuid.v4();
+        RNCallKit.startCall(storage.activeCallKitId, 'who calling', 'number', isVideo);
+    }
+
+    yield* initCall(newCall, isVideo, false);
+    yield put(setCallStatus('connecting'));
+
+}
+
+function* initPushNotifications() {
+    const channel = yield createPushNotificationChannel();
+
+    // Wait until app will be initialized (login and etc.)
+    yield take(initApp);
+
+    yield takeEvery(channel, onPushNotificationReceived);
+}
+
+function* onPushNotificationReceived(notification) {
     console.log('New notification', notification);
 
     try {
@@ -239,54 +443,11 @@ function* onPushNotificationReceived({ payload: { notification } }) {
     }
 }
 
-function* onAppStateChanged({ payload: { appState } }) {
-    console.log('Current app state changed to ' + appState);
-
-    if (appState === 'active') {
-        if (yield hasSession()) {
-            try {
-                yield* reLoginVoxImplant();
-            } catch (err) {
-                yield put(showModal(`Can not relogin.\n${err.message}`));
-            }
-        }
-    }
-}
-
-function* restoreSessionData() {
-    const [[, apiToken], [, accessToken], [, username]] =
-        yield AsyncStorage.multiGet(['apiToken', 'accessToken', 'username']);
-
-    if (apiToken && accessToken && username) {
-        yield put(saveApiToken(apiToken));
-        yield put(saveVoxImplantTokens({ accessToken }));
-        yield put(saveUsername(username));
-
-        return true;
-    }
-
-    return false;
-}
-
-function* clearSessionData() {
-    yield AsyncStorage.multiRemove(['apiToken', 'accessToken', 'username']);
-}
-
-function* initPushNotifications() {
-    const pushNotificationChannel = yield createPushNotificationChannel();
-
-    // Wait until app will be initialized (login and etc.)
-    yield take(initApp);
-
-    yield takeEvery(pushNotificationChannel, function* pushNotificationReceivedHandler(notification) {
-        yield put(pushNotificationReceived(notification));
-    });
-
-    yield take(deinitApp);
-    pushNotificationChannel.close();
-}
-
 function* bootstrap() {
+    if (Platform.OS === 'ios') {
+        yield fork(initCallKit);
+    }
+
     yield fork(initPushNotifications);
 
     if (yield* restoreSessionData()) {
@@ -307,36 +468,38 @@ function* bootstrap() {
     }
 }
 
-function handleiOSCallKitIncomingCall() {
-    let options = {
-        appName: 'TelemedicineDemo',
-    };
-    try {
-        RNCallKit.setup(options);
-        console.log('initialzied');
-    } catch (err) {
-        console.log('CallKitManager: CallKit setup error:', err.message);
+function* onAppStateChanged(appState) {
+    console.log(`Current app state changed to ${appState}`);
+
+    if (appState === 'active') {
+        if (yield* hasSession()) {
+            try {
+                yield* reLoginVoxImplant();
+            } catch (err) {
+                yield put(showModal(`Can not relogin.\n${err.message}`));
+            }
+        }
+    }
+}
+
+function* restoreSessionData() {
+    const [[, apiToken], [, accessToken], [, username]] = yield AsyncStorage.multiGet(
+        ['apiToken', 'accessToken', 'username']
+    );
+
+    if (apiToken && accessToken && username) {
+        yield put(saveApiToken(apiToken));
+        yield put(saveVoxImplantTokens({ accessToken }));
+        yield put(saveUsername(username));
+
+        return true;
     }
 
-    function handler(event) {
-        console.log('event',event);
-    }
+    return false;
+}
 
-    RNCallKit.addEventListener('didReceiveStartCallAction', handler);
-    RNCallKit.addEventListener('answerCall', handler);
-    RNCallKit.addEventListener('endCall', handler);
-    RNCallKit.addEventListener('didActivateAudioSession',handler);
-    RNCallKit.addEventListener('didDisplayIncomingCall', handler);
-    RNCallKit.addEventListener('didPerformSetMutedCallAction', handler);
-
-    let _uuid = uuid.v4();
-    console.log(_uuid, 'started');
-    // RNCallKit.startCall(_uuid, "886900000000");
-    RNCallKit.displayIncomingCall(_uuid, 'test', 'number', true);
-    // setTimeout(() => {
-    //     RNCallKit.endCall(_uuid);
-    //     console.log('ended');
-    // }, 5000);
+function* clearSessionData() {
+    yield AsyncStorage.multiRemove(['apiToken', 'accessToken', 'username']);
 }
 
 function* onSaveVoxImplantTokens({ payload: { voxImplantTokens } }) {
@@ -363,9 +526,11 @@ export default function* appSaga() {
         takeLatest(initApp, onInitApp),
         takeLatest(deinitApp, onDeinitApp),
 
-        takeEvery(incomingCallReceived, onIncomingCallReceived),
-        takeEvery(appStateChanged, onAppStateChanged),
-        takeEvery(pushNotificationReceived, onPushNotificationReceived),
+        takeLatest(answerCall, onAnswerCall),
+        takeLatest(endCall, onEndCall),
+        takeLatest(makeCall, onMakeCall),
+
+        // TODO: get rid of these functions, call them directly and don't save it to store!
         takeEvery(saveApiToken, onSaveApiToken),
         takeEvery(saveVoxImplantTokens, onSaveVoxImplantTokens),
         takeEvery(saveUsername, onSaveUsername),

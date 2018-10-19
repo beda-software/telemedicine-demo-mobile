@@ -19,8 +19,8 @@ import { Keypad } from 'components/Keypad';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import COLOR from 'styles/Color';
 import styles from 'styles/Styles';
+import { endCall } from 'containers/App/actions';
 import GlobalModal from 'containers/Modal';
-import { selectActiveCall } from 'containers/App/selectors';
 import {
     selectCallStatus,
     selectIsAudioMuted,
@@ -35,13 +35,8 @@ import {
 import {
     resetCallState,
     setCallStatus,
-    subscribeToCallEvents,
-    subscribeToAudioDeviceEvents,
-    unsubscribeFromCallEvents,
-    unsubscribeFromAudioDeviceEvents,
     toggleAudioMute,
     toggleVideoSend,
-    endCall,
     toggleKeypad,
     toggleAudioDeviceSelector,
     setAudioDevice,
@@ -49,36 +44,9 @@ import {
 
 
 class Call extends React.Component {
-    componentDidMount() {
-        const { isIncoming, isVideo } = this.props.navigation.state.params;
-        const { activeCall } = this.props;
-
-        this.props.resetCallState();
-        this.props.subscribeToCallEvents(activeCall, isIncoming);
-        this.props.subscribeToAudioDeviceEvents();
-        this.props.toggleVideoSend(activeCall, isVideo);
-
-        if (isIncoming) {
-            const callSettings = {
-                video: {
-                    sendVideo: isVideo,
-                    receiveVideo: isVideo,
-                },
-            };
-            activeCall.answer(callSettings);
-            this.props.setCallStatus('connected');
-        } else {
-            this.props.setCallStatus('connecting');
-        }
-    }
-
-    componentWillUnmount() {
-        this.props.unsubscribeFromCallEvents();
-        this.props.unsubscribeFromAudioDeviceEvents();
-    }
-
     _keypadPressed(value) {
-        this.props.activeCall.sendTone(value);
+        // TODO: dispatch action
+        // this.props.activeCall.sendTone(value);
     }
 
     flatListItemSeparator() {
@@ -146,8 +114,7 @@ class Call extends React.Component {
                             <CallButton
                                 icon_name={this.props.isAudioMuted ? 'mic' : 'mic-off'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => this.props.toggleAudioMute(
-                                    this.props.activeCall, !this.props.isAudioMuted,
+                                buttonPressed={() => this.props.toggleAudioMute( !this.props.isAudioMuted,
                                 )}
                             />
                             <CallButton
@@ -166,13 +133,13 @@ class Call extends React.Component {
                                 icon_name={this.props.isVideoBeingSent ? 'videocam-off' : 'video-call'}
                                 color={COLOR.ACCENT}
                                 buttonPressed={() => this.props.toggleVideoSend(
-                                    this.props.activeCall, !this.props.isVideoBeingSent,
+                                    !this.props.isVideoBeingSent,
                                 )}
                             />
                             <CallButton
                                 icon_name="call-end"
                                 color={COLOR.RED}
-                                buttonPressed={() => this.props.endCall(this.props.activeCall)}
+                                buttonPressed={() => this.props.endCall()}
                             />
                         </View>
                     </View>
@@ -221,7 +188,6 @@ class Call extends React.Component {
 }
 
 const mapStateToProps = createStructuredSelector({
-    activeCall: selectActiveCall,
     callStatus: selectCallStatus,
     isAudioMuted: selectIsAudioMuted,
     isVideoBeingSent: selectIsVideoBeingSent,
@@ -236,10 +202,6 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = {
     resetCallState,
     setCallStatus,
-    subscribeToCallEvents,
-    subscribeToAudioDeviceEvents,
-    unsubscribeFromCallEvents,
-    unsubscribeFromAudioDeviceEvents,
     toggleAudioMute,
     toggleVideoSend,
     endCall,

@@ -9,13 +9,13 @@ import {
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
-import { logout } from 'containers/App/actions';
+import { logout, makeCall } from 'containers/App/actions';
 import COLOR from 'styles/Color';
 import COLOR_SCHEME from 'styles/ColorScheme';
 import styles from 'styles/Styles';
 import GlobalModal from 'containers/Modal';
 import Form from './Form';
-import { fetchContacts, makeCall, makeVideoCall } from './actions';
+import { fetchContacts } from './actions';
 import { selectContactList } from './selectors';
 
 class App extends React.Component {
@@ -53,7 +53,6 @@ class App extends React.Component {
 
                 <Form
                     makeCall={this.props.makeCall}
-                    makeVideoCall={this.props.makeVideoCall}
                     contactList={this.props.contactList || []}
                 />
                 <GlobalModal />
@@ -69,7 +68,6 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = {
     fetchContacts,
     makeCall,
-    makeVideoCall,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

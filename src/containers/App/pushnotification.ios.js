@@ -1,5 +1,5 @@
 import NotificationsIOS from 'react-native-notifications';
-import { eventChannel } from 'redux-saga';
+import { eventChannel, buffers } from 'redux-saga';
 
 export function createPushTokenChannel() {
     return eventChannel((emit) => {
@@ -29,14 +29,5 @@ export function createPushNotificationChannel() {
             NotificationsIOS.removeEventListener('notificationReceivedBackground', handler);
             NotificationsIOS.removeEventListener('notificationReceivedForeground', handler);
         };
-    });
-}
-
-export function showLocalNotification(from) {
-    NotificationsIOS.localNotification({
-        alertBody: `from: ${from}`,
-        alertTitle: 'Incoming call',
-        soundName: 'chime.aiff',
-        silent: false,
-    });
+    }, buffers.fixed(1));
 }

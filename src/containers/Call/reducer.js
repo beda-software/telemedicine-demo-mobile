@@ -8,11 +8,10 @@ import {
     toggleAudioMute,
     toggleVideoSend,
     toggleAudioDeviceSelector,
-
-    callLocalVideoStreamChanged,
-    endpointRemoveVideoStreamChanged,
-    deviceChanged,
-    deviceListChanged,
+    changeLocalVideoStream,
+    changeRemoteVideoStream,
+    changeDevice,
+    changeDeviceList,
 } from './actions';
 
 const initialState = {
@@ -50,15 +49,15 @@ export default createReducer(
             ...state,
             isVideoBeingSent,
         }),
-        [callLocalVideoStreamChanged]: (state, { stream }) => ({
+        [changeLocalVideoStream]: (state, { stream }) => ({
             ...state,
             localVideoStreamId: stream ? stream.id : null,
         }),
-        [endpointRemoveVideoStreamChanged]: (state, { stream }) => ({
+        [changeRemoteVideoStream]: (state, { stream }) => ({
             ...state,
             remoteVideoStreamId: stream ? stream.id : null,
         }),
-        [deviceChanged]: (state, { currentDevice }) => {
+        [changeDevice]: (state, { currentDevice }) => {
             const devices = Voximplant.Hardware.AudioDevice;
             const icons = {
                 [devices.BLUETOOTH]: 'bluetooth-audio',
@@ -72,7 +71,7 @@ export default createReducer(
                 audioDeviceIcon: icons[currentDevice],
             };
         },
-        [deviceListChanged]: (state, { newDeviceList }) => ({
+        [changeDeviceList]: (state, { newDeviceList }) => ({
             ...state,
             audioDeviceList: newDeviceList,
         }),

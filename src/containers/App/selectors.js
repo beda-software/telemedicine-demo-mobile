@@ -10,8 +10,4 @@ export const selectVoxImplantTokens = createSelector(selectGlobal, (globalState)
 
 export const selectUsername = createSelector(selectGlobal, (globalState) => globalState.username);
 
-export const selectActiveCall = createSelector(selectGlobal, (globalState) => globalState.activeCall);
-
-export const selectAppState = createSelector(selectGlobal, (globalState) => globalState.appState);
-
 export const selectIsAppInitialized = createSelector(selectGlobal, (globalState) => globalState.isAppInitialized);
