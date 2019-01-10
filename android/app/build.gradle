@@ -105,14 +105,22 @@ android {
 
     defaultConfig {
         applicationId "software.beda.telemedicinedemo"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 26
+        missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57"
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     signingConfigs {
         release {
             if (project.hasProperty('TELEMEDICINEDEMO_RELEASE_STORE_FILE')) {
@@ -161,12 +169,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.android.support:appcompat-v7:26.1.0"
+    implementation "com.android.support:appcompat-v7:27.1.1"
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:multidex:1.0.3'
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation project(':react-native-navigation')
     implementation project(':react-native-voximplant')
     implementation project(':react-native-fcm')
     implementation project(':react-native-vector-icons')
-    implementation 'com.google.firebase:firebase-messaging:11.0.4'
+    implementation 'com.google.firebase:firebase-messaging:15.0.2'
 }
 
 // Run this once to be able to run the application with BUCK
@@ -175,7 +186,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
-
-//apply plugin: 'com.google.gms.google-services'
 
 apply plugin: 'com.google.gms.google-services'
