@@ -22,6 +22,7 @@
 		B20E24FD1F860CC2002552CF /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B20E24FC1F860CC2002552CF /* MaterialIcons.ttf */; };
 		B2BFF775215BDFA6002C1114 /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2BFF774215BDFA6002C1114 /* CallKit.framework */; };
 		CE36C7921F98B102005B36F1 /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE36C7911F98B102005B36F1 /* PushKit.framework */; };
+		DDF7F0ED21E732EC001D2217 /* ReactNativeNavigation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDF7F0EC21E732EC001D2217 /* ReactNativeNavigation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 		CB0AAB1CE4537D7BC0A21658 /* Pods_TelemedicineDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TelemedicineDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE36C7911F98B102005B36F1 /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
 		CE36C7931F98CF52005B36F1 /* TelemedicineDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = TelemedicineDemo.entitlements; path = TelemedicineDemo/TelemedicineDemo.entitlements; sourceTree = "<group>"; };
+		DDF7F0EC21E732EC001D2217 /* ReactNativeNavigation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ReactNativeNavigation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8F105977254ED14FFC42373 /* Pods-TelemedicineDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDF7F0ED21E732EC001D2217 /* ReactNativeNavigation.framework in Frameworks */,
 				537489CA217716700086A000 /* Intents.framework in Frameworks */,
 				B2BFF775215BDFA6002C1114 /* CallKit.framework in Frameworks */,
 				CE36C7921F98B102005B36F1 /* PushKit.framework in Frameworks */,
@@ -185,6 +188,7 @@
 		C6B1AB22B8CC55BD794477A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DDF7F0EC21E732EC001D2217 /* ReactNativeNavigation.framework */,
 				537489C9217716700086A000 /* Intents.framework */,
 				B2BFF774215BDFA6002C1114 /* CallKit.framework */,
 				CE36C7911F98B102005B36F1 /* PushKit.framework */,
@@ -467,6 +471,7 @@
 				"${BUILT_PRODUCTS_DIR}/Folly/folly.framework",
 				"${BUILT_PRODUCTS_DIR}/RNCallKit/RNCallKit.framework",
 				"${BUILT_PRODUCTS_DIR}/React/React.framework",
+				"${BUILT_PRODUCTS_DIR}/ReactNativeNavigation/ReactNativeNavigation.framework",
 				"${BUILT_PRODUCTS_DIR}/SocketRocket/SocketRocket.framework",
 				"${PODS_ROOT}/VoxImplantSDK/VoxImplant.framework",
 				"${PODS_ROOT}/VoxImplantWebRTC/WebRTC.framework",
@@ -482,6 +487,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/folly.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RNCallKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeNavigation.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketRocket.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VoxImplant.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
