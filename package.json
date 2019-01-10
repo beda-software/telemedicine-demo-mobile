@@ -5,6 +5,7 @@
 	"scripts": {
 		"start": "node node_modules/react-native/local-cli/cli.js start",
 		"test": "jest",
+		"android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug",
 		"precommit": "lint-staged"
 	},
 	"lint-staged": {
