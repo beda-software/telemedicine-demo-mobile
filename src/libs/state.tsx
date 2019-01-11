@@ -33,15 +33,14 @@ function arePropsEqual(oldProps: any, newProps: any) {
 }
 
 export function schema<P>(model: any) {
-    return ((Component: React.ComponentClass) => {
-        class Wrapper extends React.Component<{ passProps: P; component: any }, {}> {
+    return ((Component: React.ComponentClass<any>) => {
+        class Wrapper extends React.Component<any, {}> {
             constructor(props: any) {
                 super(props);
 
                 this.onUpdate = this.onUpdate.bind(this);
-                const passProps: any = props.passProps;
 
-                _.each(passProps, (prop, propName) => {
+                _.each(props, (prop, propName) => {
                     if (prop instanceof Cursor) {
                         this.handleNewCursor(prop, propName);
                     }
@@ -58,22 +57,21 @@ export function schema<P>(model: any) {
             }
 
             public componentWillUnmount() {
-                const passProps: any = this.props.passProps;
-                _.each(passProps, (cursor) => {
+                _.each(this.props, (cursor) => {
                     if (cursor instanceof Cursor) {
                         cursor.off('update', this.onUpdate);
                     }
                 });
             }
 
-            public shouldComponentUpdate(nextProps: { passProps: P }, nextState: any) {
-                return !arePropsEqual(this.props.passProps, nextProps.passProps);
+            public shouldComponentUpdate(nextProps: any, nextState: any) {
+                return !arePropsEqual(this.props, nextProps);
             }
 
             public componentWillReceiveProps(props: any) {
-                _.each(props.passProps, (prop, propName) => {
+                _.each(props, (prop, propName) => {
                     if (prop instanceof Cursor) {
-                        const oldProp = this.props.passProps[propName];
+                        const oldProp = this.props[propName];
                         if (oldProp.path !== prop.path) {
                             oldProp.off('update', this.onUpdate);
                             this.handleNewCursor(prop, propName);
@@ -88,12 +86,14 @@ export function schema<P>(model: any) {
             }
 
             public render() {
-                return <Component {...this.props} />;
+                const { innerRef, ...rest } = this.props;
+
+                return <Component ref={innerRef} {...rest} />;
             }
         }
 
-        hoistNonReactStatics(Wrapper, Component);
+        const WrapperForwardingRef = React.forwardRef((props, ref) => <Wrapper innerRef={ref} {...props} />);
 
-        return Wrapper;
+        return hoistNonReactStatics(WrapperForwardingRef, Component);
     }) as any;
 }

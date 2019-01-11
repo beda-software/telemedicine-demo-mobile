@@ -1,26 +1,35 @@
 import * as React from 'react';
-import { Cursor } from '../../contrib/typed-baobab';
-import { schema } from '../../libs/state';
+import { TextInput } from 'react-native';
+import { Cursor } from 'src/contrib/typed-baobab';
+import { schema } from 'src/libs/state';
 
-interface InputProps {
+export interface InputProps {
     cursor: Cursor<string>;
-    type?: string;
     placeholder?: string;
-    className?: string;
+    [x: string]: any;
 }
 
-class Input extends React.Component<InputProps, {}> {
+@schema<InputProps>({})
+export class Input extends React.Component<InputProps, {}> {
+    private ref = React.createRef<TextInput>();
+
+    public focus() {
+        const node = this.ref.current;
+
+        if (node) {
+            node.focus();
+        }
+    }
+
     public render() {
         return (
-            <input
-                className={this.props.className}
-                type={this.props.type}
+            <TextInput
+                {...this.props}
+                ref={this.ref}
                 placeholder={this.props.placeholder}
                 value={this.props.cursor.get()}
-                onChange={(e) => this.props.cursor.set(e.target.value)}
+                onChangeText={(value) => this.props.cursor.set(value)}
             />
         );
     }
 }
-
-export default schema<InputProps>({})(Input);
