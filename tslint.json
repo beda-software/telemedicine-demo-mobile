@@ -1,0 +1,20 @@
+{
+    "extends": ["tslint:latest", "tslint-config-prettier"],
+    "defaultSeverity": "warning",
+    "rules": {
+        "no-implicit-dependencies": false,
+        "no-submodule-imports": false,
+        "ordered-imports": false,
+        "interface-name": false,
+        "object-literal-sort-keys": false,
+        "no-console": false,
+        "max-classes-per-file": false
+    },
+    "linterOptions": {
+        "exclude": [
+            "config/**/*.js",
+            "node_modules/**/*.ts",
+            "coverage/lcov-report/*.js"
+        ]
+    }
+}

@@ -1,27 +1,26 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "target": "es5",
-    "noEmit": true,
-    "lib": [
-      "es6",
-      "dom"
-    ],
-    "sourceMap": true,
-    "allowJs": true,
-    "jsx": "react",
-    "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "importHelpers": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": true,
-    "experimentalDecorators": true
-  },
-  "exclude": [
-    "node_modules"
-  ]
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "es5",
+        "noEmit": true,
+        "lib": ["es6", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "react",
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "importHelpers": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "noUnusedLocals": true,
+        "experimentalDecorators": true,
+        "baseUrl": ".",
+        "paths": {
+            "src": ["src"]
+        }
+    },
+    "exclude": ["node_modules"]
 }

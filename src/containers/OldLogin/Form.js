@@ -45,9 +45,7 @@ class LoginForm extends React.PureComponent {
                             alignSelf: 'center',
                         }}
                     >
-                        <Text style={styles.loginbutton}>
-                            LOGIN
-                        </Text>
+                        <Text style={styles.loginbutton}>LOGIN</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={this.props.goToSignUp}
@@ -56,9 +54,7 @@ class LoginForm extends React.PureComponent {
                             alignSelf: 'center',
                         }}
                     >
-                        <Text style={styles.loginbutton}>
-                            GO TO SIGN UP
-                        </Text>
+                        <Text style={styles.loginbutton}>GO TO SIGN UP</Text>
                     </TouchableOpacity>
                 </View>
             </View>

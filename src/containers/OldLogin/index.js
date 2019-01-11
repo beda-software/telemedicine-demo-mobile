@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { Navigation } from 'react-native-navigation';
 
-import { View, Platform, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, Platform, SafeAreaView, StatusBar } from 'react-native';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
 import styles from 'styles/Styles';
@@ -63,7 +63,25 @@ const mapDispatchToProps = {
     ),
 };
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Login);
+// export default connect(
+//     mapStateToProps,
+//     mapDispatchToProps
+// )(Login);
+
+export default class OldLogin extends React.PureComponent {
+    static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
+    render() {
+        return (
+            <SafeAreaView style={styles.safearea}>
+                <Text>Test {JSON.stringify(this.props.tree.get())} t</Text>
+            </SafeAreaView>
+        );
+    }
+}
