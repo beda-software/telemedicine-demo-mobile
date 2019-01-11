@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-    Text,
-    View,
-    SafeAreaView,
-} from 'react-native';
+import { Text, View, SafeAreaView } from 'react-native';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -11,22 +7,23 @@ import CallButton from 'components/CallButton';
 import styles from 'styles/Styles';
 import COLOR from 'styles/Color';
 import GlobalModal from 'containers/Modal';
-import {
-    answerCall,
-    endCall,
-} from 'containers/Call/actions';
+import { answerCall, endCall } from 'containers/Call/actions';
 import { selectCallerDisplayName } from './selectors';
 
 class IncomingCall extends React.Component {
+    static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
     render() {
         return (
             <SafeAreaView style={[styles.safearea, styles.aligncenter]}>
-                <Text style={styles.incoming_call}>
-                    Incoming call from:
-                </Text>
-                <Text style={styles.incoming_call}>
-                    {this.props.callerDisplayName}
-                </Text>
+                <Text style={styles.incoming_call}>Incoming call from:</Text>
+                <Text style={styles.incoming_call}>{this.props.callerDisplayName}</Text>
                 <View
                     style={{
                         flexDirection: 'row',
@@ -44,11 +41,7 @@ class IncomingCall extends React.Component {
                         color={COLOR.ACCENT}
                         buttonPressed={() => this.props.answerCall(true)}
                     />
-                    <CallButton
-                        icon_name="call-end"
-                        color={COLOR.RED}
-                        buttonPressed={() => this.props.endCall()}
-                    />
+                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => this.props.endCall()} />
                 </View>
                 <GlobalModal />
             </SafeAreaView>
@@ -65,4 +58,7 @@ const mapDispatchToProps = {
     endCall,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(IncomingCall);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(IncomingCall);

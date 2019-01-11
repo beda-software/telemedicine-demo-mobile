@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-    Text,
-    View,
-    TouchableOpacity,
-    SafeAreaView,
-    StatusBar,
-} from 'react-native';
+import { Navigation } from 'react-native-navigation';
+import { SafeAreaView, StatusBar } from 'react-native';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 
@@ -20,42 +15,44 @@ import { fetchContacts } from './actions';
 import { selectContactList } from './selectors';
 
 class App extends React.Component {
+    static options() {
+        return {
+            topBar: {
+                title: {
+                    text: 'Telemedicine Demo',
+                },
+                leftButtons: [],
+                rightButtons: [
+                    {
+                        id: 'logout',
+                        text: 'Logout',
+                    },
+                ],
+            },
+        };
+    }
+
+    constructor(props) {
+        super(props);
+        Navigation.events().bindComponent(this);
+    }
+
     componentDidMount() {
         this.props.fetchContacts();
     }
 
-    static navigationOptions = ({ navigation }) => {
-        return {
-            headerLeft: (
-                <View>
-                    <Text style={styles.headerButton}>
-                        Telemedicine Demo
-                    </Text>
-                </View>
-
-            ),
-            headerRight: (
-                <TouchableOpacity onPress={() => navigation.dispatch(logout())}>
-                    <Text style={styles.headerButton}>
-                        Logout
-                    </Text>
-                </TouchableOpacity>
-            ),
-        };
-    };
+    navigationButtonPressed({ buttonId }) {
+        if (buttonId === 'logout') {
+            this.props.logout();
+        }
+    }
 
     render() {
         return (
             <SafeAreaView style={styles.safearea}>
-                <StatusBar
-                    barStyle={COLOR_SCHEME.LIGHT}
-                    backgroundColor={COLOR.PRIMARY_DARK}
-                />
+                <StatusBar barStyle={COLOR_SCHEME.LIGHT} backgroundColor={COLOR.PRIMARY_DARK} />
 
-                <Form
-                    makeOutgoingCall={this.props.makeOutgoingCall}
-                    contactList={this.props.contactList || []}
-                />
+                <Form makeOutgoingCall={this.props.makeOutgoingCall} contactList={this.props.contactList || []} />
                 <GlobalModal />
             </SafeAreaView>
         );
@@ -69,6 +66,10 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = {
     fetchContacts,
     makeOutgoingCall,
+    logout,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(App);

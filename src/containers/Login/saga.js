@@ -1,15 +1,10 @@
-import { NavigationActions } from 'react-navigation';
+import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import { delay } from 'redux-saga';
 import { takeLatest, put, all, select, race } from 'redux-saga/effects';
 
 import { makePost, appDomain } from 'utils/request';
-import {
-    saveUsername,
-    saveVoxImplantTokens,
-    saveApiToken,
-    initApp,
-} from 'containers/App/actions';
+import { saveUsername, saveVoxImplantTokens, saveApiToken, initApp } from 'containers/App/actions';
 import { showModal } from 'containers/Modal/actions';
 import { showPreloader, hidePreloader } from 'containers/Preloader/actions';
 import { selectApiToken, selectUsername } from 'containers/App/selectors';
@@ -58,8 +53,7 @@ function* onVoxImplantLogin() {
         // synchronized.
         try {
             yield client.disconnect();
-        } catch (err) {
-        }
+        } catch (err) {}
         yield client.connect();
 
         // TODO: remove `race` after https://github.com/voximplant/react-native-voximplant/issues/45#issuecomment-427910310
@@ -77,12 +71,12 @@ function* onVoxImplantLogin() {
         yield put(loginSuccess());
     } catch (err) {
         switch (err.name) {
-        case Voximplant.ClientEvents.ConnectionFailed: {
-            yield put(loginFailed({ message: 'Connection failed. Please try again.' }));
-            break;
-        }
-        default:
-            yield put(loginFailed({ message: `Something went wrong. Code: ${err.code}` }));
+            case Voximplant.ClientEvents.ConnectionFailed: {
+                yield put(loginFailed({ message: 'Connection failed. Please try again.' }));
+                break;
+            }
+            default:
+                yield put(loginFailed({ message: `Something went wrong. Code: ${err.code}` }));
         }
     }
 }
@@ -90,7 +84,11 @@ function* onVoxImplantLogin() {
 function* onLoginSuccess() {
     yield put(initApp());
     yield put(hidePreloader());
-    yield put(NavigationActions.navigate({ routeName: 'App' }));
+    yield Navigation.setStackRoot('root', {
+        component: {
+            name: 'td.Main',
+        },
+    });
 }
 
 function* onLoginFailed({ payload: { error } }) {

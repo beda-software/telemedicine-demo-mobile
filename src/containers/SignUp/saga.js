@@ -1,12 +1,16 @@
 import { takeEvery, call, put, all } from 'redux-saga/effects';
-import { NavigationActions } from 'react-navigation';
+import { Navigation } from 'react-native-navigation';
 
 import { makePost } from 'utils/request';
 import { showPreloader, hidePreloader } from 'containers/Preloader/actions';
 import { showModal } from 'containers/Modal/actions';
 import { signUp, signUpSuccess, signUpFailed } from './actions';
 
-function* onSignUp({ payload: { values: { username, displayName, password } } }) {
+function* onSignUp({
+    payload: {
+        values: { username, displayName, password },
+    },
+}) {
     yield put(showPreloader());
     try {
         const userCredentials = { username, displayName, password };
@@ -19,8 +23,12 @@ function* onSignUp({ payload: { values: { username, displayName, password } } })
 
 function* onSignUpSuccess() {
     yield put(hidePreloader());
-    yield put(NavigationActions.navigate({ routeName: 'Login' }));
-    yield put(showModal('You\'ve successfully registered.'));
+    yield Navigation.setStackRoot('root', {
+        component: {
+            name: 'td.Login',
+        },
+    });
+    yield put(showModal("You've successfully registered."));
 }
 
 function* onSignUpFailed({ payload: { error } }) {

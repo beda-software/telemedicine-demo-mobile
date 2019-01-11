@@ -1,14 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { NavigationActions } from 'react-navigation';
+import { Navigation } from 'react-native-navigation';
 
-import {
-    View,
-    Platform,
-    SafeAreaView,
-    StatusBar,
-} from 'react-native';
+import { View, Platform, SafeAreaView, StatusBar } from 'react-native';
 import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
 
 import styles from 'styles/Styles';
@@ -22,6 +17,14 @@ import Form from './Form';
 import validate from './validator';
 
 class Login extends React.PureComponent {
+    static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
     render() {
         return (
             <SafeAreaView style={styles.safearea}>
@@ -34,7 +37,13 @@ class Login extends React.PureComponent {
                         <Logo />
                         <Form
                             onSubmit={this.props.login}
-                            goToSignUp={this.props.goToSignUp}
+                            goToSignUp={() =>
+                                Navigation.setStackRoot('root', {
+                                    component: {
+                                        name: 'td.SignUp',
+                                    },
+                                })
+                            }
                         />
                         <GlobalModal />
                         <Preloader />
@@ -48,8 +57,13 @@ class Login extends React.PureComponent {
 const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
-    login: compose(login, validate),
-    goToSignUp: () => NavigationActions.navigate({ routeName: 'SignUp' }),
+    login: compose(
+        login,
+        validate
+    ),
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Login);

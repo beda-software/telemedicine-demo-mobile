@@ -1,10 +1,6 @@
-import {
-    AppState,
-    Platform,
-    NativeModules, PermissionsAndroid,
-} from 'react-native';
+import { AppState, Platform, NativeModules, PermissionsAndroid } from 'react-native';
 import { all, takeLatest, takeEvery, take, put, fork, cancel } from 'redux-saga/effects';
-import { NavigationActions } from 'react-navigation';
+import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import RNCallKit from 'react-native-callkit';
 import uuid from 'uuid';
@@ -17,9 +13,7 @@ import {
     changeRemoteVideoStream,
     resetCallState,
 } from 'containers/Call/actions';
-import {
-    saveCallerDisplayName,
-} from 'containers/IncomingCall/actions';
+import { saveCallerDisplayName } from 'containers/IncomingCall/actions';
 import { showModal } from 'containers/Modal/actions';
 import {
     changeDevice,
@@ -41,9 +35,7 @@ import {
 
 export function* requestPermissions(isVideo) {
     if (Platform.OS === 'android') {
-        let permissions = [
-            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        ];
+        let permissions = [PermissionsAndroid.PERMISSIONS.RECORD_AUDIO];
         if (isVideo) {
             permissions.push(PermissionsAndroid.PERMISSIONS.CAMERA);
         }
@@ -76,28 +68,28 @@ function* initCallKit() {
         yield takeEvery(channel, function* callKitEventHandler(event) {
             console.log(`CallKit event: ${event.name}`, event);
             switch (event.name) {
-            case 'AnswerCall': {
-                yield* onCallKitAnswerCall(event);
-                break;
-            }
-            case 'EndCall': {
-                yield* onCallKitEndCall(event);
-                break;
-            }
-            case 'DidActivateAudioSession': {
-                yield* onCallKitDidActivateAudioSession(event);
-                break;
-            }
-            case 'DidDisplayIncomingCall': {
-                yield* onCallKitDidDisplayIncomingCall(event);
-                break;
-            }
-            case 'DidReceiveStartCallAction': {
-                yield* onCallKitDidReceiveStartCallAction(event);
-                break;
-            }
-            default:
-                console.log(`Unhandled CallKit event ${event.name}`);
+                case 'AnswerCall': {
+                    yield* onCallKitAnswerCall(event);
+                    break;
+                }
+                case 'EndCall': {
+                    yield* onCallKitEndCall(event);
+                    break;
+                }
+                case 'DidActivateAudioSession': {
+                    yield* onCallKitDidActivateAudioSession(event);
+                    break;
+                }
+                case 'DidDisplayIncomingCall': {
+                    yield* onCallKitDidDisplayIncomingCall(event);
+                    break;
+                }
+                case 'DidReceiveStartCallAction': {
+                    yield* onCallKitDidReceiveStartCallAction(event);
+                    break;
+                }
+                default:
+                    console.log(`Unhandled CallKit event ${event.name}`);
             }
         });
     } catch (err) {
@@ -106,8 +98,7 @@ function* initCallKit() {
 }
 
 function* onCallKitAnswerCall() {
-    Voximplant.Hardware.AudioDeviceManager.getInstance()
-        .callKitConfigureAudioSession();
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitConfigureAudioSession();
 
     yield* onAnswerCall({ payload: { isVideo: false } });
 }
@@ -117,15 +108,12 @@ function* onCallKitEndCall() {
         yield put(endCall());
     }
 
-    Voximplant.Hardware.AudioDeviceManager.getInstance()
-        .callKitStopAudio();
-    Voximplant.Hardware.AudioDeviceManager.getInstance()
-        .callKitReleaseAudioSession();
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStopAudio();
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitReleaseAudioSession();
 }
 
 function onCallKitDidActivateAudioSession() {
-    Voximplant.Hardware.AudioDeviceManager.getInstance()
-        .callKitStartAudio();
+    Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStartAudio();
 }
 
 function onCallKitDidDisplayIncomingCall() {
@@ -140,14 +128,17 @@ function* onAnswerCall({ payload: { isVideo } }) {
     try {
         const { activeCall } = storage;
         yield* requestPermissions(isVideo);
-        yield put(NavigationActions.navigate({
-            routeName: 'Call',
-            params: {
-                callId: storage.activeCall.callId,
-                isVideo,
-                isIncoming: true,
+        yield Navigation.push('root', {
+            component: {
+                name: 'td.Call',
+                passProps: {
+                    callId: storage.activeCall.callId,
+                    isVideo,
+                    isIncoming: true,
+                },
             },
-        }));
+        });
+
         const callSettings = {
             video: {
                 sendVideo: isVideo,
@@ -186,7 +177,7 @@ function* onCallDisconnected() {
     storage.endpointsTasks = [];
     storage.activeCall = null;
 
-    yield put(NavigationActions.navigate({ routeName: 'App' }));
+    yield Navigation.popToRoot('root');
 
     if (Platform.OS === 'ios') {
         RNCallKit.endCall(storage.activeCallKitId);
@@ -202,16 +193,16 @@ function* onEndpointAdded(endpoint) {
             console.log(`Endpoint event: ${event.name}`, event);
 
             switch (event.name) {
-            case Voximplant.EndpointEvents.RemoteVideoStreamAdded: {
-                yield put(changeRemoteVideoStream(event.videoStream));
-                break;
-            }
-            case Voximplant.EndpointEvents.RemoteVideoStreamRemoved: {
-                yield put(changeRemoteVideoStream(null));
-                break;
-            }
-            default:
-                console.log(`Unhandled endpoint event ${event.name}`);
+                case Voximplant.EndpointEvents.RemoteVideoStreamAdded: {
+                    yield put(changeRemoteVideoStream(event.videoStream));
+                    break;
+                }
+                case Voximplant.EndpointEvents.RemoteVideoStreamRemoved: {
+                    yield put(changeRemoteVideoStream(null));
+                    break;
+                }
+                default:
+                    console.log(`Unhandled endpoint event ${event.name}`);
             }
         }
     } finally {
@@ -227,33 +218,33 @@ function* subscribeToCallEvents(newCall, isIncoming) {
 
             console.log(`Call event: ${event.name}`, event);
             switch (event.name) {
-            case Voximplant.CallEvents.Connected: {
-                yield* onCallConnected(isIncoming);
-                break;
-            }
-            case Voximplant.CallEvents.Failed: {
-                yield* onCallFailed(event.reason);
-                break;
-            }
-            case Voximplant.CallEvents.Disconnected: {
-                yield* onCallDisconnected();
-                break;
-            }
-            case Voximplant.CallEvents.LocalVideoStreamAdded: {
-                yield put(changeLocalVideoStream(event.videoStream));
-                break;
-            }
-            case Voximplant.CallEvents.LocalVideoStreamRemoved: {
-                yield put(changeLocalVideoStream(null));
-                break;
-            }
-            case Voximplant.CallEvents.EndpointAdded: {
-                const task = yield fork(onEndpointAdded, event.endpoint);
-                storage.endpointsTasks.push(task);
-                break;
-            }
-            default:
-                console.log(`Unhandled call event ${event.name}`);
+                case Voximplant.CallEvents.Connected: {
+                    yield* onCallConnected(isIncoming);
+                    break;
+                }
+                case Voximplant.CallEvents.Failed: {
+                    yield* onCallFailed(event.reason);
+                    break;
+                }
+                case Voximplant.CallEvents.Disconnected: {
+                    yield* onCallDisconnected();
+                    break;
+                }
+                case Voximplant.CallEvents.LocalVideoStreamAdded: {
+                    yield put(changeLocalVideoStream(event.videoStream));
+                    break;
+                }
+                case Voximplant.CallEvents.LocalVideoStreamRemoved: {
+                    yield put(changeLocalVideoStream(null));
+                    break;
+                }
+                case Voximplant.CallEvents.EndpointAdded: {
+                    const task = yield fork(onEndpointAdded, event.endpoint);
+                    storage.endpointsTasks.push(task);
+                    break;
+                }
+                default:
+                    console.log(`Unhandled call event ${event.name}`);
             }
         }
     } finally {
@@ -270,7 +261,7 @@ function* onIncomingCallReceived(newCall) {
     const { activeCall } = storage;
     if (activeCall && activeCall.id !== newCall.id) {
         newCall.decline();
-        yield put(showModal('You\'ve received one another call, but we declined it.'));
+        yield put(showModal("You've received one another call, but we declined it."));
     } else {
         storage.activeCall = newCall;
         yield* initCall(newCall, false, true);
@@ -278,12 +269,14 @@ function* onIncomingCallReceived(newCall) {
         const callerDisplayName = newCall.getEndpoints()[0].displayName;
         yield put(saveCallerDisplayName(callerDisplayName));
 
-        yield put(NavigationActions.navigate({
-            routeName: 'IncomingCall',
-            params: {
-                callId: newCall.callId,
+        yield Navigation.push('root', {
+            component: {
+                name: 'td.IncomingCall',
+                passProps: {
+                    callId: newCall.callId,
+                },
             },
-        }));
+        });
 
         if (Platform.OS === 'ios') {
             storage.activeCallKitId = uuid.v4();
@@ -306,17 +299,19 @@ function* onOutgoingCall({ payload }) {
                 receiveVideo: isVideo,
             },
         };
-        const newCall = yield Voximplant.getInstance()
-            .call(contact.username, callSettings);
+        const newCall = yield Voximplant.getInstance().call(contact.username, callSettings);
         storage.activeCall = newCall;
-        yield put(NavigationActions.navigate({
-            routeName: 'Call',
-            params: {
-                callId: newCall.callId,
-                isVideo,
-                isIncoming: false,
+
+        yield Navigation.push('root', {
+            component: {
+                name: 'td.Call',
+                passProps: {
+                    callId: newCall.callId,
+                    isVideo,
+                    isIncoming: false,
+                },
             },
-        }));
+        });
 
         if (Platform.OS === 'ios') {
             storage.activeCallKitId = uuid.v4();
@@ -337,31 +332,29 @@ function* subscribeToAudioDeviceEvents() {
         console.log(`Device event: ${event.name}`, event);
 
         switch (event.name) {
-        case Voximplant.Hardware.AudioDeviceEvents.DeviceChanged: {
-            yield put(changeDevice(event.currentDevice));
-            break;
-        }
-        case Voximplant.Hardware.AudioDeviceEvents.DeviceListChanged: {
-            yield put(changeDeviceList(event.newDeviceList));
-            break;
-        }
-        default:
-            console.log(`Unhandled audio device event ${event.name}`);
+            case Voximplant.Hardware.AudioDeviceEvents.DeviceChanged: {
+                yield put(changeDevice(event.currentDevice));
+                break;
+            }
+            case Voximplant.Hardware.AudioDeviceEvents.DeviceListChanged: {
+                yield put(changeDeviceList(event.newDeviceList));
+                break;
+            }
+            default:
+                console.log(`Unhandled audio device event ${event.name}`);
         }
     });
 }
 
 function* onToggleAudioDeviceSelector({ payload: { isAudioDeviceSelectorVisible } }) {
     if (isAudioDeviceSelectorVisible) {
-        const devices = yield Voximplant.Hardware.AudioDeviceManager.getInstance()
-            .getAudioDevices();
+        const devices = yield Voximplant.Hardware.AudioDeviceManager.getInstance().getAudioDevices();
         yield put(changeDeviceList(devices));
     }
 }
 
 function* onSetAudioDevice({ payload: { device } }) {
-    Voximplant.Hardware.AudioDeviceManager.getInstance()
-        .selectAudioDevice(device);
+    Voximplant.Hardware.AudioDeviceManager.getInstance().selectAudioDevice(device);
     yield put(toggleAudioDeviceSelector(false));
 }
 

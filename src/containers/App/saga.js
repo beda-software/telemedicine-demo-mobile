@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native';
 import { delay } from 'redux-saga';
 import { all, takeLatest, takeEvery, take, put, select, race, fork } from 'redux-saga/effects';
-import { NavigationActions } from 'react-navigation';
+import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import { appDomain } from 'utils/request';
 import { showModal } from 'containers/Modal/actions';
@@ -14,35 +14,31 @@ import {
     saveVoxImplantTokens,
     setAppInitializedStatus,
 } from './actions';
-import {
-    selectPushToken,
-    selectVoxImplantTokens,
-    selectUsername,
-    selectIsAppInitialized,
-} from './selectors';
-import {
-    createPushTokenChannel,
-    createPushNotificationChannel,
-} from './pushnotification';
-import {
-    createAppStateChangedChannel,
-} from './channels';
+import { selectPushToken, selectVoxImplantTokens, selectUsername, selectIsAppInitialized } from './selectors';
+import { createPushTokenChannel, createPushNotificationChannel } from './pushnotification';
+import { createAppStateChangedChannel } from './channels';
 
 function* hasSession() {
-    const [[, apiToken], [, accessToken], [, username]] =
-        yield AsyncStorage.multiGet(['apiToken', 'accessToken', 'username']);
+    const [[, apiToken], [, accessToken], [, username]] = yield AsyncStorage.multiGet([
+        'apiToken',
+        'accessToken',
+        'username',
+    ]);
 
     return !!(username && accessToken && apiToken);
 }
 
 function* onLogout() {
-    yield put(NavigationActions.navigate({ routeName: 'Login' }));
+    yield Navigation.setStackRoot('root', {
+        component: {
+            name: 'td.Login',
+        },
+    });
 
     const client = Voximplant.getInstance();
     try {
         yield client.disconnect();
-    } catch (err) {
-    }
+    } catch (err) {}
     yield client.connect();
 
     const pushToken = yield select(selectPushToken);
@@ -121,7 +117,11 @@ function* bootstrap() {
     yield fork(initPushNotifications);
 
     if (yield* restoreSessionData()) {
-        yield put(NavigationActions.navigate({ routeName: 'App' }));
+        yield Navigation.setStackRoot('root', {
+            component: {
+                name: 'td.Main',
+            },
+        });
 
         try {
             yield* reLoginVoxImplant();
@@ -134,7 +134,11 @@ function* bootstrap() {
             yield put(showModal(`Can not bootstrap.\n${err.message}`));
         }
     } else {
-        yield put(NavigationActions.navigate({ routeName: 'Login' }));
+        yield Navigation.setStackRoot('root', {
+            component: {
+                name: 'td.Login',
+            },
+        });
     }
 }
 
@@ -153,9 +157,11 @@ function* onAppStateChanged(appState) {
 }
 
 function* restoreSessionData() {
-    const [[, apiToken], [, accessToken], [, username]] = yield AsyncStorage.multiGet(
-        ['apiToken', 'accessToken', 'username']
-    );
+    const [[, apiToken], [, accessToken], [, username]] = yield AsyncStorage.multiGet([
+        'apiToken',
+        'accessToken',
+        'username',
+    ]);
 
     if (apiToken && accessToken && username) {
         yield put(saveApiToken(apiToken));

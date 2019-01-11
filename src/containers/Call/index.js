@@ -42,8 +42,15 @@ import {
     endCall,
 } from './actions';
 
-
 class Call extends React.Component {
+    static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
     _keypadPressed(value) {
         // TODO: dispatch action
         // this.props.activeCall.sendTone(value);
@@ -78,9 +85,7 @@ class Call extends React.Component {
                                 videoStreamId={this.props.localVideoStreamId}
                                 scaleType={Voximplant.RenderScaleType.SCALE_FIT}
                             />
-                        ) : (
-                            null
-                        )}
+                        ) : null}
                         <Voximplant.VideoView
                             style={styles.remotevideo}
                             videoStreamId={this.props.remoteVideoStreamId}
@@ -97,11 +102,7 @@ class Call extends React.Component {
                         <Text style={styles.call_connecting_label}>{this.props.callStatus}</Text>
                     </View>
 
-                    {this.props.isKeypadVisible ? (
-                        <Keypad keyPressed={(e) => this._keypadPressed(e)} />
-                    ) : (
-                        null
-                    )}
+                    {this.props.isKeypadVisible ? <Keypad keyPressed={(e) => this._keypadPressed(e)} /> : null}
 
                     <View style={styles.call_controls}>
                         <View
@@ -114,8 +115,7 @@ class Call extends React.Component {
                             <CallButton
                                 icon_name={this.props.isAudioMuted ? 'mic' : 'mic-off'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => this.props.toggleAudioMute( !this.props.isAudioMuted,
-                                )}
+                                buttonPressed={() => this.props.toggleAudioMute(!this.props.isAudioMuted)}
                             />
                             <CallButton
                                 icon_name="dialpad"
@@ -125,16 +125,14 @@ class Call extends React.Component {
                             <CallButton
                                 icon_name={this.props.audioDeviceIcon}
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => this.props.toggleAudioDeviceSelector(
-                                    !this.props.isAudioDeviceSelectorVisible,
-                                )}
+                                buttonPressed={() =>
+                                    this.props.toggleAudioDeviceSelector(!this.props.isAudioDeviceSelectorVisible)
+                                }
                             />
                             <CallButton
                                 icon_name={this.props.isVideoBeingSent ? 'videocam-off' : 'video-call'}
                                 color={COLOR.ACCENT}
-                                buttonPressed={() => this.props.toggleVideoSend(
-                                    !this.props.isVideoBeingSent,
-                                )}
+                                buttonPressed={() => this.props.toggleVideoSend(!this.props.isVideoBeingSent)}
                             />
                             <CallButton
                                 icon_name="call-end"
@@ -147,13 +145,12 @@ class Call extends React.Component {
                         animationType="fade"
                         transparent
                         visible={this.props.isAudioDeviceSelectorVisible}
-                        onRequestClose={() => {
-                        }}
+                        onRequestClose={() => {}}
                     >
                         <TouchableHighlight
-                            onPress={() => this.props.toggleAudioDeviceSelector(
-                                !this.props.isAudioDeviceSelectorVisible,
-                            )}
+                            onPress={() =>
+                                this.props.toggleAudioDeviceSelector(!this.props.isAudioDeviceSelectorVisible)
+                            }
                             style={styles.container}
                         >
                             <View style={[styles.container, styles.modalBackground]}>
@@ -168,9 +165,7 @@ class Call extends React.Component {
                                                     this.props.setAudioDevice(item);
                                                 }}
                                             >
-                                                <Text>
-                                                    {item}
-                                                </Text>
+                                                <Text>{item}</Text>
                                             </TouchableOpacity>
                                         )}
                                     />
@@ -181,7 +176,6 @@ class Call extends React.Component {
 
                     <GlobalModal />
                 </View>
-
             </SafeAreaView>
         );
     }
@@ -210,4 +204,7 @@ const mapDispatchToProps = {
     setAudioDevice,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Call);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Call);

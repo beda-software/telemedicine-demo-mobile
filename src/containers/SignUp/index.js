@@ -2,14 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 
-import {
-    View,
-    Platform,
-    SafeAreaView,
-    StatusBar,
-} from 'react-native';
-import { KeyboardAwareView } from 'react-native-keyboard-aware-view';
-import { NavigationActions } from 'react-navigation';
+import { Platform, ScrollView, SafeAreaView, StatusBar } from 'react-native';
+import { Navigation } from 'react-native-navigation';
 
 import styles from 'styles/Styles';
 import COLOR_SCHEME from 'styles/ColorScheme';
@@ -22,6 +16,14 @@ import Form from './Form';
 import validate from './validator';
 
 class SignUp extends React.PureComponent {
+    static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
     render() {
         return (
             <SafeAreaView style={styles.safearea}>
@@ -29,17 +31,21 @@ class SignUp extends React.PureComponent {
                     barStyle={Platform.OS === 'ios' ? COLOR_SCHEME.DARK : COLOR_SCHEME.LIGHT}
                     backgroundColor={COLOR.PRIMARY_DARK}
                 />
-                <KeyboardAwareView>
-                    <View style={[styles.container]}>
-                        <Logo />
-                        <Form
-                            onSubmit={this.props.signUp}
-                            goToLogin={this.props.goToLogin}
-                        />
-                        <GlobalModal />
-                        <Preloader />
-                    </View>
-                </KeyboardAwareView>
+                <ScrollView contentContainerStyle={[styles.container]}>
+                    <Logo />
+                    <Form
+                        onSubmit={this.props.signUp}
+                        goToLogin={() =>
+                            Navigation.setStackRoot('root', {
+                                component: {
+                                    name: 'td.Login',
+                                },
+                            })
+                        }
+                    />
+                    <GlobalModal />
+                    <Preloader />
+                </ScrollView>
             </SafeAreaView>
         );
     }
@@ -48,8 +54,13 @@ class SignUp extends React.PureComponent {
 const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
-    signUp: compose(signUp, validate),
-    goToLogin: () => NavigationActions.navigate({ routeName: 'Login' }),
+    signUp: compose(
+        signUp,
+        validate
+    ),
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignUp);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(SignUp);
