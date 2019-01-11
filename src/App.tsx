@@ -1,4 +1,5 @@
 import * as React from 'react';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as Login from 'src/containers/Login';
 import { getTree } from 'src/contrib/typed-baobab';
 import { Token } from 'src/contrib/aidbox';
@@ -20,11 +21,13 @@ interface Model {
 const rootTree = getTree(initial, {});
 
 function withProps<P>(Component: React.ComponentClass<P>, props: P) {
-    class Wrapper extends React.Component<any> {
+    class Wrapper extends React.Component<P> {
         public render() {
             return <Component {...this.props} {...props} />;
         }
     }
+
+    hoistNonReactStatics(Wrapper, Component);
 
     return Wrapper;
 }

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 import { Cursor } from '../contrib/my-baobab';
 
 function initCursor(cursor: Cursor, modelSchema: any): void {
@@ -32,67 +33,67 @@ function arePropsEqual(oldProps: any, newProps: any) {
 }
 
 export function schema<P>(model: any) {
-    class Wrapper extends React.Component<{ passProps: P; component: any }, {}> {
-        constructor(props: any) {
-            super(props);
+    return ((Component: React.ComponentClass) => {
+        class Wrapper extends React.Component<{ passProps: P; component: any }, {}> {
+            constructor(props: any) {
+                super(props);
 
-            this.onUpdate = this.onUpdate.bind(this);
-            const passProps: any = props.passProps;
+                this.onUpdate = this.onUpdate.bind(this);
+                const passProps: any = props.passProps;
 
-            _.each(passProps, (prop, propName) => {
-                if (prop instanceof Cursor) {
-                    this.handleNewCursor(prop, propName);
-                }
-            });
-        }
-
-        public handleNewCursor(cursor: Cursor, cursorName: string) {
-            const schemaPart = model[cursorName];
-            if (schemaPart) {
-                initCursor(cursor, schemaPart);
-                cursor.tree.commit();
-            }
-            cursor.on('update', this.onUpdate);
-        }
-
-        public componentWillUnmount() {
-            const passProps: any = this.props.passProps;
-            _.each(passProps, (cursor) => {
-                if (cursor instanceof Cursor) {
-                    cursor.off('update', this.onUpdate);
-                }
-            });
-        }
-
-        public shouldComponentUpdate(nextProps: { passProps: P }, nextState: any) {
-            return !arePropsEqual(this.props.passProps, nextProps.passProps);
-        }
-
-        public componentWillReceiveProps(props: any) {
-            _.each(props.passProps, (prop, propName) => {
-                if (prop instanceof Cursor) {
-                    const oldProp = this.props.passProps[propName];
-                    if (oldProp.path !== prop.path) {
-                        oldProp.off('update', this.onUpdate);
+                _.each(passProps, (prop, propName) => {
+                    if (prop instanceof Cursor) {
                         this.handleNewCursor(prop, propName);
-                        console.error("Cursor path's was changed. This should never happen!!!");
                     }
+                });
+            }
+
+            public handleNewCursor(cursor: Cursor, cursorName: string) {
+                const schemaPart = model[cursorName];
+                if (schemaPart) {
+                    initCursor(cursor, schemaPart);
+                    cursor.tree.commit();
                 }
-            });
+                cursor.on('update', this.onUpdate);
+            }
+
+            public componentWillUnmount() {
+                const passProps: any = this.props.passProps;
+                _.each(passProps, (cursor) => {
+                    if (cursor instanceof Cursor) {
+                        cursor.off('update', this.onUpdate);
+                    }
+                });
+            }
+
+            public shouldComponentUpdate(nextProps: { passProps: P }, nextState: any) {
+                return !arePropsEqual(this.props.passProps, nextProps.passProps);
+            }
+
+            public componentWillReceiveProps(props: any) {
+                _.each(props.passProps, (prop, propName) => {
+                    if (prop instanceof Cursor) {
+                        const oldProp = this.props.passProps[propName];
+                        if (oldProp.path !== prop.path) {
+                            oldProp.off('update', this.onUpdate);
+                            this.handleNewCursor(prop, propName);
+                            console.error("Cursor path's was changed. This should never happen!!!");
+                        }
+                    }
+                });
+            }
+
+            public onUpdate() {
+                this.forceUpdate();
+            }
+
+            public render() {
+                return <Component {...this.props} />;
+            }
         }
 
-        public onUpdate() {
-            this.forceUpdate();
-        }
+        hoistNonReactStatics(Wrapper, Component);
 
-        public render() {
-            const Component = this.props.component;
-
-            return <Component {...this.props.passProps} />;
-        }
-    }
-
-    return ((Component: any) => {
-        return (props: P) => <Wrapper passProps={props} component={Component} />;
+        return Wrapper;
     }) as any;
 }

@@ -28,6 +28,14 @@ export interface ComponentProps {
 
 @schema({ tree: {} })
 export class Component extends React.Component<ComponentProps, {}> {
+    public static options() {
+        return {
+            topBar: {
+                visible: false,
+            },
+        };
+    }
+
     // constructor(props: LoginProps) {
     //     super(props);
     //
