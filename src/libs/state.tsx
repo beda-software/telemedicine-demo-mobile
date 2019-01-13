@@ -33,67 +33,78 @@ function arePropsEqual(oldProps: any, newProps: any) {
 }
 
 export function schema<P>(model: any) {
-    return ((Component: React.ComponentClass<any>) => {
-        class Wrapper extends React.Component<any, {}> {
-            constructor(props: any) {
-                super(props);
+    interface WrapperProps {
+        Component: React.ComponentClass<P>;
+        forwardedRef: React.Ref<React.ComponentClass<P>>;
+        passProps: P;
+    }
 
-                this.onUpdate = this.onUpdate.bind(this);
+    class Wrapper extends React.Component<WrapperProps, {}> {
+        constructor(props: WrapperProps) {
+            super(props);
 
-                _.each(props, (prop, propName) => {
-                    if (prop instanceof Cursor) {
-                        this.handleNewCursor(prop, propName);
-                    }
-                });
-            }
+            this.onUpdate = this.onUpdate.bind(this);
 
-            public handleNewCursor(cursor: Cursor, cursorName: string) {
-                const schemaPart = model[cursorName];
-                if (schemaPart) {
-                    initCursor(cursor, schemaPart);
-                    cursor.tree.commit();
+            _.each(props.passProps as any, (prop, propName) => {
+                if (prop instanceof Cursor) {
+                    this.handleNewCursor(prop, propName);
                 }
-                cursor.on('update', this.onUpdate);
-            }
-
-            public componentWillUnmount() {
-                _.each(this.props, (cursor) => {
-                    if (cursor instanceof Cursor) {
-                        cursor.off('update', this.onUpdate);
-                    }
-                });
-            }
-
-            public shouldComponentUpdate(nextProps: any, nextState: any) {
-                return !arePropsEqual(this.props, nextProps);
-            }
-
-            public componentWillReceiveProps(props: any) {
-                _.each(props, (prop, propName) => {
-                    if (prop instanceof Cursor) {
-                        const oldProp = this.props[propName];
-                        if (oldProp.path !== prop.path) {
-                            oldProp.off('update', this.onUpdate);
-                            this.handleNewCursor(prop, propName);
-                            console.error("Cursor path's was changed. This should never happen!!!");
-                        }
-                    }
-                });
-            }
-
-            public onUpdate() {
-                this.forceUpdate();
-            }
-
-            public render() {
-                const { innerRef, ...rest } = this.props;
-
-                return <Component ref={innerRef} {...rest} />;
-            }
+            });
         }
 
-        const WrapperForwardingRef = React.forwardRef((props, ref) => <Wrapper innerRef={ref} {...props} />);
+        public handleNewCursor(cursor: Cursor, cursorName: string) {
+            const schemaPart = model[cursorName];
+            if (schemaPart) {
+                initCursor(cursor, schemaPart);
+                cursor.tree.commit();
+            }
+            cursor.on('update', this.onUpdate);
+        }
 
-        return hoistNonReactStatics(WrapperForwardingRef, Component);
+        public componentWillUnmount() {
+            _.each(this.props.passProps as any, (cursor) => {
+                if (cursor instanceof Cursor) {
+                    cursor.off('update', this.onUpdate);
+                }
+            });
+        }
+
+        public shouldComponentUpdate(nextProps: WrapperProps) {
+            return !arePropsEqual(this.props.passProps, nextProps.passProps);
+        }
+
+        public componentWillReceiveProps(props: WrapperProps) {
+            _.each(props.passProps as any, (prop, propName) => {
+                if (prop instanceof Cursor) {
+                    const oldProp = this.props.passProps[propName];
+                    if (oldProp.path !== prop.path) {
+                        oldProp.off('update', this.onUpdate);
+                        this.handleNewCursor(prop, propName);
+                        console.error("Cursor path's was changed. This should never happen!!!");
+                    }
+                }
+            });
+        }
+
+        public onUpdate() {
+            this.forceUpdate();
+        }
+
+        public render() {
+            const { Component, forwardedRef, passProps } = this.props;
+
+            return <Component ref={forwardedRef} {...passProps} />;
+        }
+    }
+
+    return ((Component: React.ComponentClass<P>) => {
+        const RefForwardedComponent = React.forwardRef((props: P, ref: React.Ref<React.ComponentClass<P>>) => (
+            <Wrapper Component={Component} forwardedRef={ref} passProps={props} />
+        ));
+
+        return hoistNonReactStatics(
+            RefForwardedComponent,
+            Component as React.ComponentClass<React.PropsWithoutRef<P>> // I don't know how to deal with exotic component which forwardRef returns
+        );
     }) as any;
 }
