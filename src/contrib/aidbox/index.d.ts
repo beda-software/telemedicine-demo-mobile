@@ -45,6 +45,8 @@ export interface User {
         practitioner?: AidboxReference;
         patient?: AidboxReference;
     };
+    voxImplantId: string;
+    displayName: string;
     phone?: string;
     emailConfirmed?: boolean;
 }

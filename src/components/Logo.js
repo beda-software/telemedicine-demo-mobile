@@ -1,8 +1,9 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import styles from '../styles/Styles';
 
-export default function () {
+import styles from 'src/styles/Styles';
+
+export function Logo() {
     return (
         <View>
             <View style={styles.logo}>

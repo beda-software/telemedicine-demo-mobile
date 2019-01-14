@@ -32,30 +32,27 @@ interface RemoteDataSuccess<s> {
     data: s;
 }
 
-export function success<d = any>(data: d): RemoteDataSuccess<d> {
+export function success<S = any>(data: S): RemoteDataSuccess<S> {
     return {
         status: Status.Success,
         data,
     };
 }
 
-interface RemoteDataFailure<f> {
+interface RemoteDataFailure<F> {
     status: Status.Failure;
-    error: f;
+    error: F;
 }
 
-export function failure<e = any>(error: e): RemoteDataFailure<e> {
+export function failure<F = any>(error: F): RemoteDataFailure<F> {
     return {
         status: Status.Failure,
         error,
     };
 }
 
-export type RemoteData<s = any, f = any> =
-    | RemoteDataNotAsked
-    | RemoteDataLoading
-    | RemoteDataSuccess<s>
-    | RemoteDataFailure<f>;
+export type RemoteDataResult<S = any, F = any> = RemoteDataSuccess<S> | RemoteDataFailure<F>;
+export type RemoteData<S = any, F = any> = RemoteDataNotAsked | RemoteDataLoading | RemoteDataResult<S, F>;
 
 export function isNotAsked(remoteData: RemoteData): remoteData is RemoteDataNotAsked {
     return remoteData.status === Status.NotAsked;

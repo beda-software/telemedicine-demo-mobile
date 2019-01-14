@@ -1,13 +1,8 @@
 import React, { Component } from 'react';
-import {
-    StyleSheet,
-    View,
-    TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-export default class CallButton extends Component {
-
+export class CallButton extends Component {
     handleButtonPressed() {
         this.props.buttonPressed();
     }
@@ -20,7 +15,7 @@ export default class CallButton extends Component {
                         name={this.props.icon_name}
                         color={this.props.color}
                         size={20}
-                        backgroundColor='transparent'
+                        backgroundColor="transparent"
                     />
                 </View>
             </TouchableOpacity>

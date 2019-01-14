@@ -1,4 +1,4 @@
-import makeValidator from 'utils/validator';
+import makeValidator from 'src/utils/validator';
 
 const schema = {
     properties: {

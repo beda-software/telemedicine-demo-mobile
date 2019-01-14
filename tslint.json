@@ -4,11 +4,12 @@
     "rules": {
         "no-implicit-dependencies": false,
         "no-submodule-imports": false,
-        "ordered-imports": false,
         "interface-name": false,
         "object-literal-sort-keys": false,
         "no-console": false,
-        "max-classes-per-file": false
+        "max-classes-per-file": false,
+        "no-empty": false,
+        "no-empty-interface": false
     },
     "linterOptions": {
         "exclude": [

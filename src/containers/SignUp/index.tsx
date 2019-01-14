@@ -16,29 +16,28 @@ import { Navigation } from 'react-native-navigation';
 import { InputField } from 'src/components/InputFIeld';
 import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
-import { Token } from 'src/contrib/aidbox';
+import { Token, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { VoxImplantTokens } from 'src/contrib/vox-implant';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import { login, voxImplantLogin } from 'src/services/login';
+import { signUp } from 'src/services/sign-up';
 import COLOR from 'src/styles/Color';
 import s from './style';
 import validate from './validation';
 
 interface FormValues {
     username: string;
+    displayName: string;
     password: string;
+    passwordConfirm: string;
 }
 
 export interface Model {
-    tokenResponse: RemoteData<Token>;
-    voxImplantTokensResponse: RemoteData<VoxImplantTokens>;
+    response: RemoteData<User>;
 }
 
 export const initial: Model = {
-    tokenResponse: notAsked,
-    voxImplantTokensResponse: notAsked,
+    response: notAsked,
 };
 
 interface ComponentProps {
@@ -56,29 +55,29 @@ export class Component extends React.Component<ComponentProps, {}> {
         };
     }
 
+    private displayNameRef = React.createRef<TextInput>();
     private passwordRef = React.createRef<TextInput>();
+    private passwordConfirmRef = React.createRef<TextInput>();
 
     public async onSubmit(values: FormValues) {
-        const tokenResponse = await login(this.props.tree.tokenResponse, values);
+        const response = await signUp(this.props.tree.response, values);
 
-        if (isSuccess(tokenResponse)) {
-            const voxImplantTokensResponse = await voxImplantLogin(
-                this.props.tree.voxImplantTokensResponse,
-                values,
-                tokenResponse.data
-            );
-
-            if (isSuccess(voxImplantTokensResponse)) {
-                this.props.tokenResponseCursor.set(tokenResponse);
-                await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
-            } else {
-                await Navigation.showOverlay({
-                    component: { name: 'td.Modal', passProps: { text: `Something went wrong with VI login` } },
-                });
-            }
+        if (isSuccess(response)) {
+            await Navigation.showOverlay({
+                component: {
+                    name: 'td.Modal',
+                    passProps: {
+                        text: 'You have successfully registered. Please login using your username and password',
+                    },
+                },
+            });
+            await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
         } else {
             await Navigation.showOverlay({
-                component: { name: 'td.Modal', passProps: { text: 'Something went wrong with login' } },
+                component: {
+                    name: 'td.Modal',
+                    passProps: { text: `Something went wrong. ${JSON.stringify(response.error)}` },
+                },
             });
         }
     }
@@ -96,9 +95,24 @@ export class Component extends React.Component<ComponentProps, {}> {
                                     placeholder="Username"
                                     autoCapitalize="none"
                                     autoCorrect={false}
-                                    onSubmitEditing={() => this.passwordRef.current!.focus()}
+                                    onSubmitEditing={() => this.displayNameRef.current!.focus()}
                                     blurOnSubmit
                                     autoFocus
+                                    {...fieldProps}
+                                />
+                            )}
+                        </Field>
+                        <Field name="displayName">
+                            {(fieldProps) => (
+                                <InputField
+                                    underlineColorAndroid="transparent"
+                                    style={s.forminput}
+                                    placeholder="Display Name"
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                    ref={this.displayNameRef}
+                                    onSubmitEditing={() => this.passwordRef.current!.focus()}
+                                    blurOnSubmit
                                     {...fieldProps}
                                 />
                             )}
@@ -108,9 +122,23 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 <InputField
                                     underlineColorAndroid="transparent"
                                     style={s.forminput}
-                                    placeholder="User password"
-                                    onSubmitEditing={() => handleSubmit()}
+                                    placeholder="Password"
                                     ref={this.passwordRef}
+                                    onSubmitEditing={() => this.passwordConfirmRef.current!.focus()}
+                                    blurOnSubmit
+                                    secureTextEntry
+                                    {...fieldProps}
+                                />
+                            )}
+                        </Field>
+                        <Field name="passwordConfirm">
+                            {(fieldProps) => (
+                                <InputField
+                                    underlineColorAndroid="transparent"
+                                    style={s.forminput}
+                                    placeholder="Confirm password"
+                                    onSubmitEditing={() => handleSubmit()}
+                                    ref={this.passwordConfirmRef}
                                     blurOnSubmit
                                     secureTextEntry
                                     {...fieldProps}
@@ -124,16 +152,16 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>LOGIN</Text>
+                            <Text style={s.loginbutton}>SIGN UP</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            onPress={() => Navigation.setStackRoot('root', { component: { name: 'td.SignUp' } })}
+                            onPress={() => Navigation.setStackRoot('root', { component: { name: 'td.Login' } })}
                             style={{
                                 width: 220,
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>GO TO SIGN UP</Text>
+                            <Text style={s.loginbutton}>GO TO LOGIN</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -142,8 +170,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public render() {
-        const isLoading =
-            isLoadingCursor(this.props.tree.tokenResponse) || isLoadingCursor(this.props.tree.voxImplantTokensResponse);
+        const isLoading = isLoadingCursor(this.props.tree.response);
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -151,6 +178,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={[s.container]}>
                         <Logo />
+
                         <KeyboardAvoidingView behavior="padding" style={s.loginform}>
                             {this.renderForm()}
                         </KeyboardAvoidingView>

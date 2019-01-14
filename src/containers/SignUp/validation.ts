@@ -1,4 +1,4 @@
-import makeValidator from 'utils/validator';
+import makeValidator from 'src/utils/validator';
 
 const schema = {
     properties: {
@@ -9,7 +9,7 @@ const schema = {
         },
         displayName: {
             type: 'string',
-            description: 'nickname to diplay in contact list',
+            description: 'nickname to display in contact list',
             minLength: 3,
         },
         password: {
