@@ -18,16 +18,6 @@ import { selectPushToken, selectVoxImplantTokens, selectUsername, selectIsAppIni
 import { createPushTokenChannel, createPushNotificationChannel } from './pushnotification';
 import { createAppStateChangedChannel } from './channels';
 
-function* hasSession() {
-    const [[, apiToken], [, accessToken], [, username]] = yield AsyncStorage.multiGet([
-        'apiToken',
-        'accessToken',
-        'username',
-    ]);
-
-    return !!(username && accessToken && apiToken);
-}
-
 function* onLogout() {
     yield Navigation.setStackRoot('root', {
         component: {

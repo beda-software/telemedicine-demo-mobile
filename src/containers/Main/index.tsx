@@ -4,11 +4,12 @@ import { Navigation } from 'react-native-navigation';
 
 import { CallButton } from 'src/components/CallButton';
 import { Preloader } from 'src/components/Preloader';
-import { Bundle, BundleEntry, Token, User } from 'src/contrib/aidbox';
+import { Bundle, BundleEntry, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isNotAskedCursor, isSuccessCursor, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { getFHIRResources } from 'src/services/fhir';
+import { clearSession, Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
@@ -22,7 +23,7 @@ export const initial: Model = {
 
 interface ComponentProps {
     tree: Cursor<Model>;
-    tokenResponseCursor: Cursor<RemoteData<Token>>;
+    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })
@@ -60,20 +61,20 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async logout() {
-        this.props.tokenResponseCursor.set(notAsked);
+        await clearSession(this.props.sessionResponseCursor);
         await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
     }
 
     public async fetchContacts() {
-        const { tokenResponseCursor } = this.props;
+        const { sessionResponseCursor } = this.props;
 
         // TODO: how to deal with it?
-        if (isSuccessCursor(tokenResponseCursor)) {
+        if (isSuccessCursor(sessionResponseCursor)) {
             await getFHIRResources(
                 this.props.tree.contactListBundleResponse,
                 'User',
                 {},
-                tokenResponseCursor.data.get()
+                sessionResponseCursor.data.get().token
             );
         }
     }

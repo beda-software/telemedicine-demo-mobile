@@ -22,6 +22,7 @@ import { VoxImplantTokens } from 'src/contrib/vox-implant';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { login, voxImplantLogin } from 'src/services/login';
+import { saveSession, Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 import validate from './validation';
@@ -43,7 +44,7 @@ export const initial: Model = {
 
 interface ComponentProps {
     tree: Cursor<Model>;
-    tokenResponseCursor: Cursor<RemoteData<Token>>;
+    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })
@@ -69,7 +70,12 @@ export class Component extends React.Component<ComponentProps, {}> {
             );
 
             if (isSuccess(voxImplantTokensResponse)) {
-                this.props.tokenResponseCursor.set(tokenResponse);
+                const session = {
+                    username: values.username,
+                    token: tokenResponse.data,
+                    voxImplantTokens: voxImplantTokensResponse.data,
+                };
+                await saveSession(this.props.sessionResponseCursor, session);
                 await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
             } else {
                 await Navigation.showOverlay({

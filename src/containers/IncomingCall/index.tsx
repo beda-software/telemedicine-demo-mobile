@@ -5,10 +5,10 @@ import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
-import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
@@ -20,7 +20,7 @@ interface ComponentProps {
     componentId: string;
     callerDisplayName: string;
     tree: Cursor<Model>;
-    tokenResponseCursor: Cursor<RemoteData<Token>>;
+    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })

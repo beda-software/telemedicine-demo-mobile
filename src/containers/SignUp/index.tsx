@@ -16,10 +16,11 @@ import { Navigation } from 'react-native-navigation';
 import { InputField } from 'src/components/InputFIeld';
 import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
-import { Token, User } from 'src/contrib/aidbox';
+import { User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import { Session } from 'src/services/session';
 import { signUp } from 'src/services/sign-up';
 import COLOR from 'src/styles/Color';
 import s from './style';
@@ -42,7 +43,7 @@ export const initial: Model = {
 
 interface ComponentProps {
     tree: Cursor<Model>;
-    tokenResponseCursor: Cursor<RemoteData<Token>>;
+    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })

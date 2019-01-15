@@ -1,3 +1,4 @@
+// @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as React from 'react';
 
@@ -7,15 +8,14 @@ import * as Login from 'src/containers/Login';
 import * as Main from 'src/containers/Main';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
-import { Token } from 'src/contrib/aidbox';
 import { getTree } from 'src/contrib/typed-baobab';
-import { loading, RemoteData } from 'src/libs/schema';
-// import { getToken, resetToken } from 'src/services/token';
+import { isSuccess, loading, RemoteData } from 'src/libs/schema';
+import { getSession, Session } from 'src/services/session';
 
 import { Navigation } from 'react-native-navigation';
 
 const initial: Model = {
-    tokenResponse: loading,
+    sessionResponse: loading,
     login: Login.initial,
     signUp: SignUp.initial,
     main: Main.initial,
@@ -24,7 +24,7 @@ const initial: Model = {
 };
 
 interface Model {
-    tokenResponse: RemoteData<Token>;
+    sessionResponse: RemoteData<Session>;
     login: Login.Model;
     signUp: SignUp.Model;
     main: Main.Model;
@@ -47,36 +47,54 @@ function withProps<P>(Component: React.ComponentClass<P>, props: P) {
 }
 
 Navigation.registerComponent('td.Login', () =>
-    withProps(Login.Component, { tree: rootTree.login, tokenResponseCursor: rootTree.tokenResponse })
+    withProps(Login.Component, { tree: rootTree.login, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.SignUp', () =>
-    withProps(SignUp.Component, { tree: rootTree.signUp, tokenResponseCursor: rootTree.tokenResponse })
+    withProps(SignUp.Component, { tree: rootTree.signUp, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.Main', () =>
-    withProps(Main.Component, { tree: rootTree.main, tokenResponseCursor: rootTree.tokenResponse })
+    withProps(Main.Component, { tree: rootTree.main, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.Call', () =>
-    withProps(Call.Component, { tree: rootTree.call, tokenResponseCursor: rootTree.tokenResponse })
+    withProps(Call.Component, { tree: rootTree.call, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.IncomingCall', () =>
-    withProps(IncomingCall.Component, { tree: rootTree.incomingCall, tokenResponseCursor: rootTree.tokenResponse })
+    withProps(IncomingCall.Component, { tree: rootTree.incomingCall, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.Modal', () => Modal.Component);
 
 Navigation.events().registerAppLaunchedListener(async () => {
-    // TODO: restore session and redirect to main
-    await Navigation.setRoot({
-        root: {
-            stack: {
-                id: 'root',
-                children: [
-                    {
-                        component: {
-                            name: 'td.Login',
+    const result = await getSession(rootTree.sessionResponse);
+
+    if (isSuccess(result)) {
+        await Navigation.setRoot({
+            root: {
+                stack: {
+                    id: 'root',
+                    children: [
+                        {
+                            component: {
+                                name: 'td.Main',
+                            },
                         },
-                    },
-                ],
+                    ],
+                },
             },
-        },
-    });
+        });
+    } else {
+        await Navigation.setRoot({
+            root: {
+                stack: {
+                    id: 'root',
+                    children: [
+                        {
+                            component: {
+                                name: 'td.Login',
+                            },
+                        },
+                    ],
+                },
+            },
+        });
+    }
 });

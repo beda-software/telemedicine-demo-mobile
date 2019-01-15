@@ -15,10 +15,10 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
 import { Keypad } from 'src/components/Keypad';
-import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
@@ -62,7 +62,7 @@ export const initial: Model = {
 interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
-    tokenResponseCursor: Cursor<RemoteData<Token>>;
+    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })
