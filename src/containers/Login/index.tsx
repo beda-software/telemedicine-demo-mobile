@@ -45,6 +45,7 @@ export const initial: Model = {
 interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
+    init: () => void;
 }
 
 @schema({ tree: {} })
@@ -63,11 +64,10 @@ export class Component extends React.Component<ComponentProps, {}> {
         const tokenResponse = await login(this.props.tree.tokenResponse, values);
 
         if (isSuccess(tokenResponse)) {
-            const voxImplantTokensResponse = await voxImplantLogin(
-                this.props.tree.voxImplantTokensResponse,
-                values,
-                tokenResponse.data
-            );
+            const voxImplantTokensResponse = await voxImplantLogin(this.props.tree.voxImplantTokensResponse, {
+                username: values.username,
+                token: tokenResponse.data,
+            });
 
             if (isSuccess(voxImplantTokensResponse)) {
                 const session = {
@@ -76,6 +76,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                     voxImplantTokens: voxImplantTokensResponse.data,
                 };
                 await saveSession(this.props.sessionResponseCursor, session);
+                await this.props.init();
                 await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
             } else {
                 await Navigation.showOverlay({

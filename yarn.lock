@@ -988,6 +988,10 @@
   version "4.14.119"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.119.tgz#be847e5f4bc3e35e46d041c394ead8b603ad8b39"
 
+"@types/node@*":
+  version "10.12.18"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.18.tgz#1d3ca764718915584fcd9f6344621b7672665c67"
+
 "@types/prop-types@*":
   version "15.5.8"
   resolved "https://registry.yarnpkg.com/@types/prop-types/-/prop-types-15.5.8.tgz#8ae4e0ea205fe95c3901a5a1df7f66495e3a56ce"
@@ -1005,6 +1009,12 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
+
+"@types/uuid@^3.4.4":
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.4.tgz#7af69360fa65ef0decb41fd150bf4ca5c0cefdf5"
+  dependencies:
+    "@types/node" "*"
 
 abab@^2.0.0:
   version "2.0.0"
@@ -5549,6 +5559,10 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
+react-autobind@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-autobind/-/react-autobind-1.0.6.tgz#936bb58edf6b89b619c50f82f0e617159fdfd4f1"
+
 react-clone-referenced-element@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-clone-referenced-element/-/react-clone-referenced-element-1.1.0.tgz#9cdda7f2aeb54fea791f3ab8c6ab96c7a77d0158"
@@ -5630,9 +5644,9 @@ react-native-vector-icons@^4.6.0:
     prop-types "^15.5.10"
     yargs "^8.0.2"
 
-react-native-voximplant@1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-voximplant/-/react-native-voximplant-1.3.1.tgz#aeb83c95b2de6c9b6018b1cf319864f2b8effb7a"
+react-native-voximplant@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-voximplant/-/react-native-voximplant-1.4.0.tgz#66fd90befbe082def5e9b5a01021e01b8be9b551"
 
 react-native@^0.57.3:
   version "0.57.3"

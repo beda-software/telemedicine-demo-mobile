@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { FlatList, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
+// @ts-ignore
+import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
 import { Preloader } from 'src/components/Preloader';
@@ -8,6 +10,7 @@ import { Bundle, BundleEntry, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isNotAskedCursor, isSuccessCursor, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import CallService from 'src/services/call';
 import { getFHIRResources } from 'src/services/fhir';
 import { clearSession, Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
@@ -24,6 +27,7 @@ export const initial: Model = {
 interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
+    deinit: () => void;
 }
 
 @schema({ tree: {} })
@@ -62,6 +66,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public async logout() {
         await clearSession(this.props.sessionResponseCursor);
+        await this.props.deinit();
         await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
     }
 
@@ -80,7 +85,17 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async makeOutgoingCall(user: User, isVideo: boolean) {
-        await Navigation.showModal({ component: { name: 'td.Call', passProps: { isVideo } } });
+        const call = await Voximplant.getInstance().call(user.username, {
+            video: {
+                sendVideo: false,
+                receiveVideo: false,
+            },
+        });
+        let callService = CallService.getInstance();
+        callService.addCall(call);
+        callService.startOutgoingCallViaCallKit(isVideo, user.username);
+
+        await Navigation.showModal({ component: { name: 'td.Call', passProps: { isVideo, callId: call.callId } } });
     }
 
     public renderContent() {

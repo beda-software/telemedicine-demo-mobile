@@ -1,10 +1,7 @@
 import * as _ from 'lodash';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData, loading, success, failure, RemoteDataResult } from 'src/libs/schema';
-
-// TODO: get from env
-export const baseUrl = 'http://telemedicine-demo.beda.software';
-export const appDomain = 'voice-chat.beda-software.voximplant.com';
+import { baseUrl } from './constants';
 
 interface ServiceConfig {
     method: string;

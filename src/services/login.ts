@@ -2,9 +2,11 @@
 import { Voximplant } from 'react-native-voximplant';
 import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
-import { service, request, appDomain } from './base';
 import { VoxImplantTokens } from 'src/contrib/vox-implant';
+import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
+import { Session } from 'src/services/session';
+import { request, service } from './base';
+import { appDomain } from './constants';
 
 interface LoginBody {
     username: string;
@@ -33,18 +35,13 @@ async function requestOneTimeLoginKey(fullUsername: string) {
     }
 }
 
-interface VoxImplantLoginBody {
-    username: string;
-}
-
 export async function voxImplantLogin(
     cursor: Cursor<RemoteData<VoxImplantTokens>>,
-    body: VoxImplantLoginBody,
-    token: Token
+    session: Pick<Session, 'username' | 'token'>
 ): Promise<RemoteDataResult<VoxImplantTokens>> {
     cursor.set(loading);
 
-    const { username } = body;
+    const { username, token } = session;
     const fullUsername = `${username}@${appDomain}`;
 
     const client = Voximplant.getInstance();
@@ -86,4 +83,30 @@ export async function voxImplantLogin(
 
         return result;
     }
+}
+
+export async function voxImplantReLogin(cursor: Cursor<RemoteData<VoxImplantTokens>>, session: Session) {
+    cursor.set(loading);
+    const { username, voxImplantTokens } = session;
+
+    const client = Voximplant.getInstance();
+
+    const connectionState = await client.getClientState();
+    if (connectionState === Voximplant.ClientState.DISCONNECTED) {
+        await client.connect();
+    }
+
+    if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
+        const fullUsername = `${username}@${appDomain}`;
+        const { accessToken } = voxImplantTokens;
+        console.log(`reLoginVoxImplant: loginWithToken: user: ${username}, token: ${accessToken}`);
+
+        const { tokens } = await client.loginWithToken(fullUsername, accessToken);
+        const result = success(tokens);
+
+        cursor.set(result);
+        return result;
+    }
+
+    return success(voxImplantTokens);
 }

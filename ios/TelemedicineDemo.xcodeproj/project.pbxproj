@@ -689,7 +689,7 @@
 				CODE_SIGN_ENTITLEMENTS = TelemedicineDemo/TelemedicineDemo.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4452VN45AX;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = TelemedicineDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -700,7 +700,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "software.beda.telemedicine-demo";
 				PRODUCT_NAME = TelemedicineDemo;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = TelemedicineDemo;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 			};

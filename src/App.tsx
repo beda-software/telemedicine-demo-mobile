@@ -1,6 +1,10 @@
 // @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as React from 'react';
+import { AppState, NativeModules, Platform } from 'react-native';
+import { Navigation } from 'react-native-navigation';
+// @ts-ignore
+import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';
 import * as IncomingCall from 'src/containers/IncomingCall';
@@ -9,13 +13,17 @@ import * as Main from 'src/containers/Main';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
-import { isSuccess, loading, RemoteData } from 'src/libs/schema';
-import { getSession, Session } from 'src/services/session';
-
-import { Navigation } from 'react-native-navigation';
+import { VoxImplantTokens } from 'src/contrib/vox-implant';
+import { isSuccess, isSuccessCursor, loading, notAsked, RemoteData } from 'src/libs/schema';
+import CallService from 'src/services/call';
+import { voxImplantReLogin } from 'src/services/login';
+import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
+import { getSession, saveSession, Session } from 'src/services/session';
 
 const initial: Model = {
     sessionResponse: loading,
+    voxImplantTokensResponse: notAsked,
+    pushTokenResponse: loading,
     login: Login.initial,
     signUp: SignUp.initial,
     main: Main.initial,
@@ -25,6 +33,8 @@ const initial: Model = {
 
 interface Model {
     sessionResponse: RemoteData<Session>;
+    voxImplantTokensResponse: RemoteData<VoxImplantTokens>;
+    pushTokenResponse: RemoteData<PushToken>;
     login: Login.Model;
     signUp: SignUp.Model;
     main: Main.Model;
@@ -47,13 +57,13 @@ function withProps<P>(Component: React.ComponentClass<P>, props: P) {
 }
 
 Navigation.registerComponent('td.Login', () =>
-    withProps(Login.Component, { tree: rootTree.login, sessionResponseCursor: rootTree.sessionResponse })
+    withProps(Login.Component, { tree: rootTree.login, sessionResponseCursor: rootTree.sessionResponse, init })
 );
 Navigation.registerComponent('td.SignUp', () =>
     withProps(SignUp.Component, { tree: rootTree.signUp, sessionResponseCursor: rootTree.sessionResponse })
 );
 Navigation.registerComponent('td.Main', () =>
-    withProps(Main.Component, { tree: rootTree.main, sessionResponseCursor: rootTree.sessionResponse })
+    withProps(Main.Component, { tree: rootTree.main, sessionResponseCursor: rootTree.sessionResponse, deinit })
 );
 Navigation.registerComponent('td.Call', () =>
     withProps(Call.Component, { tree: rootTree.call, sessionResponseCursor: rootTree.sessionResponse })
@@ -63,10 +73,74 @@ Navigation.registerComponent('td.IncomingCall', () =>
 );
 Navigation.registerComponent('td.Modal', () => Modal.Component);
 
+async function refreshVoxImplantConnection() {
+    if (isSuccessCursor(rootTree.sessionResponse)) {
+        const session = rootTree.sessionResponse.get().data;
+
+        const voxImplantTokensResponse = await voxImplantReLogin(rootTree.voxImplantTokensResponse, session);
+        if (isSuccess(voxImplantTokensResponse)) {
+            await saveSession(rootTree.sessionResponse, {
+                ...session,
+                voxImplantTokens: voxImplantTokensResponse.data,
+            });
+        }
+    }
+}
+
+let unsubscribeFromPushNotifications: (() => void) | null = null;
+
+// TODO: move init and deinit to Main screen Lifecycle
+async function init() {
+    const client = Voximplant.getInstance();
+
+    const pushTokenResponse = await getPushToken(rootTree.pushTokenResponse);
+
+    if (isSuccess(pushTokenResponse)) {
+        await client.registerPushNotificationsToken(pushTokenResponse.data);
+        console.log('pushtoken registered', pushTokenResponse.data);
+
+        unsubscribeFromPushNotifications = await subscribeToPushNotifications(async (notification) => {
+            console.log('NEW NOTIFICATION', notification);
+
+            await refreshVoxImplantConnection();
+            client.handlePushNotification({ voximplant: notification.voximplant });
+        });
+    }
+
+    CallService.getInstance().init();
+}
+
+async function deinit() {
+    const client = Voximplant.getInstance();
+    try {
+        await client.disconnect();
+    } catch (err) {}
+    await client.connect();
+    const pushTokenResponse = rootTree.pushTokenResponse.get();
+
+    if (isSuccess(pushTokenResponse)) {
+        client.unregisterPushNotificationsToken(pushTokenResponse.data);
+    }
+
+    await client.disconnect();
+    if (unsubscribeFromPushNotifications) {
+        await unsubscribeFromPushNotifications();
+        unsubscribeFromPushNotifications = null;
+    }
+}
+
 Navigation.events().registerAppLaunchedListener(async () => {
     const result = await getSession(rootTree.sessionResponse);
+    AppState.addEventListener('change', async (appState) => {
+        if (appState === 'active') {
+            await refreshVoxImplantConnection();
+        }
+    });
 
     if (isSuccess(result)) {
+        await refreshVoxImplantConnection();
+        await init();
+
         await Navigation.setRoot({
             root: {
                 stack: {

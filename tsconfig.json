@@ -19,6 +19,7 @@
         "experimentalDecorators": true,
         "baseUrl": ".",
         "paths": {
+            "*": ["*", "*.ios", "*.android"],
             "src": ["src"]
         }
     },

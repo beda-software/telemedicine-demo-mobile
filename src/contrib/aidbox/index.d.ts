@@ -39,6 +39,7 @@ export interface Token {
 export interface User {
     readonly resourceType: "User";
     id: string;
+    username: string;
     email: string;
     password: string;
     data?: {
