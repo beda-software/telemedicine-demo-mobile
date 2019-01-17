@@ -1,4 +1,5 @@
-import FCM, { FCMEvent } from 'react-native-fcm';
+import { AppRegistry } from 'react-native';
+import * as firebase from 'react-native-firebase';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { failure, loading, RemoteData, success } from 'src/libs/schema';
 
@@ -7,10 +8,10 @@ export type PushToken = string;
 export async function getPushToken(cursor: Cursor<RemoteData<PushToken>>): Promise<RemoteData<PushToken>> {
     cursor.set(loading);
 
-    await FCM.requestPermissions();
-
     try {
-        const result = success(await FCM.getFCMToken());
+        const token = await firebase.messaging().getToken();
+
+        const result = success(token);
         cursor.set(result);
 
         return result;
@@ -25,19 +26,19 @@ export async function getPushToken(cursor: Cursor<RemoteData<PushToken>>): Promi
 }
 
 export function subscribeToPushNotifications(callback: (x: any) => void) {
-    const handler = (notification: any) => {
-        if (notification.local_notification) {
-            return;
-        }
-        callback(notification);
-    };
-    FCM.createNotificationChannel({
-        id: 'default',
-        name: 'Default',
-        description: 'Default',
-        priority: 'high',
+    firebase.messaging().onMessage(async (message) => {
+        console.log('PushManager: FCM: notification: ' + message.data);
+        callback(message.data);
     });
-    FCM.on(FCMEvent.Notification, handler);
+
+    AppRegistry.registerHeadlessTask('RNFirebaseBackgroundMessage', () => async (message) => callback(message.data));
+
+    const channel = new firebase.notifications.Android.Channel(
+        'td_channel_id',
+        'Incoming call channel',
+        firebase.notifications.Android.Importance.Max
+    ).setDescription('Incoming call received');
+    firebase.notifications().android.createChannel(channel);
 
     // TODO: unsubscribe
     return () => {};

@@ -5189,6 +5189,10 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
+opencollective-postinstall@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.1.tgz#798e83e168f7b91949061c2683f762af747f17cc"
+
 opn@^3.0.2:
   version "3.0.3"
   resolved "http://registry.npmjs.org/opn/-/opn-3.0.3.tgz#b6d99e7399f78d65c3baaffef1fb288e9b85243a"
@@ -5600,9 +5604,12 @@ react-native-callkit@1.3.4:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/react-native-callkit/-/react-native-callkit-1.3.4.tgz#8d89cd983152bd09fe75ccfdf1f9127b967d0b35"
 
-react-native-fcm@^16.0.0:
-  version "16.2.3"
-  resolved "https://registry.yarnpkg.com/react-native-fcm/-/react-native-fcm-16.2.3.tgz#f55822b8987007221c691f8603b868e67a99ff10"
+react-native-firebase@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-firebase/-/react-native-firebase-5.2.0.tgz#5f5eea19bffbda583af80a9083a14d64648a7dbc"
+  dependencies:
+    opencollective-postinstall "^2.0.0"
+    prop-types "^15.6.2"
 
 react-native-md5@1.0.0:
   version "1.0.0"
@@ -5644,7 +5651,7 @@ react-native-vector-icons@^4.6.0:
     prop-types "^15.5.10"
     yargs "^8.0.2"
 
-react-native-voximplant@^1.4.0:
+react-native-voximplant@1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/react-native-voximplant/-/react-native-voximplant-1.4.0.tgz#66fd90befbe082def5e9b5a01021e01b8be9b551"
 

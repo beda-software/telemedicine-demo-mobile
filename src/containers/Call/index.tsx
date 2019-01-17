@@ -119,6 +119,8 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         const { isIncoming, isVideo } = this.props;
 
+        this.props.tree.isVideoBeingSent.set(isVideo);
+
         try {
             await requestPermissions(isVideo);
         } catch (err) {
@@ -153,7 +155,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 this.call.answer({
                     video: {
                         sendVideo: isVideo,
-                        receiveVideo: isVideo,
+                        receiveVideo: true,
                     },
                 });
             }

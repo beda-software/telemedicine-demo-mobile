@@ -87,8 +87,8 @@ export class Component extends React.Component<ComponentProps, {}> {
     public async makeOutgoingCall(user: User, isVideo: boolean) {
         const call = await Voximplant.getInstance().call(user.username, {
             video: {
-                sendVideo: false,
-                receiveVideo: false,
+                sendVideo: isVideo,
+                receiveVideo: true,
             },
         });
         let callService = CallService.getInstance();

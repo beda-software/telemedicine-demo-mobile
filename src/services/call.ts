@@ -19,6 +19,7 @@ export default class CallService {
         return this.myInstance;
     }
     public call = null;
+    public initialized = false;
     public currentAppState = undefined;
     public showIncomingCallScreen = false;
     public callKitService = null;
@@ -30,8 +31,11 @@ export default class CallService {
     }
 
     public init() {
-        this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
-        AppState.addEventListener('change', this._handleAppStateChange);
+        if (!this.initialized) {
+            this.client.on(Voximplant.ClientEvents.IncomingCall, this._incomingCall);
+            AppState.addEventListener('change', this._handleAppStateChange);
+            this.initialized = true;
+        }
     }
 
     public addCall(call) {

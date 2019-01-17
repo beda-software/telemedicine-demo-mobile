@@ -1,7 +1,7 @@
 // @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as React from 'react';
-import { AppState, NativeModules, Platform } from 'react-native';
+import { AppRegistry, AppState, NativeModules, Platform } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 // @ts-ignore
 import { Voximplant } from 'react-native-voximplant';
@@ -87,8 +87,6 @@ async function refreshVoxImplantConnection() {
     }
 }
 
-let unsubscribeFromPushNotifications: (() => void) | null = null;
-
 // TODO: move init and deinit to Main screen Lifecycle
 async function init() {
     const client = Voximplant.getInstance();
@@ -98,13 +96,6 @@ async function init() {
     if (isSuccess(pushTokenResponse)) {
         await client.registerPushNotificationsToken(pushTokenResponse.data);
         console.log('pushtoken registered', pushTokenResponse.data);
-
-        unsubscribeFromPushNotifications = await subscribeToPushNotifications(async (notification) => {
-            console.log('NEW NOTIFICATION', notification);
-
-            await refreshVoxImplantConnection();
-            client.handlePushNotification({ voximplant: notification.voximplant });
-        });
     }
 
     CallService.getInstance().init();
@@ -123,21 +114,18 @@ async function deinit() {
     }
 
     await client.disconnect();
-    if (unsubscribeFromPushNotifications) {
-        await unsubscribeFromPushNotifications();
-        unsubscribeFromPushNotifications = null;
-    }
 }
 
 Navigation.events().registerAppLaunchedListener(async () => {
-    const result = await getSession(rootTree.sessionResponse);
+    const sessionResponse = await getSession(rootTree.sessionResponse);
+
     AppState.addEventListener('change', async (appState) => {
         if (appState === 'active') {
             await refreshVoxImplantConnection();
         }
     });
 
-    if (isSuccess(result)) {
+    if (isSuccess(sessionResponse)) {
         await refreshVoxImplantConnection();
         await init();
 
@@ -170,5 +158,21 @@ Navigation.events().registerAppLaunchedListener(async () => {
                 },
             },
         });
+    }
+});
+
+subscribeToPushNotifications(async (notification) => {
+    const sessionResponse = await getSession(rootTree.sessionResponse);
+
+    console.log('NEW NOTIFICATION', notification);
+
+    if (isSuccess(sessionResponse)) {
+        const client = Voximplant.getInstance();
+
+        await refreshVoxImplantConnection();
+        // TODO: ???
+        CallService.getInstance().init();
+
+        client.handlePushNotification({ voximplant: notification.voximplant });
     }
 });
