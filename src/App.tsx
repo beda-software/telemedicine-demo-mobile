@@ -1,9 +1,8 @@
 // @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import * as React from 'react';
-import { AppRegistry, AppState, NativeModules, Platform } from 'react-native';
+import { AppState } from 'react-native';
 import { Navigation } from 'react-native-navigation';
-// @ts-ignore
 import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';

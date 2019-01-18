@@ -1,5 +1,4 @@
 import * as React from 'react';
-// @ts-ignore
 import autoBind from 'react-autobind';
 import {
     FlatList,
@@ -14,7 +13,6 @@ import {
     View,
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
-// @ts-ignore
 import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
@@ -70,7 +68,7 @@ interface ComponentProps {
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     isVideo: boolean;
     isIncoming?: boolean;
-    callId: number;
+    callId: string;
 }
 
 async function requestPermissions(isVideo: boolean) {
@@ -106,6 +104,8 @@ export class Component extends React.Component<ComponentProps, {}> {
             },
         };
     }
+
+    private readonly call: Voximplant['Call'] | null;
 
     constructor(props: ComponentProps) {
         super(props);

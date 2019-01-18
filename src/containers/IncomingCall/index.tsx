@@ -1,9 +1,7 @@
 import * as React from 'react';
-// @ts-ignore
 import autoBind from 'react-autobind';
 import { SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
-// @ts-ignore
 import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
@@ -24,7 +22,7 @@ interface ComponentProps {
     callerDisplayName: string;
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
-    callId: number;
+    callId: string;
 }
 
 @schema({ tree: {} })
@@ -36,6 +34,8 @@ export class Component extends React.Component<ComponentProps, {}> {
             },
         };
     }
+
+    private readonly call: Voximplant['Call'] | null;
 
     constructor(props: ComponentProps) {
         super(props);
