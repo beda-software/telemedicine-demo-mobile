@@ -51,7 +51,7 @@ export interface Model {
 }
 
 export const initial: Model = {
-    callStatus: 'disconnected',
+    callStatus: 'waiting',
     isAudioMuted: false,
     isVideoBeingSent: false,
     isKeypadVisible: false,
@@ -132,12 +132,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 const callbackName = `onCall${eventName}`;
 
                 if (typeof this[callbackName] !== 'undefined') {
-                    console.log('bind', eventName);
-
-                    this.call.on(eventName, (event: any) => {
-                        console.log('EEEE', eventName, event);
-                        this[callbackName](event);
-                    });
+                    this.call.on(eventName, this[callbackName]);
                 }
             });
 
@@ -187,14 +182,6 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async onCallFailed(event: any) {
-        //        this.callState = CALL_STATES.DISCONNECTED;
-        // this.setState({
-        //     isModalOpen: true,
-        //     modalText: 'Call failed: ' + event.reason,
-        //     remoteVideoStreamId: null,
-        //     localVideoStreamId: null,
-        // });
-
         console.log('CallScreen: _onCallFailed');
         CallService.getInstance().removeCall(this.call);
 
@@ -202,17 +189,6 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async onCallDisconnected(event: any) {
-        // this.setState({
-        //     remoteVideoStreamId: null,
-        //     localVideoStreamId: null,
-        // });
-        // CallManager.getInstance().removeCall(this.call);
-        // this.callState = CALL_STATES.DISCONNECTED;
-        // if (Platform.OS === 'android' && Platform.Version >= 26) {
-        //     (async () => {
-        //         await VIForegroundService.stopService();
-        //     })();
-        // }
         console.log('CallScreen: _onCallDisconnected');
         CallService.getInstance().removeCall(this.call);
         await Navigation.dismissModal(this.props.componentId);
@@ -220,6 +196,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public onCallConnected(event: any) {
         console.log('CallScreen: _onCallConnected: ' + this.props.callId);
+        this.props.tree.callStatus.set('connected');
     }
 
     public onCallLocalVideoStreamAdded(event: any) {

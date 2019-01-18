@@ -9,7 +9,13 @@ declare module 'react-native-voximplant' {
         registerPushNotificationsToken: (token: string) => void;
         unregisterPushNotificationsToken: (token: string) => void;
         disconnect: () => void;
+        call: (username: string, config: object) => Call;
         connect: () => void;
+        getClientState: () => string;
+        login: () => void;
+        loginWithToken: (fullUserName: string, accessToken: string) => { tokens: LoginTokens };
+        loginWithOneTimeKey: (fullUserName: string, hash: string) => { tokens: LoginTokens };
+        requestOneTimeLoginKey: (fullUserName: string) => { oneTimeKey: string };
     }
 
     interface Endpoint {
@@ -71,6 +77,14 @@ declare module 'react-native-voximplant' {
         [x: string]: string;
     }
 
+    interface ClientState {
+        [x: string]: string;
+    }
+
+    interface LoginTokens {
+        [x: string]: string;
+    }
+
     interface Voximplant {
         Instance: Instance;
         getInstance: () => Instance;
@@ -78,9 +92,11 @@ declare module 'react-native-voximplant' {
         CallEvents: CallEvents;
         EndpointEvents: EndpointEvents;
         ClientEvents: ClientEvents;
+        ClientState: ClientState;
         Call: Call;
         VideoView: React.ComponentClass<any, any>;
         RenderScaleType: RenderScaleType;
+        LoginTokens: LoginTokens;
     }
 
     export const Voximplant: Voximplant;

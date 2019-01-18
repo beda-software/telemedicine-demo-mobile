@@ -1,12 +1,12 @@
 import { AsyncStorage } from 'react-native';
+import { Voximplant } from 'react-native-voximplant';
 import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { VoxImplantTokens } from 'src/contrib/vox-implant';
 import { failure, loading, notAsked, RemoteData, success } from 'src/libs/schema';
 
 export interface Session {
     token: Token;
-    voxImplantTokens: VoxImplantTokens;
+    voxImplantTokens: Voximplant['LoginTokens'];
     username: string;
 }
 

@@ -12,16 +12,15 @@ import * as Main from 'src/containers/Main';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
-import { VoxImplantTokens } from 'src/contrib/vox-implant';
-import { isSuccess, isSuccessCursor, loading, notAsked, RemoteData } from 'src/libs/schema';
+import { isSuccess, loading, RemoteData } from 'src/libs/schema';
 import CallService from 'src/services/call';
 import { voxImplantReLogin } from 'src/services/login';
 import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
 import { getSession, saveSession, Session } from 'src/services/session';
+import { runInQueue } from 'src/utils/run-in-queue';
 
 const initial: Model = {
     sessionResponse: loading,
-    voxImplantTokensResponse: notAsked,
     pushTokenResponse: loading,
     login: Login.initial,
     signUp: SignUp.initial,
@@ -32,7 +31,6 @@ const initial: Model = {
 
 interface Model {
     sessionResponse: RemoteData<Session>;
-    voxImplantTokensResponse: RemoteData<VoxImplantTokens>;
     pushTokenResponse: RemoteData<PushToken>;
     login: Login.Model;
     signUp: SignUp.Model;
@@ -72,21 +70,6 @@ Navigation.registerComponent('td.IncomingCall', () =>
 );
 Navigation.registerComponent('td.Modal', () => Modal.Component);
 
-async function refreshVoxImplantConnection() {
-    if (isSuccessCursor(rootTree.sessionResponse)) {
-        const session = rootTree.sessionResponse.get().data;
-
-        const voxImplantTokensResponse = await voxImplantReLogin(rootTree.voxImplantTokensResponse, session);
-        if (isSuccess(voxImplantTokensResponse)) {
-            await saveSession(rootTree.sessionResponse, {
-                ...session,
-                voxImplantTokens: voxImplantTokensResponse.data,
-            });
-        }
-    }
-}
-
-// TODO: move init and deinit to Main screen Lifecycle
 async function init() {
     const client = Voximplant.getInstance();
 
@@ -94,7 +77,7 @@ async function init() {
 
     if (isSuccess(pushTokenResponse)) {
         await client.registerPushNotificationsToken(pushTokenResponse.data);
-        console.log('pushtoken registered', pushTokenResponse.data);
+        console.log('PushToken registered', pushTokenResponse.data);
     }
 
     CallService.getInstance().init();
@@ -112,66 +95,101 @@ async function deinit() {
         client.unregisterPushNotificationsToken(pushTokenResponse.data);
     }
 
+    CallService.getInstance().deinit();
+
     await client.disconnect();
 }
 
-Navigation.events().registerAppLaunchedListener(async () => {
-    const sessionResponse = await getSession(rootTree.sessionResponse);
+/*
+ Prepare listeners for app launching and notifications.
 
-    AppState.addEventListener('change', async (appState) => {
-        if (appState === 'active') {
-            await refreshVoxImplantConnection();
+ There are two entry points: the first is when user launch the application, and the second
+ when new notification is received.
+
+ When new notifications is received,
+ IOS invokes all callbacks at the same time, but Android invokes only notifications callback.
+ */
+function bootstrap() {
+    // To avoid race conditions in the simultaneously invokes of `restoreSession` function
+    // we wrap this into `runInQueue` wrapper (see docstring of this function for details).
+    // It is necessary because `restoreSession` uses Voximplant API, which doesn't work correctly
+    // in multiple threads because it is a singleton, and multiple connects/disconnects between calls
+    // leads to errors
+    async function _restoreSession() {
+        const sessionResponse = await getSession(rootTree.sessionResponse);
+
+        if (isSuccess(sessionResponse)) {
+            const session = sessionResponse.data;
+
+            const voxImplantTokensResponse = await voxImplantReLogin(session);
+            if (isSuccess(voxImplantTokensResponse)) {
+                await saveSession(rootTree.sessionResponse, {
+                    ...session,
+                    voxImplantTokens: voxImplantTokensResponse.data,
+                });
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const restoreSession = runInQueue(_restoreSession);
+
+    Navigation.events().registerAppLaunchedListener(async () => {
+        if (await restoreSession()) {
+            CallService.getInstance().init();
+
+            await Navigation.setRoot({
+                root: {
+                    stack: {
+                        id: 'root',
+                        children: [
+                            {
+                                component: {
+                                    name: 'td.Main',
+                                },
+                            },
+                        ],
+                    },
+                },
+            });
+        } else {
+            await Navigation.setRoot({
+                root: {
+                    stack: {
+                        id: 'root',
+                        children: [
+                            {
+                                component: {
+                                    name: 'td.Login',
+                                },
+                            },
+                        ],
+                    },
+                },
+            });
         }
     });
 
-    if (isSuccess(sessionResponse)) {
-        await refreshVoxImplantConnection();
-        await init();
+    subscribeToPushNotifications(async (notification) => {
+        console.log('New notification', notification);
 
-        await Navigation.setRoot({
-            root: {
-                stack: {
-                    id: 'root',
-                    children: [
-                        {
-                            component: {
-                                name: 'td.Main',
-                            },
-                        },
-                    ],
-                },
-            },
-        });
-    } else {
-        await Navigation.setRoot({
-            root: {
-                stack: {
-                    id: 'root',
-                    children: [
-                        {
-                            component: {
-                                name: 'td.Login',
-                            },
-                        },
-                    ],
-                },
-            },
-        });
-    }
-});
+        if (await restoreSession()) {
+            const client = Voximplant.getInstance();
 
-subscribeToPushNotifications(async (notification) => {
-    const sessionResponse = await getSession(rootTree.sessionResponse);
+            CallService.getInstance().init();
 
-    console.log('NEW NOTIFICATION', notification);
+            client.handlePushNotification({ voximplant: notification.voximplant });
+        }
+    });
 
-    if (isSuccess(sessionResponse)) {
-        const client = Voximplant.getInstance();
+    AppState.addEventListener('change', async (appState) => {
+        if (appState === 'active') {
+            await restoreSession();
+        }
+    });
+}
 
-        await refreshVoxImplantConnection();
-        // TODO: ???
-        CallService.getInstance().init();
-
-        client.handlePushNotification({ voximplant: notification.voximplant });
-    }
-});
+bootstrap();

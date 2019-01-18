@@ -12,13 +12,13 @@ import {
     View,
 } from 'react-native';
 import { Navigation } from 'react-native-navigation';
+import { Voximplant } from 'react-native-voximplant';
 
 import { InputField } from 'src/components/InputFIeld';
 import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
 import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { VoxImplantTokens } from 'src/contrib/vox-implant';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { login, voxImplantLogin } from 'src/services/login';
@@ -34,7 +34,7 @@ interface FormValues {
 
 export interface Model {
     tokenResponse: RemoteData<Token>;
-    voxImplantTokensResponse: RemoteData<VoxImplantTokens>;
+    voxImplantTokensResponse: RemoteData<Voximplant['LoginTokens']>;
 }
 
 export const initial: Model = {

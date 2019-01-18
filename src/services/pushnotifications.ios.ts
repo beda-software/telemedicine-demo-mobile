@@ -9,9 +9,6 @@ export type PushToken = string;
 export async function getPushToken(cursor: Cursor<RemoteData<PushToken>>): Promise<RemoteData<PushToken>> {
     cursor.set(loading);
 
-    await NotificationsIOS.requestPermissions();
-    await NotificationsIOS.registerPushKit();
-
     try {
         const token = await new Promise<PushToken>((resolve, reject) => {
             function handler(pushToken: PushToken) {
@@ -41,17 +38,15 @@ export async function getPushToken(cursor: Cursor<RemoteData<PushToken>>): Promi
 }
 
 export function subscribeToPushNotifications(callback: (x: any) => void) {
-    console.log('SUBSCRIBE');
+    console.log('Subscribed to push notifications');
+
     const handler = (notification: any) => {
-        console.log('eventf');
         callback(notification.getData());
     };
+
+    NotificationsIOS.requestPermissions();
+    NotificationsIOS.registerPushKit();
     NotificationsIOS.consumeBackgroundQueue();
     NotificationsIOS.addEventListener('notificationReceivedBackground', handler);
     NotificationsIOS.addEventListener('notificationReceivedForeground', handler);
-
-    return () => {
-        NotificationsIOS.removeEventListener('notificationReceivedBackground', handler);
-        NotificationsIOS.removeEventListener('notificationReceivedForeground', handler);
-    };
 }

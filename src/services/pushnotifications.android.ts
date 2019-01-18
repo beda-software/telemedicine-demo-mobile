@@ -26,6 +26,8 @@ export async function getPushToken(cursor: Cursor<RemoteData<PushToken>>): Promi
 }
 
 export function subscribeToPushNotifications(callback: (x: any) => void) {
+    console.log('Subscribed to push notifications');
+
     firebase.messaging().onMessage(async (message) => {
         console.log('PushManager: FCM: notification: ' + message.data);
         callback(message.data);
@@ -39,7 +41,4 @@ export function subscribeToPushNotifications(callback: (x: any) => void) {
         firebase.notifications.Android.Importance.Max
     ).setDescription('Incoming call received');
     firebase.notifications().android.createChannel(channel);
-
-    // TODO: unsubscribe
-    return () => {};
 }

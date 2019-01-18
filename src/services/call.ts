@@ -40,6 +40,12 @@ export default class CallService {
         }
     }
 
+    public deinit() {
+        this.client.off(Voximplant.ClientEvents.IncomingCall, this.incomingCall);
+        AppState.removeEventListener('change', this.handleAppStateChange);
+        this.initialized = false;
+    }
+
     public addCall(call: Voximplant['Call']) {
         console.log(`CallManager: addCall: ${call.callId}`);
         this.call = call;
@@ -78,20 +84,21 @@ export default class CallService {
 
     public endCall() {
         console.log('CallManager: endCall');
-        if (this.call !== null && this.call !== undefined) {
+        if (this.call) {
             this.call.hangup();
         }
     }
 
-    public async showIncomingScreenOrNotification(event: any) {
+    public showIncomingScreenOrNotification(event: any) {
         if (this.currentAppState !== 'active') {
-            // PushService.showLocalNotification('');
             this.showIncomingCallScreen = true;
             if (Platform.OS === 'android') {
                 NativeModules.ActivityLauncher.openMainActivity();
+            } else {
+                // PushService.showLocalNotification('');
             }
         } else {
-            await Navigation.showModal({
+            Navigation.showModal({
                 component: { name: 'td.IncomingCall', passProps: { callId: event.call.callId, isVideo: event.video } },
             });
         }
@@ -111,7 +118,7 @@ export default class CallService {
         this.addCall(event.call);
         event.call.on(Voximplant.CallEvents.Disconnected, this.callDisconnected);
         event.call.on(Voximplant.CallEvents.Failed, this.callFailed);
-        if (Platform.OS === 'ios' && parseInt(Platform.Version as string, 10) >= 10) {
+        if (Platform.OS === 'ios') {
             this.callKitService.showIncomingCall(
                 event.video,
                 event.call.getEndpoints()[0].displayName,
@@ -132,17 +139,13 @@ export default class CallService {
     public callDisconnected = (event: any) => {
         this.showIncomingCallScreen = false;
         this.removeCall(event.call);
-        if (Platform.OS === 'ios' && parseInt(Platform.Version as string, 10) >= 10) {
-            this.callKitService.endCall();
-        }
+        this.callKitService.endCall();
     };
 
     public callFailed = (event: any) => {
         this.showIncomingCallScreen = false;
         this.removeCall(event.call);
-        if (Platform.OS === 'ios' && parseInt(Platform.Version as string, 10) >= 10) {
-            this.callKitService.endCall();
-        }
+        this.callKitService.endCall();
     };
 
     public handleAppStateChange = async (newState: string) => {

@@ -2,7 +2,6 @@
 import { Voximplant } from 'react-native-voximplant';
 import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { VoxImplantTokens } from 'src/contrib/vox-implant';
 import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
 import { Session } from 'src/services/session';
 import { request, service } from './base';
@@ -36,9 +35,9 @@ async function requestOneTimeLoginKey(fullUsername: string) {
 }
 
 export async function voxImplantLogin(
-    cursor: Cursor<RemoteData<VoxImplantTokens>>,
+    cursor: Cursor<RemoteData<Voximplant['LoginTokens']>>,
     session: Pick<Session, 'username' | 'token'>
-): Promise<RemoteDataResult<VoxImplantTokens>> {
+): Promise<RemoteDataResult<Voximplant['LoginTokens']>> {
     cursor.set(loading);
 
     const { username, token } = session;
@@ -85,13 +84,13 @@ export async function voxImplantLogin(
     }
 }
 
-export async function voxImplantReLogin(cursor: Cursor<RemoteData<VoxImplantTokens>>, session: Session) {
-    cursor.set(loading);
+export async function voxImplantReLogin(session: Session) {
     const { username, voxImplantTokens } = session;
 
     const client = Voximplant.getInstance();
 
     const connectionState = await client.getClientState();
+
     if (connectionState === Voximplant.ClientState.DISCONNECTED) {
         await client.connect();
     }
@@ -99,13 +98,10 @@ export async function voxImplantReLogin(cursor: Cursor<RemoteData<VoxImplantToke
     if (connectionState !== Voximplant.ClientState.LOGGED_IN) {
         const fullUsername = `${username}@${appDomain}`;
         const { accessToken } = voxImplantTokens;
-        console.log(`reLoginVoxImplant: loginWithToken: user: ${username}, token: ${accessToken}`);
+        console.log(`voxImplantReLogin: loginWithToken: user: ${username}, token: ${accessToken}`);
 
         const { tokens } = await client.loginWithToken(fullUsername, accessToken);
-        const result = success(tokens);
-
-        cursor.set(result);
-        return result;
+        return success(tokens);
     }
 
     return success(voxImplantTokens);

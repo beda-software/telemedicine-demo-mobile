@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { FlatList, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
-// @ts-ignore
 import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
@@ -91,7 +90,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 receiveVideo: true,
             },
         });
-        let callService = CallService.getInstance();
+        const callService = CallService.getInstance();
         callService.addCall(call);
         callService.startOutgoingCallViaCallKit(isVideo, user.username);
 
