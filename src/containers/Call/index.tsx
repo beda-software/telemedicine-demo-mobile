@@ -3,8 +3,6 @@ import autoBind from 'react-autobind';
 import {
     FlatList,
     Modal,
-    PermissionsAndroid,
-    Platform,
     SafeAreaView,
     StatusBar,
     Text,
@@ -20,7 +18,7 @@ import { Keypad } from 'src/components/Keypad';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import CallService from 'src/services/call';
+import { CallService, CallSubscription } from 'src/services/call';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
@@ -29,7 +27,6 @@ type DeviceIcon = 'bluetooth-audio' | 'volume-up' | 'headset' | 'hearing';
 interface DevicesIcons {
     [x: string]: DeviceIcon;
 }
-type Device = string; // devices.BLUETOOTH | devices.SPEAKER | devices.WIRED_HEADSET | devices.EARPIECE;
 const devices = Voximplant.Hardware.AudioDevice;
 const devicesIcons: DevicesIcons = {
     [devices.BLUETOOTH]: 'bluetooth-audio',
@@ -67,32 +64,8 @@ interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     isVideo: boolean;
-    isIncoming?: boolean;
+    isIncoming: boolean;
     callId: string;
-}
-
-async function requestPermissions(isVideo: boolean) {
-    if (Platform.OS === 'android') {
-        const permissions = [PermissionsAndroid.PERMISSIONS.RECORD_AUDIO];
-        if (isVideo) {
-            permissions.push(PermissionsAndroid.PERMISSIONS.CAMERA);
-        }
-        const granted = await PermissionsAndroid.requestMultiple(permissions);
-        const recordAudioGranted = granted['android.permission.RECORD_AUDIO'] === 'granted';
-        if (recordAudioGranted) {
-            if (isVideo) {
-                const cameraGranted = granted['android.permission.CAMERA'] === 'granted';
-
-                if (!cameraGranted) {
-                    throw new Error('Camera permission is not granted');
-                }
-            }
-        } else {
-            throw new Error('Record audio permission is not granted');
-        }
-    }
-
-    return true;
 }
 
 @schema({ tree: {} })
@@ -105,75 +78,56 @@ export class Component extends React.Component<ComponentProps, {}> {
         };
     }
 
-    private readonly call: Voximplant['Call'] | null;
+    private readonly subscription: CallSubscription;
 
     constructor(props: ComponentProps) {
         super(props);
+
         autoBind(this);
 
-        this.call = CallService.getInstance().getCallById(props.callId);
-    }
-
-    public async componentDidMount() {
         this.props.tree.set(initial);
 
-        const { isIncoming, isVideo } = this.props;
+        const { callId, isIncoming, isVideo } = this.props;
 
         this.props.tree.isVideoBeingSent.set(isVideo);
 
+        this.subscription = CallService.subscribeToCallEvents(callId, isIncoming, {
+            onAudioDeviceChanged: this.onAudioDeviceChanged,
+            onAudioDeviceListChanged: this.onAudioDeviceListChanged,
+            onCallFailed: this.onCallFailed,
+            onCallDisconnected: this.onCallDisconnected,
+            onCallConnected: this.onCallConnected,
+            onCallLocalVideoStreamAdded: this.onCallLocalVideoStreamAdded,
+            onCallLocalVideoStreamRemoved: this.onCallLocalVideoStreamRemoved,
+            onEndpointRemoteVideoStreamAdded: this.onEndpointRemoteVideoStreamAdded,
+            onEndpointRemoteVideoStreamRemoved: this.onEndpointRemoteVideoStreamRemoved,
+        });
+
+        if (isIncoming) {
+            this.subscription.answerCall({
+                video: {
+                    sendVideo: isVideo,
+                    receiveVideo: true,
+                },
+            });
+        }
+    }
+
+    public async componentDidMount() {
+        const { isVideo } = this.props;
+
         try {
-            await requestPermissions(isVideo);
+            await CallService.requestPermissions(isVideo);
         } catch (err) {
             await Navigation.showModal({ component: { name: 'td.Modal', passProps: { text: err } } });
-        }
-
-        if (this.call) {
-            Object.keys(Voximplant.CallEvents).forEach((eventName) => {
-                const callbackName = `onCall${eventName}`;
-
-                if (typeof this[callbackName] !== 'undefined') {
-                    this.call.on(eventName, this[callbackName]);
-                }
-            });
-
-            Object.keys(Voximplant.Hardware.AudioDeviceEvents).forEach((eventName) => {
-                const callbackName = `onAudio${eventName}`;
-                if (typeof this[callbackName] !== 'undefined') {
-                    Voximplant.Hardware.AudioDeviceManager.getInstance().on(eventName, this[callbackName]);
-                }
-            });
-
-            if (isIncoming) {
-                this.call.getEndpoints().forEach((endpoint: any) => {
-                    this.setupEndpointListeners(endpoint, true);
-                });
-                this.call.answer({
-                    video: {
-                        sendVideo: isVideo,
-                        receiveVideo: true,
-                    },
-                });
-            }
         }
     }
 
     public componentWillUnmount() {
-        Object.keys(Voximplant.CallEvents).forEach((eventName) => {
-            const callbackName = `onCall${eventName}`;
-            if (typeof this[callbackName] !== 'undefined') {
-                this.call.off(eventName, this[callbackName]);
-            }
-        });
-
-        Object.keys(Voximplant.Hardware.AudioDeviceEvents).forEach((eventName) => {
-            const callbackName = `onAudio${eventName}`;
-            if (typeof this[callbackName] !== 'undefined') {
-                Voximplant.Hardware.AudioDeviceManager.getInstance().off(eventName, this[callbackName]);
-            }
-        });
+        this.subscription.unsubscribe();
     }
 
-    public onAudioDeviceChanged({ currentDevice }: { currentDevice: Device }) {
+    public onAudioDeviceChanged({ currentDevice }: { currentDevice: string }) {
         this.props.tree.audioDeviceIcon.set(devicesIcons[currentDevice]);
     }
 
@@ -182,89 +136,35 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async onCallFailed(event: any) {
-        console.log('CallScreen: _onCallFailed');
-        CallService.getInstance().removeCall(this.call);
-
         await Navigation.dismissModal(this.props.componentId);
     }
 
     public async onCallDisconnected(event: any) {
-        console.log('CallScreen: _onCallDisconnected');
-        CallService.getInstance().removeCall(this.call);
         await Navigation.dismissModal(this.props.componentId);
     }
 
     public onCallConnected(event: any) {
-        console.log('CallScreen: _onCallConnected: ' + this.props.callId);
         this.props.tree.callStatus.set('connected');
     }
 
     public onCallLocalVideoStreamAdded(event: any) {
-        console.log(
-            'CallScreen: _onCallLocalVideoStreamAdded: ' +
-                this.props.callId +
-                ', video stream id: ' +
-                event.videoStream.id
-        );
         this.props.tree.localVideoStreamId.set(event.videoStream.id);
     }
 
     public onCallLocalVideoStreamRemoved(event: any) {
-        console.log('CallScreen: _onCallLocalVideoStreamRemoved: ' + this.props.callId);
         this.props.tree.localVideoStreamId.set(null);
     }
 
-    public onCallEndpointAdded(event: any) {
-        console.log(
-            'CallScreen: _onCallEndpointAdded: callId: ' + this.props.callId + ' endpoint id: ' + event.endpoint.id
-        );
-        this.setupEndpointListeners(event.endpoint, true);
-    }
-
     public onEndpointRemoteVideoStreamAdded(event: any) {
-        console.log(
-            'CallScreen: _onEndpointRemoteVideoStreamAdded: callId: ' +
-                this.props.callId +
-                ' endpoint id: ' +
-                event.endpoint.id
-        );
         this.props.tree.remoteVideoStreamId.set(event.videoStream.id);
     }
 
     public onEndpointRemoteVideoStreamRemoved(event: any) {
-        console.log(
-            'CallScreen: _onEndpointRemoteVideoStreamRemoved: callId: ' +
-                this.props.callId +
-                ' endpoint id: ' +
-                event.endpoint.id
-        );
         this.props.tree.remoteVideoStreamId.set(null);
     }
 
-    public onEndpointRemoved(event: any) {
-        console.log(
-            'CallScreen: _onEndpointRemoved: callId: ' + this.props.callId + ' endpoint id: ' + event.endpoint.id
-        );
-        this.setupEndpointListeners(event.endpoint, false);
-    }
-
-    public onEndpointInfoUpdated(event: any) {
-        console.log(
-            'CallScreen: _onEndpointInfoUpdated: callId: ' + this.props.callId + ' endpoint id: ' + event.endpoint.id
-        );
-    }
-
-    public setupEndpointListeners(endpoint: any, setup: boolean) {
-        Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
-            const callbackName = `onEndpoint${eventName}`;
-            if (typeof this[callbackName] !== 'undefined') {
-                endpoint[setup ? 'on' : 'off'](eventName, this[callbackName]);
-            }
-        });
-    }
-
     public keypadPressed(value: any) {
-        this.call.sendTone(value);
+        this.subscription.sendTone(value);
     }
 
     public toggleKeypad() {
@@ -274,7 +174,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     public async toggleAudioMute() {
         this.props.tree.isAudioMuted.apply((x) => !x);
         const isAudioMuted = this.props.tree.isAudioMuted.get();
-        await this.call.sendAudio(!isAudioMuted);
+        await this.subscription.sendAudio(!isAudioMuted);
     }
 
     public async toggleVideoSend() {
@@ -282,34 +182,30 @@ export class Component extends React.Component<ComponentProps, {}> {
         const isVideoBeingSent = this.props.tree.isVideoBeingSent.get();
         if (isVideoBeingSent) {
             try {
-                await requestPermissions(true);
+                await CallService.requestPermissions(true);
             } catch (err) {
                 return Navigation.showModal({ component: { name: 'td.Modal', passProps: { text: err } } });
             }
         }
-        await this.call.sendVideo(isVideoBeingSent);
+        await this.subscription.sendVideo(isVideoBeingSent);
     }
 
     public async toggleAudioDeviceSelector() {
         this.props.tree.isAudioDeviceSelectorVisible.apply((x) => !x);
 
         if (this.props.tree.isAudioDeviceSelectorVisible.get()) {
-            const deviceList = await Voximplant.Hardware.AudioDeviceManager.getInstance().getAudioDevices();
+            const deviceList = await this.subscription.getAudioDevices();
             this.props.tree.audioDeviceList.set(deviceList);
         }
     }
 
-    public setAudioDevice(device: Device) {
+    public setAudioDevice(device: string) {
         this.props.tree.audioDeviceIcon.set(devicesIcons[device]);
-        Voximplant.Hardware.AudioDeviceManager.getInstance().selectAudioDevice(device);
+        this.subscription.setAudioDevice(device);
     }
 
-    public async endCall() {
-        this.call.getEndpoints().forEach((endpoint: any) => {
-            this.setupEndpointListeners(endpoint, false);
-        });
-
-        this.call.hangup();
+    public endCall() {
+        this.subscription.endCall();
     }
 
     public renderItemSeparator() {
@@ -338,6 +234,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             isAudioDeviceSelectorVisible,
             audioDeviceList,
         } = this.props.tree.get();
+        const isConnected = callStatus === 'connected';
 
         return (
             <View style={s.useragent}>
@@ -379,21 +276,25 @@ export class Component extends React.Component<ComponentProps, {}> {
                             icon_name={isAudioMuted ? 'mic' : 'mic-off'}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleAudioMute()}
+                            disabled={!isConnected}
                         />
                         <CallButton
                             icon_name="dialpad"
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleKeypad()}
+                            disabled={!isConnected}
                         />
                         <CallButton
                             icon_name={audioDeviceIcon}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleAudioDeviceSelector()}
+                            disabled={!isConnected}
                         />
                         <CallButton
                             icon_name={isVideoBeingSent ? 'videocam-off' : 'video-call'}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleVideoSend()}
+                            disabled={!isConnected}
                         />
                         <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => this.endCall()} />
                     </View>

@@ -3,9 +3,9 @@ import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import * as uuid from 'uuid';
 
-import CallService from './call';
+import { CallService } from './call';
 
-export default class CallKitService {
+export class CallKitService {
     public callKitUuid?: string;
     public withVideo: boolean = false;
     public callId?: string;

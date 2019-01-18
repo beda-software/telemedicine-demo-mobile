@@ -9,7 +9,7 @@ export class CallButton extends Component {
 
     render() {
         return (
-            <TouchableOpacity onPress={() => this.handleButtonPressed()}>
+            <TouchableOpacity onPress={() => this.handleButtonPressed()} disabled={this.props.disabled}>
                 <View style={[styles.icon, { borderColor: this.props.color }]}>
                     <Icon
                         name={this.props.icon_name}
