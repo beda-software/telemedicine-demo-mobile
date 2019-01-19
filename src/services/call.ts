@@ -21,11 +21,26 @@ interface ShowCallScreenProps {
     endCall: () => void;
 }
 
-interface Callbacks {
-    [x: string]: (event: any) => void;
+interface IncomingCallCallbacks {
+    onCallDisconnected?: (event: any) => void;
+    onCallFailed?: (event: any) => void;
 }
 
-function mergeCallbacks(obj1: Callbacks, obj2: Callbacks) {
+interface CallCallbacks {
+    onAudioDeviceChanged?: (event: any) => void;
+    onAudioDeviceListChanged?: (event: any) => void;
+    onCallFailed?: (event: any) => void;
+    onCallDisconnected?: (event: any) => void;
+    onCallConnected?: (event: any) => void;
+    onCallEndpointAdded?: (event: any) => void;
+    onCallLocalVideoStreamAdded?: (event: any) => void;
+    onCallLocalVideoStreamRemoved?: (event: any) => void;
+    onEndpointRemoteVideoStreamAdded?: (event: any) => void;
+    onEndpointRemoteVideoStreamRemoved?: (event: any) => void;
+    onEndpointRemoved?: (event: any) => void;
+}
+
+function mergeCallbacks<T>(obj1: T, obj2: T) {
     function customizer(fn1: (event: any) => void, fn2: (event: any) => void) {
         if (_.isFunction(fn1) && _.isFunction(fn2)) {
             return (event: any) => {
@@ -94,7 +109,7 @@ export class CallService {
         return call;
     }
 
-    public static subscribeToIncomingCallEvents(callId: string, eventCallbacks: Callbacks): () => void {
+    public static subscribeToIncomingCallEvents(callId: string, eventCallbacks: IncomingCallCallbacks): () => void {
         const call = CallService.getInstance().getCallById(callId);
 
         if (!call) {
@@ -130,7 +145,11 @@ export class CallService {
         };
     }
 
-    public static subscribeToCallEvents(callId: string, isIncoming: boolean, eventCallbacks: Callbacks): () => void {
+    public static subscribeToCallEvents(
+        callId: string,
+        isIncoming: boolean,
+        eventCallbacks: CallCallbacks
+    ): () => void {
         const call = CallService.getInstance().getCallById(callId);
 
         if (!call) {
