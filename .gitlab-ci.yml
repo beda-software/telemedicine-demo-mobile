@@ -8,6 +8,8 @@ before_script:
   - curl -sL https://deb.nodesource.com/setup_8.x | bash -
   - apt-get update && apt-get install -y yarn nodejs
   - mkdir ~/.gradle
+  - export ANDROID_HOME=/sdk
+  - export PATH=$PATH:$ANDROID_HOME/tools/bin
 cache:
   key: ${CI_PROJECT_ID}
   paths:
