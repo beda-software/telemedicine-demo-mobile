@@ -85,7 +85,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     public async makeOutgoingCall(user: User, isVideo: boolean) {
         const call = await CallService.startOutgoingCall(isVideo, user.username, user.displayName);
 
-        await Navigation.showModal({ component: { name: 'td.Call', passProps: { isVideo, callId: call.callId } } });
+        await Navigation.showModal({
+            component: { name: 'td.Call', passProps: { isVideo, callId: call.callId, isIncoming: false } },
+        });
     }
 
     public renderContent() {

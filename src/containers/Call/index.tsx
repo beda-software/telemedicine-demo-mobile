@@ -102,15 +102,6 @@ export class Component extends React.Component<ComponentProps, {}> {
             onEndpointRemoteVideoStreamAdded: this.onEndpointRemoteVideoStreamAdded,
             onEndpointRemoteVideoStreamRemoved: this.onEndpointRemoteVideoStreamRemoved,
         });
-
-        if (isIncoming) {
-            this.subscription.answerCall({
-                video: {
-                    sendVideo: isVideo,
-                    receiveVideo: true,
-                },
-            });
-        }
     }
 
     public async componentDidMount() {

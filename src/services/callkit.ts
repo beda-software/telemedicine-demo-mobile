@@ -1,14 +1,17 @@
 import RNCallKit from 'react-native-callkit';
-import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 import * as uuid from 'uuid';
 
-import { CallService } from './call';
+interface IncomingCall {
+    isVideo: boolean;
+    callId: string;
+    answerCall: () => void;
+    endCall: () => void;
+}
 
 export class CallKitService {
     public callKitUuid?: string;
-    public withVideo: boolean = false;
-    public callId?: string;
+    public incomingCall?: IncomingCall;
 
     constructor() {
         const options = {
@@ -28,18 +31,26 @@ export class CallKitService {
         RNCallKit.addEventListener('didPerformSetMutedCallAction', this.onRNCallKitDidPerformSetMutedCallAction);
     }
 
-    public showIncomingCall(isVideoCall: boolean, displayName: string, callId: string) {
+    public showIncomingCall(
+        isVideo: boolean,
+        displayName: string,
+        callId: string,
+        answerCall: (isVideo: boolean) => void,
+        endCall: () => void
+    ) {
         this.callKitUuid = uuid.v4();
-        this.withVideo = isVideoCall;
-        this.callId = callId;
-        RNCallKit.displayIncomingCall(this.callKitUuid, displayName, 'number', isVideoCall);
+        this.incomingCall = {
+            isVideo,
+            callId,
+            answerCall: () => answerCall(isVideo),
+            endCall,
+        };
+        RNCallKit.displayIncomingCall(this.callKitUuid, displayName, 'number', isVideo);
     }
 
-    public startOutgoingCall(isVideoCall: boolean, displayName: string, callId: string) {
+    public startOutgoingCall(isVideo: boolean, displayName: string, callId: string) {
         this.callKitUuid = uuid.v4();
-        this.withVideo = isVideoCall;
-        this.callId = callId;
-        RNCallKit.startCall(this.callKitUuid, displayName, 'number', isVideoCall);
+        RNCallKit.startCall(this.callKitUuid, displayName, 'number', isVideo);
     }
 
     public reportOutgoingCallConnected() {
@@ -59,19 +70,20 @@ export class CallKitService {
     };
 
     public onRNCallKitPerformAnswerCallAction = async (data: any) => {
-        console.log('CallKitManager: onRNCallKitPerformAnswerCallAction' + this.callId);
+        if (!this.incomingCall) {
+            return;
+        }
+        console.log('CallKitManager: onRNCallKitPerformAnswerCallAction' + this.incomingCall.callId);
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitConfigureAudioSession();
-        await Navigation.showModal({
-            component: {
-                name: 'td.Call',
-                passProps: { isVideo: this.withVideo, callId: this.callId, isIncoming: true },
-            },
-        });
+        this.incomingCall.answerCall();
     };
 
     public onRNCallKitPerformEndCallAction = (data: any) => {
+        if (!this.incomingCall) {
+            return;
+        }
         console.log('CallKitManager: onRNCallKitPerformEndCallAction');
-        CallService.getInstance().endCall();
+        this.incomingCall.endCall();
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStopAudio();
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitReleaseAudioSession();
     };

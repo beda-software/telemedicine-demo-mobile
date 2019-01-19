@@ -22,6 +22,8 @@ interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     callId: string;
+    answerCall: (isVideo: boolean) => void;
+    endCall: () => void;
 }
 
 @schema({ tree: {} })
@@ -51,17 +53,6 @@ export class Component extends React.Component<ComponentProps, {}> {
         this.subscription.unsubscribe();
     }
 
-    public async answerCall(isVideo: boolean) {
-        // TODO: disable each button on click in the whole project
-        await Navigation.showModal({
-            component: {
-                name: 'td.Call',
-                passProps: { isVideo, callId: this.props.callId, isIncoming: true },
-            },
-        });
-        await Navigation.dismissModal(this.props.componentId);
-    }
-
     public async onCallDisconnected() {
         await Navigation.dismissModal(this.props.componentId);
     }
@@ -70,12 +61,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         await Navigation.dismissModal(this.props.componentId);
     }
 
-    public endCall() {
-        this.subscription.endCall();
-    }
-
     public render() {
-        const { callerDisplayName } = this.props;
+        const { callerDisplayName, answerCall, endCall } = this.props;
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -89,9 +76,9 @@ export class Component extends React.Component<ComponentProps, {}> {
                         height: 90,
                     }}
                 >
-                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall(false)} />
-                    <CallButton icon_name="videocam" color={COLOR.ACCENT} buttonPressed={() => this.answerCall(true)} />
-                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => this.endCall()} />
+                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => answerCall(false)} />
+                    <CallButton icon_name="videocam" color={COLOR.ACCENT} buttonPressed={() => answerCall(true)} />
+                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => endCall()} />
                 </View>
             </SafeAreaView>
         );

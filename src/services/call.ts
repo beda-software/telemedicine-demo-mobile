@@ -11,12 +11,10 @@ interface Callbacks {
 
 export interface IncomingCallSubscription {
     unsubscribe: () => void;
-    endCall: () => void;
 }
 
 export interface CallSubscription {
     unsubscribe: () => void;
-    answerCall: (config: object) => void;
     endCall: () => void;
     setAudioDevice: (device: string) => void;
     getAudioDevices: () => Promise<string[]>;
@@ -102,7 +100,6 @@ export class CallService {
         if (!call) {
             return {
                 unsubscribe: () => {},
-                endCall: () => {},
             };
         }
 
@@ -134,7 +131,6 @@ export class CallService {
                     }
                 });
             },
-            endCall: () => call.decline(),
         };
     }
 
@@ -149,7 +145,6 @@ export class CallService {
             return {
                 unsubscribe: () => {},
                 endCall: () => {},
-                answerCall: (config: object) => {},
                 setAudioDevice: (device: string) => {},
                 getAudioDevices: () => Promise.resolve([]),
                 sendTone: (value: number) => {},
@@ -277,9 +272,6 @@ export class CallService {
                     }
                 });
             },
-            answerCall: (config: object) => {
-                call.answer(config);
-            },
             endCall: () => {
                 call.getEndpoints().forEach((endpoint: any) => {
                     setupEndpointListeners(endpoint, false);
@@ -360,11 +352,26 @@ export class CallService {
         this.call.on(Voximplant.CallEvents.Failed, this.callFailed);
     }
 
-    public endCall() {
-        console.log('CallManager: endCall');
-        if (this.call) {
-            this.call.hangup();
+    public endIncomingCall() {
+        console.log('CallManager: endIncomingCall', this.call);
+        if (!this.call) {
+            return;
         }
+        this.call.decline();
+    }
+
+    public answerIncomingCall(isVideo: boolean) {
+        if (!this.call) {
+            return;
+        }
+
+        this.call.answer({
+            video: {
+                sendVideo: isVideo,
+                receiveVideo: true,
+            },
+        });
+        this.passedShowCallScreen({ isVideo, callId: this.call.callId, isIncoming: true });
     }
 
     public showIncomingScreenOrNotification(event: any) {
@@ -376,14 +383,16 @@ export class CallService {
                 // PushService.showLocalNotification('');
             }
         } else {
-            Navigation.showModal({
-                component: { name: 'td.IncomingCall', passProps: { callId: event.call.callId, isVideo: event.video } },
+            this.passedShowIncomingCallScreen({
+                callId: event.call.callId,
+                isVideo: event.video,
+                answerCall: (isVideo: boolean) => this.answerIncomingCall(isVideo),
+                endCall: () => this.endIncomingCall(),
             });
         }
     }
 
     public incomingCall = (event: any) => {
-        console.log('NEW INCOMING CALL!!!');
         if (this.call !== null) {
             console.log(
                 `CallManager: incomingCall: already have a call, rejecting new call, current call id: ${
@@ -401,7 +410,9 @@ export class CallService {
             this.callKitService.showIncomingCall(
                 event.video,
                 event.call.getEndpoints()[0].displayName,
-                event.call.callId
+                event.call.callId,
+                (isVideo: boolean) => this.answerIncomingCall(isVideo),
+                () => this.endIncomingCall()
             );
         } else {
             this.showIncomingScreenOrNotification(event);
@@ -427,13 +438,43 @@ export class CallService {
         this.callKitService.endCall();
     };
 
+    public async passedShowIncomingCallScreen(passProps: {
+        callId: string;
+        isVideo: boolean;
+        answerCall: (isVideo: boolean) => void;
+        endCall: () => void;
+    }) {
+        await Navigation.showModal({
+            component: {
+                id: 'incomingCall',
+                name: 'td.IncomingCall',
+                passProps,
+            },
+        });
+    }
+
+    public async passedShowCallScreen(passProps: { callId: string; isVideo: boolean; isIncoming: boolean }) {
+        await Navigation.showModal({
+            component: {
+                name: 'td.Call',
+                passProps,
+            },
+        });
+        try {
+            await Navigation.dismissModal('incomingCall');
+        } catch (err) {}
+    }
+
     public handleAppStateChange = async (newState: string) => {
         console.log(`CallManager: _handleAppStateChange: Current app state changed to ${newState}`);
         this.currentAppState = newState;
         if (this.currentAppState === 'active' && this.showIncomingCallScreen && this.call !== null) {
             this.showIncomingCallScreen = false;
-            await Navigation.showModal({
-                component: { name: 'td.IncomingCall', passProps: { callId: this.call.callId, isVideo: false } },
+            await this.passedShowIncomingCallScreen({
+                callId: this.call.callId,
+                isVideo: false,
+                answerCall: (isVideo: boolean) => this.answerIncomingCall(isVideo),
+                endCall: () => this.endIncomingCall(),
             });
         }
     };
