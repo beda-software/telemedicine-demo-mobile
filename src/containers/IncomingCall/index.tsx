@@ -7,7 +7,7 @@ import { CallButton } from 'src/components/CallButton';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import { CallService, IncomingCallSubscription } from 'src/services/call';
+import { CallService } from 'src/services/call';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
@@ -22,7 +22,7 @@ interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     callId: string;
-    answerCall: (isVideo: boolean) => void;
+    answerCall: () => void;
     endCall: () => void;
 }
 
@@ -36,21 +36,21 @@ export class Component extends React.Component<ComponentProps, {}> {
         };
     }
 
-    private readonly subscription: IncomingCallSubscription;
+    private readonly unsubscribe: () => void;
 
     constructor(props: ComponentProps) {
         super(props);
 
         autoBind(this);
 
-        this.subscription = CallService.subscribeToIncomingCallEvents(props.callId, {
+        this.unsubscribe = CallService.subscribeToIncomingCallEvents(props.callId, {
             onCallDisconnected: this.onCallDisconnected,
             onCallFailed: this.onCallFailed,
         });
     }
 
     public componentWillUnmount() {
-        this.subscription.unsubscribe();
+        this.unsubscribe();
     }
 
     public async onCallDisconnected() {
@@ -76,8 +76,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                         height: 90,
                     }}
                 >
-                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => answerCall(false)} />
-                    <CallButton icon_name="videocam" color={COLOR.ACCENT} buttonPressed={() => answerCall(true)} />
+                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => answerCall()} />
                     <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => endCall()} />
                 </View>
             </SafeAreaView>

@@ -79,8 +79,6 @@ async function init() {
         await client.registerPushNotificationsToken(pushTokenResponse.data);
         console.log('PushToken registered', pushTokenResponse.data);
     }
-
-    CallService.getInstance().init();
 }
 
 async function deinit() {
@@ -94,8 +92,6 @@ async function deinit() {
     if (isSuccess(pushTokenResponse)) {
         client.unregisterPushNotificationsToken(pushTokenResponse.data);
     }
-
-    CallService.getInstance().deinit();
 
     await client.disconnect();
 }
@@ -139,8 +135,6 @@ function bootstrap() {
 
     Navigation.events().registerAppLaunchedListener(async () => {
         if (await restoreSession()) {
-            CallService.getInstance().init();
-
             await Navigation.setRoot({
                 root: {
                     stack: {
@@ -179,8 +173,6 @@ function bootstrap() {
         if (await restoreSession()) {
             const client = Voximplant.getInstance();
 
-            CallService.getInstance().init();
-
             client.handlePushNotification({ voximplant: notification.voximplant });
         }
     });
@@ -189,6 +181,32 @@ function bootstrap() {
         if (appState === 'active') {
             await restoreSession();
         }
+    });
+
+    CallService.setup({
+        showIncomingCallScreen: async (passProps) => {
+            await Navigation.showModal({
+                component: {
+                    id: 'incomingCall',
+                    name: 'td.IncomingCall',
+                    passProps,
+                },
+            });
+        },
+        showCallScreen: async (passProps) => {
+            await Navigation.showModal({
+                component: {
+                    name: 'td.Call',
+                    passProps,
+                },
+            });
+            if (passProps.isIncoming) {
+                // On IOS we don't show incoming call screen, but it is easier to always close incoming modal
+                try {
+                    await Navigation.dismissModal('incomingCall');
+                } catch (err) {}
+            }
+        },
     });
 }
 

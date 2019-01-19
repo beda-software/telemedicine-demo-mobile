@@ -1,26 +1,32 @@
 import * as _ from 'lodash';
 import { AppState, NativeModules, PermissionsAndroid, Platform } from 'react-native';
-import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
 import { CallKitService } from './callkit';
 
-interface Callbacks {
-    [x: string]: (event: any) => void;
-}
-
-export interface IncomingCallSubscription {
-    unsubscribe: () => void;
-}
-
-export interface CallSubscription {
-    unsubscribe: () => void;
+interface ShowIncomingCallScreenProps {
+    callId: string;
+    answerCall: () => void;
     endCall: () => void;
+}
+
+interface ShowCallScreenProps {
+    callId: string;
+    isIncoming: boolean;
     setAudioDevice: (device: string) => void;
     getAudioDevices: () => Promise<string[]>;
     sendTone: (value: number) => void;
     sendVideo: (send: boolean) => void;
     sendAudio: (send: boolean) => void;
+}
+
+interface Callbacks {
+    [x: string]: (event: any) => void;
+}
+
+export interface CallSubscription {
+    unsubscribe: () => void;
+    endCall: () => void;
 }
 
 function mergeCallbacks(obj1: Callbacks, obj2: Callbacks) {
@@ -75,32 +81,28 @@ export class CallService {
         return true;
     }
 
-    public static async startOutgoingCall(
-        isVideo: boolean,
-        username: string,
-        displayName: string
-    ): Promise<Voximplant['Call']> {
+    public static async startOutgoingCall(username: string, displayName: string): Promise<Voximplant['Call']> {
         const call = await Voximplant.getInstance().call(username, {
             video: {
-                sendVideo: isVideo,
-                receiveVideo: true,
+                sendVideo: false,
+                receiveVideo: false,
             },
         });
 
-        const callService = CallService.getInstance();
-        callService.addCall(call);
-        callService.startOutgoingCallViaCallKit(isVideo, displayName);
+        const instance = CallService.getInstance();
+        instance.addCall(call);
+        instance.startOutgoingCallViaCallKit(displayName);
+
+        instance.showCallScreen(call.callId, false);
 
         return call;
     }
 
-    public static subscribeToIncomingCallEvents(callId: string, eventCallbacks: Callbacks): IncomingCallSubscription {
+    public static subscribeToIncomingCallEvents(callId: string, eventCallbacks: Callbacks): () => void {
         const call = CallService.getInstance().getCallById(callId);
 
         if (!call) {
-            return {
-                unsubscribe: () => {},
-            };
+            return () => {};
         }
 
         const callbacks = mergeCallbacks(
@@ -122,15 +124,13 @@ export class CallService {
             }
         });
 
-        return {
-            unsubscribe: () => {
-                Object.keys(Voximplant.CallEvents).forEach((eventName) => {
-                    const callbackName = `onCall${eventName}`;
-                    if (typeof callbacks[callbackName] !== 'undefined') {
-                        call.off(eventName, callbacks[callbackName]);
-                    }
-                });
-            },
+        return () => {
+            Object.keys(Voximplant.CallEvents).forEach((eventName) => {
+                const callbackName = `onCall${eventName}`;
+                if (typeof callbacks[callbackName] !== 'undefined') {
+                    call.off(eventName, callbacks[callbackName]);
+                }
+            });
         };
     }
 
@@ -145,20 +145,11 @@ export class CallService {
             return {
                 unsubscribe: () => {},
                 endCall: () => {},
-                setAudioDevice: (device: string) => {},
-                getAudioDevices: () => Promise.resolve([]),
-                sendTone: (value: number) => {},
-                sendVideo: (send: boolean) => {},
-                sendAudio: (send: boolean) => {},
             };
         }
 
         const callbacks = mergeCallbacks(
             {
-                onAudioDeviceChanged: (event: any) => {},
-
-                onAudioDeviceListChanged: (event: any) => {},
-
                 onCallFailed: async (event: any) => {
                     console.log('CallScreen: _onCallFailed');
                     CallService.getInstance().removeCall(event.call);
@@ -169,23 +160,6 @@ export class CallService {
                     CallService.getInstance().removeCall(event.call);
                 },
 
-                onCallConnected: (event: any) => {
-                    console.log('CallScreen: _onCallConnected: ' + callId);
-                },
-
-                onCallLocalVideoStreamAdded: (event: any) => {
-                    console.log(
-                        'CallScreen: _onCallLocalVideoStreamAdded: ' +
-                            callId +
-                            ', video stream id: ' +
-                            event.videoStream.id
-                    );
-                },
-
-                onCallLocalVideoStreamRemoved: (event: any) => {
-                    console.log('CallScreen: _onCallLocalVideoStreamRemoved: ' + callId);
-                },
-
                 onCallEndpointAdded: (event: any) => {
                     console.log(
                         'CallScreen: _onCallEndpointAdded: callId: ' + callId + ' endpoint id: ' + event.endpoint.id
@@ -193,35 +167,11 @@ export class CallService {
                     setupEndpointListeners(event.endpoint, true);
                 },
 
-                onEndpointRemoteVideoStreamAdded: (event: any) => {
-                    console.log(
-                        'CallScreen: _onEndpointRemoteVideoStreamAdded: callId: ' +
-                            callId +
-                            ' endpoint id: ' +
-                            event.endpoint.id
-                    );
-                },
-
-                onEndpointRemoteVideoStreamRemoved: (event: any) => {
-                    console.log(
-                        'CallScreen: _onEndpointRemoteVideoStreamRemoved: callId: ' +
-                            callId +
-                            ' endpoint id: ' +
-                            event.endpoint.id
-                    );
-                },
-
                 onEndpointRemoved: (event: any) => {
                     console.log(
                         'CallScreen: _onEndpointRemoved: callId: ' + callId + ' endpoint id: ' + event.endpoint.id
                     );
                     setupEndpointListeners(event.endpoint, false);
-                },
-
-                onEndpointInfoUpdated: (event: any) => {
-                    console.log(
-                        'CallScreen: _onEndpointInfoUpdated: callId: ' + callId + ' endpoint id: ' + event.endpoint.id
-                    );
                 },
             },
             eventCallbacks
@@ -248,9 +198,11 @@ export class CallService {
         });
 
         function setupEndpointListeners(endpoint: any, setup: boolean) {
+            console.log('SETUP ENDPOINT LISTENERS', setup);
             Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
                 const callbackName = `onEndpoint${eventName}`;
                 if (typeof callbacks[callbackName] !== 'undefined') {
+                    console.log('callbackname', callbackName);
                     endpoint[setup ? 'on' : 'off'](eventName, callbacks[callbackName]);
                 }
             });
@@ -279,41 +231,40 @@ export class CallService {
 
                 call.hangup();
             },
-            getAudioDevices: async () => Voximplant.Hardware.AudioDeviceManager.getInstance().getAudioDevices(),
-            setAudioDevice: (device: string) =>
-                Voximplant.Hardware.AudioDeviceManager.getInstance().selectAudioDevice(device),
-            sendTone: (value: number) => call.sendTone(value),
-            sendVideo: (send: boolean) => call.sendVideo(send),
-            sendAudio: (send: boolean) => call.sendAudio(send),
         };
     }
 
+    public static setup({
+        showIncomingCallScreen,
+        showCallScreen,
+    }: {
+        showIncomingCallScreen: (passProps: ShowIncomingCallScreenProps) => void;
+        showCallScreen: (passProps: ShowCallScreenProps) => void;
+    }) {
+        if (!showCallScreen || !showIncomingCallScreen) {
+            console.error(
+                'CallService.setup: you mush pass `showIncomingCallScreen` and `showCallScreen` to config to setup the service'
+            );
+            return;
+        }
+        const instance = CallService.getInstance();
+
+        instance.client.on(Voximplant.ClientEvents.IncomingCall, instance.onIncomingCall);
+        AppState.addEventListener('change', instance.handleAppStateChange);
+        instance.passedShowIncomingCallScreen = showIncomingCallScreen;
+        instance.passedShowCallScreen = showCallScreen;
+    }
+
     public call: Voximplant['Call'] | null = null;
-    public initialized = false;
-    public currentAppState?: string;
-    public showIncomingCallScreen = false;
+    public needToShowIncomingCallScreen = false;
     public callKitService: CallKitService;
+    public passedShowIncomingCallScreen?: (passProps: ShowIncomingCallScreenProps) => void;
+    public passedShowCallScreen?: (passProps: ShowCallScreenProps) => void;
     private readonly client: Voximplant['Instance'];
 
     constructor() {
         this.client = Voximplant.getInstance();
-        this.currentAppState = AppState.currentState;
         this.callKitService = new CallKitService();
-    }
-
-    public init() {
-        // TODO: re-think
-        if (!this.initialized) {
-            this.client.on(Voximplant.ClientEvents.IncomingCall, this.incomingCall);
-            AppState.addEventListener('change', this.handleAppStateChange);
-            this.initialized = true;
-        }
-    }
-
-    public deinit() {
-        this.client.off(Voximplant.ClientEvents.IncomingCall, this.incomingCall);
-        AppState.removeEventListener('change', this.handleAppStateChange);
-        this.initialized = false;
     }
 
     public addCall(call: Voximplant['Call']) {
@@ -341,12 +292,12 @@ export class CallService {
         return null;
     }
 
-    public startOutgoingCallViaCallKit(isVideo: boolean, displayName: string) {
+    public startOutgoingCallViaCallKit(displayName: string) {
         if (!this.call) {
             return;
         }
 
-        this.callKitService.startOutgoingCall(isVideo, displayName, this.call.callId);
+        this.callKitService.startOutgoingCall(displayName, this.call.callId);
         this.call.on(Voximplant.CallEvents.Connected, this.callConnected);
         this.call.on(Voximplant.CallEvents.Disconnected, this.callDisconnected);
         this.call.on(Voximplant.CallEvents.Failed, this.callFailed);
@@ -360,39 +311,56 @@ export class CallService {
         this.call.decline();
     }
 
-    public answerIncomingCall(isVideo: boolean) {
+    public answerIncomingCall() {
         if (!this.call) {
             return;
         }
 
         this.call.answer({
             video: {
-                sendVideo: isVideo,
-                receiveVideo: true,
+                sendVideo: false,
+                receiveVideo: false,
             },
         });
-        this.passedShowCallScreen({ isVideo, callId: this.call.callId, isIncoming: true });
+        this.showCallScreen(this.call.callId, true);
+    }
+
+    public async getAudioDevices() {
+        return Voximplant.Hardware.AudioDeviceManager.getInstance().getAudioDevices();
+    }
+    public setAudioDevice(device: string) {
+        Voximplant.Hardware.AudioDeviceManager.getInstance().selectAudioDevice(device);
+    }
+    public sendTone(value: number) {
+        if (this.call) {
+            this.call.sendTone(value);
+        }
+    }
+    public sendVideo(send: boolean) {
+        if (this.call) {
+            this.call.sendVideo(send);
+        }
+    }
+    public sendAudio(send: boolean) {
+        if (this.call) {
+            this.call.sendAudio(send);
+        }
     }
 
     public showIncomingScreenOrNotification(event: any) {
-        if (this.currentAppState !== 'active') {
-            this.showIncomingCallScreen = true;
+        if (AppState.currentState !== 'active') {
+            this.needToShowIncomingCallScreen = true;
             if (Platform.OS === 'android') {
                 NativeModules.ActivityLauncher.openMainActivity();
             } else {
                 // PushService.showLocalNotification('');
             }
         } else {
-            this.passedShowIncomingCallScreen({
-                callId: event.call.callId,
-                isVideo: event.video,
-                answerCall: (isVideo: boolean) => this.answerIncomingCall(isVideo),
-                endCall: () => this.endIncomingCall(),
-            });
+            this.showIncomingCallScreen(event.call.callId);
         }
     }
 
-    public incomingCall = (event: any) => {
+    public onIncomingCall = (event: any) => {
         if (this.call !== null) {
             console.log(
                 `CallManager: incomingCall: already have a call, rejecting new call, current call id: ${
@@ -408,11 +376,10 @@ export class CallService {
         event.call.on(Voximplant.CallEvents.Failed, this.callFailed);
         if (Platform.OS === 'ios') {
             this.callKitService.showIncomingCall(
-                event.video,
                 event.call.getEndpoints()[0].displayName,
                 event.call.callId,
-                (isVideo: boolean) => this.answerIncomingCall(isVideo),
-                () => this.endIncomingCall()
+                this.answerIncomingCall.bind(this),
+                this.endIncomingCall.bind(this)
             );
         } else {
             this.showIncomingScreenOrNotification(event);
@@ -427,55 +394,50 @@ export class CallService {
     };
 
     public callDisconnected = (event: any) => {
-        this.showIncomingCallScreen = false;
+        this.needToShowIncomingCallScreen = false;
         this.removeCall(event.call);
         this.callKitService.endCall();
     };
 
     public callFailed = (event: any) => {
-        this.showIncomingCallScreen = false;
+        this.needToShowIncomingCallScreen = false;
         this.removeCall(event.call);
         this.callKitService.endCall();
     };
 
-    public async passedShowIncomingCallScreen(passProps: {
-        callId: string;
-        isVideo: boolean;
-        answerCall: (isVideo: boolean) => void;
-        endCall: () => void;
-    }) {
-        await Navigation.showModal({
-            component: {
-                id: 'incomingCall',
-                name: 'td.IncomingCall',
-                passProps,
-            },
-        });
-    }
-
-    public async passedShowCallScreen(passProps: { callId: string; isVideo: boolean; isIncoming: boolean }) {
-        await Navigation.showModal({
-            component: {
-                name: 'td.Call',
-                passProps,
-            },
-        });
-        try {
-            await Navigation.dismissModal('incomingCall');
-        } catch (err) {}
-    }
-
     public handleAppStateChange = async (newState: string) => {
         console.log(`CallManager: _handleAppStateChange: Current app state changed to ${newState}`);
-        this.currentAppState = newState;
-        if (this.currentAppState === 'active' && this.showIncomingCallScreen && this.call !== null) {
-            this.showIncomingCallScreen = false;
-            await this.passedShowIncomingCallScreen({
-                callId: this.call.callId,
-                isVideo: false,
-                answerCall: (isVideo: boolean) => this.answerIncomingCall(isVideo),
-                endCall: () => this.endIncomingCall(),
-            });
+        if (newState === 'active' && this.needToShowIncomingCallScreen && this.call !== null) {
+            this.needToShowIncomingCallScreen = false;
+            await this.showIncomingCallScreen(this.call.callId);
         }
     };
+
+    public showIncomingCallScreen(callId: string) {
+        if (!this.passedShowIncomingCallScreen) {
+            return;
+        }
+
+        this.passedShowIncomingCallScreen({
+            callId,
+            answerCall: this.answerIncomingCall.bind(this),
+            endCall: this.endIncomingCall.bind(this),
+        });
+    }
+
+    public showCallScreen(callId: string, isIncoming: boolean) {
+        if (!this.passedShowCallScreen) {
+            return;
+        }
+
+        this.passedShowCallScreen({
+            callId,
+            isIncoming,
+            sendAudio: this.sendAudio.bind(this),
+            sendVideo: this.sendVideo.bind(this),
+            sendTone: this.sendTone.bind(this),
+            getAudioDevices: this.getAudioDevices.bind(this),
+            setAudioDevice: this.setAudioDevice.bind(this),
+        });
+    }
 }

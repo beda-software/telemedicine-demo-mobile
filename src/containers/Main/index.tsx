@@ -82,12 +82,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public async makeOutgoingCall(user: User, isVideo: boolean) {
-        const call = await CallService.startOutgoingCall(isVideo, user.username, user.displayName);
-
-        await Navigation.showModal({
-            component: { name: 'td.Call', passProps: { isVideo, callId: call.callId, isIncoming: false } },
-        });
+    public async makeOutgoingCall(user: User) {
+        await CallService.startOutgoingCall(user.username, user.displayName);
     }
 
     public renderContent() {
@@ -121,12 +117,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 <CallButton
                                     icon_name="call"
                                     color={COLOR.ACCENT}
-                                    buttonPressed={() => this.makeOutgoingCall(item.resource!, false)}
-                                />
-                                <CallButton
-                                    icon_name="videocam"
-                                    color={COLOR.ACCENT}
-                                    buttonPressed={() => this.makeOutgoingCall(item.resource!, true)}
+                                    buttonPressed={() => this.makeOutgoingCall(item.resource!)}
                                 />
                             </View>
                         </View>

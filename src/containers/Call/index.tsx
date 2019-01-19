@@ -63,9 +63,13 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
-    isVideo: boolean;
     isIncoming: boolean;
     callId: string;
+    setAudioDevice: (device: string) => void;
+    getAudioDevices: () => Promise<string[]>;
+    sendTone: (value: number) => void;
+    sendVideo: (send: boolean) => void;
+    sendAudio: (send: boolean) => void;
 }
 
 @schema({ tree: {} })
@@ -87,9 +91,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         this.props.tree.set(initial);
 
-        const { callId, isIncoming, isVideo } = this.props;
-
-        this.props.tree.isVideoBeingSent.set(isVideo);
+        const { callId, isIncoming } = this.props;
 
         this.subscription = CallService.subscribeToCallEvents(callId, isIncoming, {
             onAudioDeviceChanged: this.onAudioDeviceChanged,
@@ -102,16 +104,6 @@ export class Component extends React.Component<ComponentProps, {}> {
             onEndpointRemoteVideoStreamAdded: this.onEndpointRemoteVideoStreamAdded,
             onEndpointRemoteVideoStreamRemoved: this.onEndpointRemoteVideoStreamRemoved,
         });
-    }
-
-    public async componentDidMount() {
-        const { isVideo } = this.props;
-
-        try {
-            await CallService.requestPermissions(isVideo);
-        } catch (err) {
-            await Navigation.showModal({ component: { name: 'td.Modal', passProps: { text: err } } });
-        }
     }
 
     public componentWillUnmount() {
@@ -155,7 +147,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public keypadPressed(value: any) {
-        this.subscription.sendTone(value);
+        this.props.sendTone(value);
     }
 
     public toggleKeypad() {
@@ -165,7 +157,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     public async toggleAudioMute() {
         this.props.tree.isAudioMuted.apply((x) => !x);
         const isAudioMuted = this.props.tree.isAudioMuted.get();
-        await this.subscription.sendAudio(!isAudioMuted);
+        await this.props.sendAudio(!isAudioMuted);
     }
 
     public async toggleVideoSend() {
@@ -178,21 +170,21 @@ export class Component extends React.Component<ComponentProps, {}> {
                 return Navigation.showModal({ component: { name: 'td.Modal', passProps: { text: err } } });
             }
         }
-        await this.subscription.sendVideo(isVideoBeingSent);
+        await this.props.sendVideo(isVideoBeingSent);
     }
 
     public async toggleAudioDeviceSelector() {
         this.props.tree.isAudioDeviceSelectorVisible.apply((x) => !x);
 
         if (this.props.tree.isAudioDeviceSelectorVisible.get()) {
-            const deviceList = await this.subscription.getAudioDevices();
+            const deviceList = await this.props.getAudioDevices();
             this.props.tree.audioDeviceList.set(deviceList);
         }
     }
 
     public setAudioDevice(device: string) {
         this.props.tree.audioDeviceIcon.set(devicesIcons[device]);
-        this.subscription.setAudioDevice(device);
+        this.props.setAudioDevice(device);
     }
 
     public endCall() {

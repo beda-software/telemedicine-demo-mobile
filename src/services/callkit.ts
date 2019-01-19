@@ -3,7 +3,6 @@ import { Voximplant } from 'react-native-voximplant';
 import * as uuid from 'uuid';
 
 interface IncomingCall {
-    isVideo: boolean;
     callId: string;
     answerCall: () => void;
     endCall: () => void;
@@ -31,26 +30,19 @@ export class CallKitService {
         RNCallKit.addEventListener('didPerformSetMutedCallAction', this.onRNCallKitDidPerformSetMutedCallAction);
     }
 
-    public showIncomingCall(
-        isVideo: boolean,
-        displayName: string,
-        callId: string,
-        answerCall: (isVideo: boolean) => void,
-        endCall: () => void
-    ) {
+    public showIncomingCall(displayName: string, callId: string, answerCall: () => void, endCall: () => void) {
         this.callKitUuid = uuid.v4();
         this.incomingCall = {
-            isVideo,
             callId,
-            answerCall: () => answerCall(isVideo),
+            answerCall,
             endCall,
         };
-        RNCallKit.displayIncomingCall(this.callKitUuid, displayName, 'number', isVideo);
+        RNCallKit.displayIncomingCall(this.callKitUuid, displayName, 'number', false);
     }
 
-    public startOutgoingCall(isVideo: boolean, displayName: string, callId: string) {
+    public startOutgoingCall(displayName: string, callId: string) {
         this.callKitUuid = uuid.v4();
-        RNCallKit.startCall(this.callKitUuid, displayName, 'number', isVideo);
+        RNCallKit.startCall(this.callKitUuid, displayName, 'number', false);
     }
 
     public reportOutgoingCallConnected() {
