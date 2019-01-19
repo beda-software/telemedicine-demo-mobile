@@ -18,7 +18,7 @@ import { Keypad } from 'src/components/Keypad';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import { CallService, CallSubscription } from 'src/services/call';
+import { CallService } from 'src/services/call';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
@@ -70,6 +70,7 @@ interface ComponentProps {
     sendTone: (value: number) => void;
     sendVideo: (send: boolean) => void;
     sendAudio: (send: boolean) => void;
+    endCall: () => void;
 }
 
 @schema({ tree: {} })
@@ -82,7 +83,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         };
     }
 
-    private readonly subscription: CallSubscription;
+    private readonly unsubscribe: () => void;
 
     constructor(props: ComponentProps) {
         super(props);
@@ -93,7 +94,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         const { callId, isIncoming } = this.props;
 
-        this.subscription = CallService.subscribeToCallEvents(callId, isIncoming, {
+        this.unsubscribe = CallService.subscribeToCallEvents(callId, isIncoming, {
             onAudioDeviceChanged: this.onAudioDeviceChanged,
             onAudioDeviceListChanged: this.onAudioDeviceListChanged,
             onCallFailed: this.onCallFailed,
@@ -107,7 +108,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public componentWillUnmount() {
-        this.subscription.unsubscribe();
+        this.unsubscribe();
     }
 
     public onAudioDeviceChanged({ currentDevice }: { currentDevice: string }) {
@@ -188,7 +189,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public endCall() {
-        this.subscription.endCall();
+        this.props.endCall();
     }
 
     public renderItemSeparator() {

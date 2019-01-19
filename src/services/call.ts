@@ -18,15 +18,11 @@ interface ShowCallScreenProps {
     sendTone: (value: number) => void;
     sendVideo: (send: boolean) => void;
     sendAudio: (send: boolean) => void;
+    endCall: () => void;
 }
 
 interface Callbacks {
     [x: string]: (event: any) => void;
-}
-
-export interface CallSubscription {
-    unsubscribe: () => void;
-    endCall: () => void;
 }
 
 function mergeCallbacks(obj1: Callbacks, obj2: Callbacks) {
@@ -134,18 +130,11 @@ export class CallService {
         };
     }
 
-    public static subscribeToCallEvents(
-        callId: string,
-        isIncoming: boolean,
-        eventCallbacks: Callbacks
-    ): CallSubscription {
+    public static subscribeToCallEvents(callId: string, isIncoming: boolean, eventCallbacks: Callbacks): () => void {
         const call = CallService.getInstance().getCallById(callId);
 
         if (!call) {
-            return {
-                unsubscribe: () => {},
-                endCall: () => {},
-            };
+            return () => {};
         }
 
         const callbacks = mergeCallbacks(
@@ -198,39 +187,28 @@ export class CallService {
         });
 
         function setupEndpointListeners(endpoint: any, setup: boolean) {
-            console.log('SETUP ENDPOINT LISTENERS', setup);
             Object.keys(Voximplant.EndpointEvents).forEach((eventName) => {
                 const callbackName = `onEndpoint${eventName}`;
                 if (typeof callbacks[callbackName] !== 'undefined') {
-                    console.log('callbackname', callbackName);
                     endpoint[setup ? 'on' : 'off'](eventName, callbacks[callbackName]);
                 }
             });
         }
 
-        return {
-            unsubscribe: () => {
-                Object.keys(Voximplant.CallEvents).forEach((eventName) => {
-                    const callbackName = `onCall${eventName}`;
-                    if (typeof callbacks[callbackName] !== 'undefined') {
-                        call.off(eventName, callbacks[callbackName]);
-                    }
-                });
+        return () => {
+            Object.keys(Voximplant.CallEvents).forEach((eventName) => {
+                const callbackName = `onCall${eventName}`;
+                if (typeof callbacks[callbackName] !== 'undefined') {
+                    call.off(eventName, callbacks[callbackName]);
+                }
+            });
 
-                Object.keys(Voximplant.Hardware.AudioDeviceEvents).forEach((eventName) => {
-                    const callbackName = `onAudio${eventName}`;
-                    if (typeof callbacks[callbackName] !== 'undefined') {
-                        Voximplant.Hardware.AudioDeviceManager.getInstance().off(eventName, callbacks[callbackName]);
-                    }
-                });
-            },
-            endCall: () => {
-                call.getEndpoints().forEach((endpoint: any) => {
-                    setupEndpointListeners(endpoint, false);
-                });
-
-                call.hangup();
-            },
+            Object.keys(Voximplant.Hardware.AudioDeviceEvents).forEach((eventName) => {
+                const callbackName = `onAudio${eventName}`;
+                if (typeof callbacks[callbackName] !== 'undefined') {
+                    Voximplant.Hardware.AudioDeviceManager.getInstance().off(eventName, callbacks[callbackName]);
+                }
+            });
         };
     }
 
@@ -273,6 +251,7 @@ export class CallService {
     }
 
     public removeCall(call: Voximplant['Call']) {
+        // TODO: research why removeCall usually called twice
         console.log(`CallManager: removeCall: ${call.callId}`);
         if (this.call && this.call.callId === call.callId) {
             this.call.off(Voximplant.CallEvents.Connected, this.callConnected);
@@ -301,6 +280,14 @@ export class CallService {
         this.call.on(Voximplant.CallEvents.Connected, this.callConnected);
         this.call.on(Voximplant.CallEvents.Disconnected, this.callDisconnected);
         this.call.on(Voximplant.CallEvents.Failed, this.callFailed);
+    }
+
+    public endCall() {
+        console.log('CallManager: endCAll', this.call);
+        if (!this.call) {
+            return;
+        }
+        this.call.hangup();
     }
 
     public endIncomingCall() {
@@ -438,6 +425,7 @@ export class CallService {
             sendTone: this.sendTone.bind(this),
             getAudioDevices: this.getAudioDevices.bind(this),
             setAudioDevice: this.setAudioDevice.bind(this),
+            endCall: this.endCall.bind(this),
         });
     }
 }
