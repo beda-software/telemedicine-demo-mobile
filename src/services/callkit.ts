@@ -5,8 +5,8 @@ import * as uuid from 'uuid';
 interface IncomingCall {
     callId: string;
     callerDisplayName: string;
-    answerCall: () => void;
-    declineCall: () => void;
+    answerCall: () => Promise<void>;
+    declineCall: () => Promise<void>;
 }
 
 export class CallKitService {
@@ -34,8 +34,8 @@ export class CallKitService {
     public showIncomingCall(
         callId: string,
         callerDisplayName: string,
-        answerCall: () => void,
-        declineCall: () => void
+        answerCall: () => Promise<void>,
+        declineCall: () => Promise<void>
     ) {
         this.callKitUuid = uuid.v4();
         this.incomingCall = {
@@ -75,15 +75,15 @@ export class CallKitService {
         }
         console.log('CallKitManager: onRNCallKitPerformAnswerCallAction' + this.incomingCall.callId);
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitConfigureAudioSession();
-        this.incomingCall.answerCall();
+        await this.incomingCall.answerCall();
     };
 
-    public onRNCallKitPerformEndCallAction = (data: any) => {
+    public onRNCallKitPerformEndCallAction = async (data: any) => {
         if (!this.incomingCall) {
             return;
         }
         console.log('CallKitManager: onRNCallKitPerformEndCallAction');
-        this.incomingCall.declineCall();
+        await this.incomingCall.declineCall();
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitStopAudio();
         Voximplant.Hardware.AudioDeviceManager.getInstance().callKitReleaseAudioSession();
     };

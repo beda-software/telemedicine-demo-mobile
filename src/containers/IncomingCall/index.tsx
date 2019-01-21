@@ -26,8 +26,8 @@ interface ComponentProps {
     tree: Cursor<Model>;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     callId: string;
-    answerCall: () => void;
-    declineCall: () => void;
+    answerCall: () => Promise<void>;
+    declineCall: () => Promise<void>;
 }
 
 @schema({ tree: {} })
@@ -77,12 +77,12 @@ export class Component extends React.Component<ComponentProps, {}> {
             return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
         }
 
-        this.props.answerCall();
+        await this.props.answerCall();
     }
 
     public async declineCall() {
         this.props.tree.isPending.set(true);
-        this.props.declineCall();
+        await this.props.declineCall();
     }
 
     public render() {
