@@ -16,10 +16,12 @@ import s from './style';
 
 export interface Model {
     contactListBundleResponse: RemoteData<Bundle<User>>;
+    isPending: boolean;
 }
 
 export const initial: Model = {
     contactListBundleResponse: notAsked,
+    isPending: false,
 };
 
 interface ComponentProps {
@@ -57,15 +59,24 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         if (buttonId === 'logout') {
             await this.logout();
         }
     }
 
     public async logout() {
-        await clearSession(this.props.sessionResponseCursor);
-        await this.props.deinit();
-        await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
+        this.props.tree.isPending.set(true);
+        try {
+            await clearSession(this.props.sessionResponseCursor);
+            await this.props.deinit();
+            await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
+        } finally {
+            this.props.tree.isPending.set(false);
+        }
     }
 
     public async fetchContacts() {
@@ -133,7 +144,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <CallButton
-                                        icon_name="call"
+                                        iconName="call"
                                         color={COLOR.ACCENT}
                                         buttonPressed={() => this.makeOutgoingCall(item.resource!)}
                                     />
@@ -153,10 +164,13 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public render() {
+        const isPending = this.props.tree.isPending.get();
+
         return (
             <SafeAreaView style={s.safearea}>
                 <StatusBar backgroundColor={COLOR.PRIMARY_DARK} />
                 <View style={s.useragent}>{this.renderContent()}</View>
+                <Preloader isVisible={isPending} />
             </SafeAreaView>
         );
     }

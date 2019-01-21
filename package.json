@@ -15,6 +15,7 @@
 		]
 	},
 	"dependencies": {
+		"@types/ajv": "^1.0.0",
 		"@types/lodash": "^4.14.119",
 		"@types/uuid": "^3.4.4",
 		"ajv": "^6.5.4",

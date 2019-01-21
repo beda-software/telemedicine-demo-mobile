@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import styles from 'src/styles/Styles';
+
+import s from './style';
 
 export function Preloader({ isVisible }: { isVisible: boolean }) {
     if (isVisible) {
         return (
-            <View style={styles.modal}>
-                <View style={[styles.container]}>
-                    <View style={[styles.innerContainer]}>
+            <View style={s.modal}>
+                <View style={[s.container]}>
+                    <View style={[s.innerContainer]}>
                         <ActivityIndicator size="large" />
                     </View>
                 </View>

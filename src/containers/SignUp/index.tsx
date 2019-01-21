@@ -18,7 +18,7 @@ import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
 import { User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
+import { isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { Session } from 'src/services/session';
 import { signUp } from 'src/services/sign-up';
@@ -35,10 +35,12 @@ interface FormValues {
 
 export interface Model {
     response: RemoteData<User>;
+    isPending: boolean;
 }
 
 export const initial: Model = {
     response: notAsked,
+    isPending: false,
 };
 
 interface ComponentProps {
@@ -61,25 +63,30 @@ export class Component extends React.Component<ComponentProps, {}> {
     private passwordConfirmRef = React.createRef<TextInput>();
 
     public async onSubmit(values: FormValues) {
-        const response = await signUp(this.props.tree.response, values);
+        this.props.tree.isPending.set(true);
+        try {
+            const response = await signUp(this.props.tree.response, values);
 
-        if (isSuccess(response)) {
-            await Navigation.showOverlay({
-                component: {
-                    name: 'td.Modal',
-                    passProps: {
-                        text: 'You have successfully registered. Please login using your username and password',
+            if (isSuccess(response)) {
+                await Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: {
+                            text: 'You have successfully registered. Please login using your username and password',
+                        },
                     },
-                },
-            });
-            await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
-        } else {
-            await Navigation.showOverlay({
-                component: {
-                    name: 'td.Modal',
-                    passProps: { text: `Something went wrong. ${JSON.stringify(response.error)}` },
-                },
-            });
+                });
+                await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
+            } else {
+                await Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: `Something went wrong. ${JSON.stringify(response.error)}` },
+                    },
+                });
+            }
+        } finally {
+            this.props.tree.isPending.set(false);
         }
     }
 
@@ -92,7 +99,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="Username"
                                     autoCapitalize="none"
                                     autoCorrect={false}
@@ -107,7 +115,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="Display Name"
                                     autoCapitalize="none"
                                     autoCorrect={false}
@@ -122,7 +131,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="Password"
                                     ref={this.passwordRef}
                                     onSubmitEditing={() => this.passwordConfirmRef.current!.focus()}
@@ -136,7 +146,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="Confirm password"
                                     onSubmitEditing={() => handleSubmit()}
                                     ref={this.passwordConfirmRef}
@@ -153,7 +164,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>SIGN UP</Text>
+                            <Text style={s.signUpButton}>SIGN UP</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => Navigation.setStackRoot('root', { component: { name: 'td.Login' } })}
@@ -162,7 +173,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>GO TO LOGIN</Text>
+                            <Text style={s.signUpButton}>GO TO LOGIN</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -171,7 +182,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public render() {
-        const isLoading = isLoadingCursor(this.props.tree.response);
+        const isPending = this.props.tree.isPending.get();
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -180,12 +191,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                     <View style={[s.container]}>
                         <Logo />
 
-                        <KeyboardAvoidingView behavior="padding" style={s.loginform}>
+                        <KeyboardAvoidingView behavior="padding" style={s.signUpForm}>
                             {this.renderForm()}
                         </KeyboardAvoidingView>
                     </View>
                 </TouchableWithoutFeedback>
-                <Preloader isVisible={isLoading} />
+                <Preloader isVisible={isPending} />
             </SafeAreaView>
         );
     }

@@ -2,8 +2,6 @@ import * as React from 'react';
 import { FieldRenderProps } from 'react-final-form';
 import { Text, TextInput, View } from 'react-native';
 
-import styles from 'src/styles/Styles';
-
 interface InputFieldProps extends FieldRenderProps {
     [x: string]: any;
 }
@@ -22,7 +20,7 @@ export const InputField = React.forwardRef((props: InputFieldProps, ref: React.R
                 value={input.value}
                 ref={ref}
             />
-            {touched && error && <Text style={styles.forminputError}>{error}</Text>}
+            {touched && error && <Text style={props.errorStyle}>{error}</Text>}
         </View>
     );
 });

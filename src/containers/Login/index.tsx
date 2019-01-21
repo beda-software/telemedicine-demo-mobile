@@ -19,7 +19,7 @@ import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
 import { Token } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
+import { isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { login, voxImplantLogin } from 'src/services/login';
 import { saveSession, Session } from 'src/services/session';
@@ -35,11 +35,13 @@ interface FormValues {
 export interface Model {
     tokenResponse: RemoteData<Token>;
     voxImplantTokensResponse: RemoteData<Voximplant['LoginTokens']>;
+    isPending: boolean;
 }
 
 export const initial: Model = {
     tokenResponse: notAsked,
     voxImplantTokensResponse: notAsked,
+    isPending: false,
 };
 
 interface ComponentProps {
@@ -61,32 +63,43 @@ export class Component extends React.Component<ComponentProps, {}> {
     private passwordRef = React.createRef<TextInput>();
 
     public async onSubmit(values: FormValues) {
-        const tokenResponse = await login(this.props.tree.tokenResponse, values);
+        this.props.tree.isPending.set(true);
+        try {
+            const tokenResponse = await login(this.props.tree.tokenResponse, values);
 
-        if (isSuccess(tokenResponse)) {
-            const voxImplantTokensResponse = await voxImplantLogin(this.props.tree.voxImplantTokensResponse, {
-                username: values.username,
-                token: tokenResponse.data,
-            });
-
-            if (isSuccess(voxImplantTokensResponse)) {
-                const session = {
+            if (isSuccess(tokenResponse)) {
+                const voxImplantTokensResponse = await voxImplantLogin(this.props.tree.voxImplantTokensResponse, {
                     username: values.username,
                     token: tokenResponse.data,
-                    voxImplantTokens: voxImplantTokensResponse.data,
-                };
-                await saveSession(this.props.sessionResponseCursor, session);
-                await this.props.init();
-                await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
+                });
+
+                if (isSuccess(voxImplantTokensResponse)) {
+                    const session = {
+                        username: values.username,
+                        token: tokenResponse.data,
+                        voxImplantTokens: voxImplantTokensResponse.data,
+                    };
+                    await saveSession(this.props.sessionResponseCursor, session);
+                    await this.props.init();
+                    await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
+                } else {
+                    await Navigation.showOverlay({
+                        component: {
+                            name: 'td.Modal',
+                            passProps: { text: `Something went wrong with VI login` },
+                        },
+                    });
+                }
             } else {
                 await Navigation.showOverlay({
-                    component: { name: 'td.Modal', passProps: { text: `Something went wrong with VI login` } },
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: 'Something went wrong with login' },
+                    },
                 });
             }
-        } else {
-            await Navigation.showOverlay({
-                component: { name: 'td.Modal', passProps: { text: 'Something went wrong with login' } },
-            });
+        } finally {
+            this.props.tree.isPending.set(false);
         }
     }
 
@@ -99,7 +112,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="Username"
                                     autoCapitalize="none"
                                     autoCorrect={false}
@@ -114,7 +128,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                             {(fieldProps) => (
                                 <InputField
                                     underlineColorAndroid="transparent"
-                                    style={s.forminput}
+                                    style={s.formInput}
+                                    errorStyle={s.formInputError}
                                     placeholder="User password"
                                     onSubmitEditing={() => handleSubmit()}
                                     ref={this.passwordRef}
@@ -131,7 +146,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>LOGIN</Text>
+                            <Text style={s.loginButton}>LOGIN</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => Navigation.setStackRoot('root', { component: { name: 'td.SignUp' } })}
@@ -140,7 +155,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 alignSelf: 'center',
                             }}
                         >
-                            <Text style={s.loginbutton}>GO TO SIGN UP</Text>
+                            <Text style={s.loginButton}>GO TO SIGN UP</Text>
                         </TouchableOpacity>
                     </View>
                 )}
@@ -149,8 +164,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public render() {
-        const isLoading =
-            isLoadingCursor(this.props.tree.tokenResponse) || isLoadingCursor(this.props.tree.voxImplantTokensResponse);
+        const isPending = this.props.tree.isPending.get();
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -158,12 +172,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={[s.container]}>
                         <Logo />
-                        <KeyboardAvoidingView behavior="padding" style={s.loginform}>
+                        <KeyboardAvoidingView behavior="padding" style={s.loginForm}>
                             {this.renderForm()}
                         </KeyboardAvoidingView>
                     </View>
                 </TouchableWithoutFeedback>
-                <Preloader isVisible={isLoading} />
+                <Preloader isVisible={isPending} />
             </SafeAreaView>
         );
     }

@@ -77,8 +77,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         return (
             <SafeAreaView style={s.safearea}>
                 <StatusBar backgroundColor={COLOR.PRIMARY_DARK} />
-                <Text style={s.incoming_call}>Incoming call from:</Text>
-                <Text style={s.incoming_call}>{callerDisplayName}</Text>
+                <Text style={s.incomingCall}>Incoming call from:</Text>
+                <Text style={s.incomingCall}>{callerDisplayName}</Text>
                 <View
                     style={{
                         flexDirection: 'row',
@@ -86,8 +86,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                         height: 90,
                     }}
                 >
-                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall()} />
-                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => declineCall()} />
+                    <CallButton iconName="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall()} />
+                    <CallButton iconName="call-end" color={COLOR.RED} buttonPressed={() => declineCall()} />
                 </View>
             </SafeAreaView>
         );

@@ -1,41 +1,11 @@
 import { StyleSheet } from 'react-native';
+
 import COLOR from 'src/styles/Color';
 
 export default StyleSheet.create({
-    logo: {
-        alignItems: 'center',
-        padding: 5,
-    },
-    logotext: {
-        fontSize: 35,
-        color: COLOR.ACCENT,
-    },
-    sublogo: {
-        alignItems: 'center',
-        marginBottom: 50,
-    },
-    sublogotext: {
-        fontSize: 18,
-        color: COLOR.ACCENT,
-    },
     safearea: {
         flex: 1,
         backgroundColor: COLOR.WHITE,
-    },
-    aligncenter: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-    },
-    modal: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLOR.GRAY,
-        opacity: 0.6,
     },
     container: {
         flex: 1,
@@ -46,10 +16,6 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         padding: 20,
     },
-    preloaderBackground: {
-        backgroundColor: 'rgba(0, 0, 0, 0.2)',
-        padding: 20,
-    },
     innerContainer: {
         borderRadius: 10,
     },
@@ -57,84 +23,36 @@ export default StyleSheet.create({
         backgroundColor: COLOR.WHITE,
         padding: 20,
     },
-    appheader: {
-        resizeMode: 'contain',
-        height: 60,
-        alignSelf: 'center',
-    },
-    loginform: {
-        paddingHorizontal: 20,
-        alignItems: 'stretch',
-    },
-    loginbutton: {
-        color: COLOR.BUTTON,
-        fontSize: 16,
-        alignSelf: 'center',
-        paddingTop: 20,
-        textAlign: 'center',
-    },
-    contactListItem: {
-        color: COLOR.BUTTON,
-        fontSize: 16,
-        alignSelf: 'flex-start',
-        paddingTop: 10,
-        textAlign: 'center',
-    },
-    forminput: {
-        padding: 5,
-        marginBottom: 10,
-        color: COLOR.ACCENT,
-        height: 40,
-        borderColor: COLOR.ACCENT,
-        borderWidth: 1,
-        borderRadius: 4,
-    },
-    forminputError: {
-        marginTop: -5,
-        marginBottom: 15,
-        color: COLOR.RED,
-        textAlign: 'right',
-    },
     useragent: {
         flex: 1,
         flexDirection: 'column',
     },
-    selfview: {
+    selfView: {
         position: 'absolute',
         right: 20,
         bottom: 20,
         width: 100,
         height: 120,
     },
-    remotevideo: {
+    remoteVideo: {
         flex: 1,
     },
     videoPanel: {
         flex: 1,
         position: 'relative',
     },
-    call_controls: {
+    callControls: {
         height: 70,
     },
-    margin: {
-        margin: 10,
-    },
-    call_connecting_label: {
+    callConnectingLabel: {
         fontSize: 18,
         alignSelf: 'center',
     },
-    headerButton: {
-        color: COLOR.WHITE,
-        fontSize: 16,
-        alignSelf: 'center',
-        paddingLeft: 10,
-        paddingRight: 10,
-        paddingBottom: 5,
-        textAlign: 'center',
-    },
-    incoming_call: {
-        justifyContent: 'center',
-        alignSelf: 'center',
-        fontSize: 22,
+    itemSeparator: {
+        height: 1,
+        width: '100%',
+        backgroundColor: '#607D8B',
+        marginTop: 10,
+        marginBottom: 10,
     },
 });

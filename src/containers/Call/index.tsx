@@ -192,17 +192,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public renderItemSeparator() {
-        return (
-            <View
-                style={{
-                    height: 1,
-                    width: '100%',
-                    backgroundColor: '#607D8B',
-                    marginTop: 10,
-                    marginBottom: 10,
-                }}
-            />
-        );
+        return <View style={s.itemSeparator} />;
     }
 
     public renderContent() {
@@ -222,18 +212,18 @@ export class Component extends React.Component<ComponentProps, {}> {
         return (
             <View style={s.useragent}>
                 <View style={s.videoPanel}>
+                    <Voximplant.VideoView
+                        style={s.remoteVideo}
+                        videoStreamId={remoteVideoStreamId}
+                        scaleType={Voximplant.RenderScaleType.SCALE_FIT}
+                    />
                     {isVideoBeingSent ? (
                         <Voximplant.VideoView
-                            style={s.selfview}
+                            style={s.selfView}
                             videoStreamId={localVideoStreamId}
                             scaleType={Voximplant.RenderScaleType.SCALE_FIT}
                         />
                     ) : null}
-                    <Voximplant.VideoView
-                        style={s.remotevideo}
-                        videoStreamId={remoteVideoStreamId}
-                        scaleType={Voximplant.RenderScaleType.SCALE_FIT}
-                    />
                 </View>
 
                 <View
@@ -242,12 +232,11 @@ export class Component extends React.Component<ComponentProps, {}> {
                         justifyContent: 'center',
                     }}
                 >
-                    <Text style={s.call_connecting_label}>{callStatus}</Text>
+                    <Text style={s.callConnectingLabel}>{callStatus}</Text>
                 </View>
 
                 {isKeypadVisible ? <Keypad keyPressed={(value: any) => this.keypadPressed(value)} /> : null}
-
-                <View style={s.call_controls}>
+                <View style={s.callControls}>
                     <View
                         style={{
                             flexDirection: 'row',
@@ -256,30 +245,30 @@ export class Component extends React.Component<ComponentProps, {}> {
                         }}
                     >
                         <CallButton
-                            icon_name={isAudioMuted ? 'mic' : 'mic-off'}
+                            iconName={isAudioMuted ? 'mic' : 'mic-off'}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleAudioMute()}
                             disabled={!isConnected}
                         />
                         <CallButton
-                            icon_name="dialpad"
+                            iconName="dialpad"
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleKeypad()}
                             disabled={!isConnected}
                         />
                         <CallButton
-                            icon_name={audioDeviceIcon}
+                            iconName={audioDeviceIcon}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleAudioDeviceSelector()}
                             disabled={!isConnected}
                         />
                         <CallButton
-                            icon_name={isVideoBeingSent ? 'videocam-off' : 'video-call'}
+                            iconName={isVideoBeingSent ? 'videocam-off' : 'video-call'}
                             color={COLOR.ACCENT}
                             buttonPressed={() => this.toggleVideoSend()}
                             disabled={!isConnected}
                         />
-                        <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => this.endCall()} />
+                        <CallButton iconName="call-end" color={COLOR.RED} buttonPressed={() => this.endCall()} />
                     </View>
                 </View>
                 <Modal
