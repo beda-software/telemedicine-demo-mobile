@@ -93,7 +93,14 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public renderContent() {
-        const bundleResponseCursor = this.props.tree.contactListBundleResponse;
+        const { sessionResponseCursor, tree } = this.props;
+
+        // TODO: how to deal with it?
+        const sessionUsername = isSuccessCursor(sessionResponseCursor)
+            ? sessionResponseCursor.data.username.get()
+            : null;
+
+        const bundleResponseCursor = tree.contactListBundleResponse;
         if (isNotAskedCursor(bundleResponseCursor) || isLoadingCursor(bundleResponseCursor)) {
             return <Preloader isVisible={true} />;
         }
@@ -107,27 +114,33 @@ export class Component extends React.Component<ComponentProps, {}> {
                     data={contactList}
                     listKey="contact-list"
                     keyExtractor={(item) => item.resource!.id}
-                    renderItem={({ item }) => (
-                        <View
-                            style={{
-                                alignSelf: 'center',
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                paddingLeft: 10,
-                            }}
-                        >
-                            <View style={{ flex: 1 }}>
-                                <Text style={s.contactListItem}>{item.resource!.displayName}</Text>
+                    renderItem={({ item }) => {
+                        if (item.resource!.username === sessionUsername) {
+                            return null;
+                        }
+
+                        return (
+                            <View
+                                style={{
+                                    alignSelf: 'center',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    paddingLeft: 10,
+                                }}
+                            >
+                                <View style={{ flex: 1 }}>
+                                    <Text style={s.contactListItem}>{item.resource!.displayName}</Text>
+                                </View>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <CallButton
+                                        icon_name="call"
+                                        color={COLOR.ACCENT}
+                                        buttonPressed={() => this.makeOutgoingCall(item.resource!)}
+                                    />
+                                </View>
                             </View>
-                            <View style={{ flexDirection: 'row' }}>
-                                <CallButton
-                                    icon_name="call"
-                                    color={COLOR.ACCENT}
-                                    buttonPressed={() => this.makeOutgoingCall(item.resource!)}
-                                />
-                            </View>
-                        </View>
-                    )}
+                        );
+                    }}
                 />
             );
         }
