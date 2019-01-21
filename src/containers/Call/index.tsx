@@ -45,6 +45,7 @@ export interface Model {
     isAudioDeviceSelectorVisible: boolean;
     audioDeviceIcon: DeviceIcon;
     audioDeviceList: any[];
+    isPending: boolean;
 }
 
 export const initial: Model = {
@@ -57,6 +58,7 @@ export const initial: Model = {
     isAudioDeviceSelectorVisible: false,
     audioDeviceIcon: 'hearing',
     audioDeviceList: [],
+    isPending: false,
 };
 
 interface ComponentProps {
@@ -88,9 +90,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     constructor(props: ComponentProps) {
         super(props);
 
-        autoBind(this);
+        props.tree.set(initial);
 
-        this.props.tree.set(initial);
+        autoBind(this);
 
         const { callId, isIncoming } = this.props;
 
@@ -188,6 +190,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public endCall() {
+        this.props.tree.isPending.set(true);
         this.props.endCall();
     }
 
@@ -206,6 +209,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             audioDeviceIcon,
             isAudioDeviceSelectorVisible,
             audioDeviceList,
+            isPending,
         } = this.props.tree.get();
         const isConnected = callStatus === 'connected';
 
@@ -268,7 +272,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                             buttonPressed={() => this.toggleVideoSend()}
                             disabled={!isConnected}
                         />
-                        <CallButton iconName="call-end" color={COLOR.RED} buttonPressed={() => this.endCall()} />
+                        <CallButton
+                            iconName="call-end"
+                            color={COLOR.RED}
+                            disabled={isPending}
+                            buttonPressed={() => this.endCall()}
+                        />
                     </View>
                 </View>
                 <Modal

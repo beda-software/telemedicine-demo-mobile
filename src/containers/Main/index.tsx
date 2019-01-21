@@ -51,6 +51,9 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     constructor(props: ComponentProps) {
         super(props);
+
+        props.tree.set(initial);
+
         Navigation.events().bindComponent(this);
     }
 

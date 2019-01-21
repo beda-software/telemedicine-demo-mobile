@@ -13,7 +13,8 @@ interface ComponentProps {
 
 export class CallButton extends React.Component<ComponentProps> {
     public render() {
-        const { buttonPressed, disabled, iconName, color } = this.props;
+        const { buttonPressed, disabled, iconName, color: defaultColor } = this.props;
+        const color = disabled ? '#EEE' : defaultColor;
 
         return (
             <TouchableOpacity onPress={() => buttonPressed()} disabled={disabled}>

@@ -12,9 +12,13 @@ import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
-export interface Model {}
+export interface Model {
+    isPending: boolean;
+}
 
-export const initial: Model = {};
+export const initial: Model = {
+    isPending: false,
+};
 
 interface ComponentProps {
     componentId: string;
@@ -41,6 +45,8 @@ export class Component extends React.Component<ComponentProps, {}> {
     constructor(props: ComponentProps) {
         super(props);
 
+        props.tree.set(initial);
+
         autoBind(this);
 
         this.unsubscribe = CallService.subscribeToIncomingCallEvents(props.callId, {
@@ -62,17 +68,26 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async answerCall() {
+        this.props.tree.isPending.set(true);
+
         try {
             await CallService.requestPermissions(false);
         } catch (err) {
+            this.props.tree.isPending.set(false);
             return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
         }
 
         this.props.answerCall();
     }
 
+    public async declineCall() {
+        this.props.tree.isPending.set(true);
+        this.props.declineCall();
+    }
+
     public render() {
-        const { callerDisplayName, declineCall } = this.props;
+        const { callerDisplayName, tree } = this.props;
+        const isPending = tree.isPending.get();
 
         return (
             <SafeAreaView style={[s.safearea, s.alignCenter]}>
@@ -86,8 +101,18 @@ export class Component extends React.Component<ComponentProps, {}> {
                         height: 90,
                     }}
                 >
-                    <CallButton iconName="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall()} />
-                    <CallButton iconName="call-end" color={COLOR.RED} buttonPressed={() => declineCall()} />
+                    <CallButton
+                        iconName="call"
+                        color={COLOR.ACCENT}
+                        buttonPressed={() => this.answerCall()}
+                        disabled={isPending}
+                    />
+                    <CallButton
+                        iconName="call-end"
+                        color={COLOR.RED}
+                        buttonPressed={() => this.declineCall()}
+                        disabled={isPending}
+                    />
                 </View>
             </SafeAreaView>
         );

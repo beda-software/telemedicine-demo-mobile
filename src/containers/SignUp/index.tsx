@@ -62,6 +62,12 @@ export class Component extends React.Component<ComponentProps, {}> {
     private passwordRef = React.createRef<TextInput>();
     private passwordConfirmRef = React.createRef<TextInput>();
 
+    constructor(props: ComponentProps) {
+        super(props);
+
+        props.tree.set(initial);
+    }
+
     public async onSubmit(values: FormValues) {
         this.props.tree.isPending.set(true);
         try {

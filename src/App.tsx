@@ -186,12 +186,6 @@ function bootstrap() {
                     passProps,
                 },
             });
-            if (passProps.isIncoming) {
-                // On IOS we don't show incoming call screen, but it is easier to always close incoming modal
-                try {
-                    await Navigation.dismissModal('incomingCall');
-                } catch (err) {}
-            }
         },
     });
 }
