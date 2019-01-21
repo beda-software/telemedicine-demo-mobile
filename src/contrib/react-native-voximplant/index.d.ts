@@ -93,6 +93,7 @@ declare module 'react-native-voximplant' {
         EndpointEvents: EndpointEvents;
         ClientEvents: ClientEvents;
         ClientState: ClientState;
+        Endpoint: Endpoint;
         Call: Call;
         VideoView: React.ComponentClass<any, any>;
         RenderScaleType: RenderScaleType;

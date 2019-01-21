@@ -1,6 +1,3 @@
-// @ts-ignore
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import * as React from 'react';
 import { AppState } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
@@ -18,6 +15,7 @@ import { voxImplantReLogin } from 'src/services/login';
 import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
 import { getSession, saveSession, Session } from 'src/services/session';
 import { runInQueue } from 'src/utils/run-in-queue';
+import { withProps } from 'src/utils/with-props';
 
 const initial: Model = {
     sessionResponse: loading,
@@ -40,18 +38,6 @@ interface Model {
 }
 
 const rootTree = getTree(initial, {});
-
-function withProps<P>(Component: React.ComponentClass<P>, props: P) {
-    class Wrapper extends React.Component<P> {
-        public render() {
-            return <Component {...this.props} {...props} />;
-        }
-    }
-
-    hoistNonReactStatics(Wrapper, Component);
-
-    return Wrapper;
-}
 
 Navigation.registerComponent('td.Login', () =>
     withProps(Login.Component, { tree: rootTree.login, sessionResponseCursor: rootTree.sessionResponse, init })

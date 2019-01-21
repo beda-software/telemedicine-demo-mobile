@@ -23,7 +23,7 @@ interface ComponentProps {
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     callId: string;
     answerCall: () => void;
-    endCall: () => void;
+    declineCall: () => void;
 }
 
 @schema({ tree: {} })
@@ -72,7 +72,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public render() {
-        const { callerDisplayName, endCall } = this.props;
+        const { callerDisplayName, declineCall } = this.props;
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -87,7 +87,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                     }}
                 >
                     <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall()} />
-                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => endCall()} />
+                    <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => declineCall()} />
                 </View>
             </SafeAreaView>
         );
