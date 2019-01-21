@@ -75,7 +75,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         const { callerDisplayName, declineCall } = this.props;
 
         return (
-            <SafeAreaView style={s.safearea}>
+            <SafeAreaView style={[s.safearea, s.alignCenter]}>
                 <StatusBar backgroundColor={COLOR.PRIMARY_DARK} />
                 <Text style={s.incomingCall}>Incoming call from:</Text>
                 <Text style={s.incomingCall}>{callerDisplayName}</Text>

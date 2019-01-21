@@ -4,6 +4,7 @@ import * as uuid from 'uuid';
 
 interface IncomingCall {
     callId: string;
+    callerDisplayName: string;
     answerCall: () => void;
     declineCall: () => void;
 }
@@ -30,14 +31,20 @@ export class CallKitService {
         RNCallKit.addEventListener('didPerformSetMutedCallAction', this.onRNCallKitDidPerformSetMutedCallAction);
     }
 
-    public showIncomingCall(displayName: string, callId: string, answerCall: () => void, declineCall: () => void) {
+    public showIncomingCall(
+        callId: string,
+        callerDisplayName: string,
+        answerCall: () => void,
+        declineCall: () => void
+    ) {
         this.callKitUuid = uuid.v4();
         this.incomingCall = {
             callId,
+            callerDisplayName,
             answerCall,
             declineCall,
         };
-        RNCallKit.displayIncomingCall(this.callKitUuid, displayName, 'number', false);
+        RNCallKit.displayIncomingCall(this.callKitUuid, callerDisplayName, 'number', false);
     }
 
     public startOutgoingCall(displayName: string, callId: string) {

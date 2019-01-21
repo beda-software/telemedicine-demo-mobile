@@ -6,6 +6,7 @@ import { CallKitService } from './callkit';
 
 interface ShowIncomingCallScreenProps {
     callId: string;
+    callerDisplayName: string;
     answerCall: () => void;
     declineCall: () => void;
 }
@@ -230,13 +231,14 @@ export class CallService {
         this.callKitService = new CallKitService();
     }
 
-    public showIncomingCallScreen(callId: string) {
+    public showIncomingCallScreen(callId: string, callerDisplayName: string) {
         if (!this.passedShowIncomingCallScreen) {
             return;
         }
 
         this.passedShowIncomingCallScreen({
             callId,
+            callerDisplayName,
             answerCall: this.answerIncomingCall.bind(this),
             declineCall: this.declineCall.bind(this),
         });
@@ -355,10 +357,12 @@ export class CallService {
     }
 
     public showIncomingCallScreenOrNotification(event: any) {
+        const callerDisplayName = event.call.getEndpoints()[0].displayName;
+
         if (Platform.OS === 'ios') {
             this.callKitService.showIncomingCall(
-                event.call.getEndpoints()[0].displayName,
                 event.call.callId,
+                callerDisplayName,
                 this.answerIncomingCall.bind(this),
                 this.declineCall.bind(this)
             );
@@ -367,7 +371,7 @@ export class CallService {
                 this.needToShowIncomingCallScreen = true;
                 NativeModules.ActivityLauncher.openMainActivity();
             } else {
-                this.showIncomingCallScreen(event.call.callId);
+                this.showIncomingCallScreen(event.call.callId, callerDisplayName);
             }
         }
     }
@@ -410,7 +414,7 @@ export class CallService {
         console.log(`CallManager: _handleAppStateChange: Current app state changed to ${newState}`);
         if (newState === 'active' && this.needToShowIncomingCallScreen && this.call !== null) {
             this.needToShowIncomingCallScreen = false;
-            await this.showIncomingCallScreen(this.call.callId);
+            await this.showIncomingCallScreen(this.call.callId, this.call.getEndpoints()[0].displayName);
         }
     };
 }

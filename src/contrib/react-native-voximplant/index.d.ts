@@ -21,6 +21,7 @@ declare module 'react-native-voximplant' {
     interface Endpoint {
         on: (eventName: string, callback: (event: Event) => void) => void;
         off: (eventName: string, callback: (event: Event) => void) => void;
+        displayName: string;
     }
 
     interface Event {}

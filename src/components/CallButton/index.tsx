@@ -18,7 +18,7 @@ export class CallButton extends React.Component<ComponentProps> {
         return (
             <TouchableOpacity onPress={() => buttonPressed()} disabled={disabled}>
                 <View style={[s.icon, { borderColor: color }]}>
-                    <Icon name={iconName} color={color} size={20} backgroundColor="transparent" />
+                    <Icon name={iconName} color={color} size={20} />
                 </View>
             </TouchableOpacity>
         );

@@ -12,4 +12,7 @@ export default StyleSheet.create({
         alignSelf: 'center',
         fontSize: 22,
     },
+    alignCenter: {
+        justifyContent: 'center',
+    },
 });
