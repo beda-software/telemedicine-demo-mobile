@@ -162,15 +162,14 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async toggleVideoSend() {
+        try {
+            await CallService.requestPermissions(true);
+        } catch (err) {
+            return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
+        }
+
         this.props.tree.isVideoBeingSent.apply((x) => !x);
         const isVideoBeingSent = this.props.tree.isVideoBeingSent.get();
-        if (isVideoBeingSent) {
-            try {
-                await CallService.requestPermissions(true);
-            } catch (err) {
-                return Navigation.showModal({ component: { name: 'td.Modal', passProps: { text: err } } });
-            }
-        }
         await this.props.sendVideo(isVideoBeingSent);
     }
 

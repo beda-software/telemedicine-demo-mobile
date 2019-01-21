@@ -83,6 +83,12 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async makeOutgoingCall(user: User) {
+        try {
+            await CallService.requestPermissions(false);
+        } catch (err) {
+            return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
+        }
+
         await CallService.startOutgoingCall(user.username, user.displayName);
     }
 

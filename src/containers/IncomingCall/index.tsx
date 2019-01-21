@@ -61,8 +61,18 @@ export class Component extends React.Component<ComponentProps, {}> {
         await Navigation.dismissModal(this.props.componentId);
     }
 
+    public async answerCall() {
+        try {
+            await CallService.requestPermissions(false);
+        } catch (err) {
+            return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
+        }
+
+        this.props.answerCall();
+    }
+
     public render() {
-        const { callerDisplayName, answerCall, endCall } = this.props;
+        const { callerDisplayName, endCall } = this.props;
 
         return (
             <SafeAreaView style={s.safearea}>
@@ -76,7 +86,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                         height: 90,
                     }}
                 >
-                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => answerCall()} />
+                    <CallButton icon_name="call" color={COLOR.ACCENT} buttonPressed={() => this.answerCall()} />
                     <CallButton icon_name="call-end" color={COLOR.RED} buttonPressed={() => endCall()} />
                 </View>
             </SafeAreaView>
