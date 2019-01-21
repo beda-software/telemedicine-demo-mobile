@@ -1,70 +1,71 @@
 {
-	"name": "TelemedicineDemo",
-	"version": "0.0.1",
-	"private": true,
-	"scripts": {
-		"start": "node node_modules/react-native/local-cli/cli.js start",
-		"test": "jest",
-		"android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug",
-		"precommit": "lint-staged"
-	},
-	"lint-staged": {
-		"src/**/*.{js,jsx,ts,tsx,json,css}": [
-			"prettier --write",
-			"git add"
-		]
-	},
-	"dependencies": {
-		"@types/ajv": "^1.0.0",
-		"@types/lodash": "^4.14.119",
-		"@types/uuid": "^3.4.4",
-		"ajv": "^6.5.4",
-		"baobab": "^2.5.2",
-		"final-form": "^4.11.0",
-		"hawk": "^7.0.7",
-		"husky": "^1.3.1",
-		"jsc-android": "236355.1.1",
-		"lint-staged": "^8.1.0",
-		"lodash": "^4.17.11",
-		"prettier": "^1.15.3",
-		"react": "16.6.0-alpha.8af6728",
-		"react-autobind": "^1.0.6",
-		"react-final-form": "^4.0.2",
-		"react-native": "^0.57.3",
-		"react-native-callkit": "1.3.4",
-		"react-native-firebase": "^5.2.0",
-		"react-native-md5": "1.0.0",
-		"react-native-navigation": "^2.5.1",
-		"react-native-notifications": "1.1.20",
-		"react-native-vector-icons": "^4.6.0",
-		"react-native-voximplant": "1.4.0",
-		"tslib": "^1.9.3",
-		"uuid": "^3.3.2"
-	},
-	"devDependencies": {
-		"@types/react": "^16.7.18",
-		"@types/react-native": "^0.57.26",
-		"babel-eslint": "^8.2.2",
-		"babel-jest": "23.0.0-alpha.0",
-		"babel-preset-react-native": "5.0.0",
-		"eslint": "^4.19.1",
-		"eslint-config-airbnb": "^17.1.0",
-		"eslint-config-standard": "^11.0.0",
-		"eslint-plugin-import": "^2.9.0",
-		"eslint-plugin-jsx-a11y": "^6.1.1",
-		"eslint-plugin-node": "^6.0.1",
-		"eslint-plugin-promise": "^3.7.0",
-		"eslint-plugin-react": "^7.7.0",
-		"eslint-plugin-standard": "^3.0.1",
-		"jest": "22.4.2",
-		"metro-react-native-babel-preset": "^0.49.0",
-		"react-native-typescript-transformer": "^1.2.11",
-		"react-test-renderer": "16.6.0-alpha.8af6728",
-		"tslint": "^5.12.0",
-		"tslint-config-prettier": "^1.17.0",
-		"typescript": "^3.2.2"
-	},
-	"jest": {
-		"preset": "react-native"
-	}
+    "name": "TelemedicineDemo",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node node_modules/react-native/local-cli/cli.js start",
+        "test": "jest",
+        "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug",
+        "precommit": "lint-staged"
+    },
+    "lint-staged": {
+        "src/**/*.{js,jsx,ts,tsx,json,css}": [
+            "prettier --write",
+            "git add"
+        ]
+    },
+    "dependencies": {
+        "ajv": "^6.5.4",
+        "baobab": "^2.5.2",
+        "final-form": "^4.11.0",
+        "hawk": "^7.0.7",
+        "husky": "^1.3.1",
+        "jsc-android": "236355.1.1",
+        "lint-staged": "^8.1.0",
+        "lodash": "^4.17.11",
+        "prettier": "^1.15.3",
+        "react": "16.6.0-alpha.8af6728",
+        "react-autobind": "^1.0.6",
+        "react-final-form": "^4.0.2",
+        "react-native": "^0.57.3",
+        "react-native-callkit": "1.3.4",
+        "react-native-firebase": "^5.2.0",
+        "react-native-md5": "1.0.0",
+        "react-native-navigation": "^2.5.1",
+        "react-native-notifications": "1.1.20",
+        "react-native-vector-icons": "^6.2.0",
+        "react-native-voximplant": "1.4.0",
+        "tslib": "^1.9.3",
+        "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "@types/ajv": "^1.0.0",
+        "@types/lodash": "^4.14.119",
+        "@types/react-native-vector-icons": "^4.6.4",
+        "@types/react": "^16.7.18",
+        "@types/react-native": "^0.57.26",
+        "@types/uuid": "^3.4.4",
+        "babel-eslint": "^8.2.2",
+        "babel-jest": "23.0.0-alpha.0",
+        "babel-preset-react-native": "5.0.0",
+        "eslint": "^4.19.1",
+        "eslint-config-airbnb": "^17.1.0",
+        "eslint-config-standard": "^11.0.0",
+        "eslint-plugin-import": "^2.9.0",
+        "eslint-plugin-jsx-a11y": "^6.1.1",
+        "eslint-plugin-node": "^6.0.1",
+        "eslint-plugin-promise": "^3.7.0",
+        "eslint-plugin-react": "^7.7.0",
+        "eslint-plugin-standard": "^3.0.1",
+        "jest": "22.4.2",
+        "metro-react-native-babel-preset": "^0.49.0",
+        "react-native-typescript-transformer": "^1.2.11",
+        "react-test-renderer": "16.6.0-alpha.8af6728",
+        "tslint": "^5.12.0",
+        "tslint-config-prettier": "^1.17.0",
+        "typescript": "^3.2.2"
+    },
+    "jest": {
+        "preset": "react-native"
+    }
 }

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-// @ts-ignore
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import s from './style';
