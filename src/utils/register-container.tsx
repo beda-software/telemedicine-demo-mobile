@@ -24,7 +24,7 @@ function withSession<P>(
     Component: React.ComponentType<P & { session: Session }>,
     sessionResponseCursor: Cursor<RemoteData<Session>>
 ) {
-    class Wrapper extends React.Component<P & { session: Session }> {
+    class Wrapper extends React.Component<P> {
         public render() {
             const sessionResponse = sessionResponseCursor.get();
 
@@ -58,7 +58,7 @@ export function registerSessionAwareContainer<P>(
     name: string,
     component: React.ComponentType<P & { session: Session }>,
     sessionResponseCursor: Cursor<RemoteData<Session>>,
-    passProps: Partial<P> = {}
+    passProps: Partial<P & { session: Session }> = {}
 ) {
-    Navigation.registerComponent(name, () => withProps(withSession(component, sessionResponseCursor), passProps));
+    Navigation.registerComponent(name, () => withSession(withProps(component, passProps), sessionResponseCursor));
 }
