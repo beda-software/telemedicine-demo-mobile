@@ -16,7 +16,6 @@ import { Voximplant } from 'react-native-voximplant';
 import { CallButton } from 'src/components/CallButton';
 import { Keypad } from 'src/components/Keypad';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { CallService } from 'src/services/call';
 import { Session } from 'src/services/session';
@@ -64,7 +63,7 @@ export const initial: Model = {
 interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
-    sessionResponseCursor: Cursor<RemoteData<Session>>;
+    session: Session;
     isIncoming: boolean;
     callId: string;
     setAudioDevice: (device: string) => void;

@@ -14,8 +14,8 @@ import { CallService } from 'src/services/call';
 import { voxImplantReLogin } from 'src/services/login';
 import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
 import { getSession, saveSession, Session } from 'src/services/session';
+import { registerContainer, registerSessionAwareContainer } from 'src/utils/register-container';
 import { runInQueue } from 'src/utils/run-in-queue';
-import { withProps } from 'src/utils/with-props';
 
 const initial: Model = {
     sessionResponse: loading,
@@ -39,22 +39,26 @@ interface Model {
 
 const rootTree = getTree(initial, {});
 
-Navigation.registerComponent('td.Login', () =>
-    withProps(Login.Component, { tree: rootTree.login, sessionResponseCursor: rootTree.sessionResponse, init })
-);
-Navigation.registerComponent('td.SignUp', () =>
-    withProps(SignUp.Component, { tree: rootTree.signUp, sessionResponseCursor: rootTree.sessionResponse })
-);
-Navigation.registerComponent('td.Main', () =>
-    withProps(Main.Component, { tree: rootTree.main, sessionResponseCursor: rootTree.sessionResponse, deinit })
-);
-Navigation.registerComponent('td.Call', () =>
-    withProps(Call.Component, { tree: rootTree.call, sessionResponseCursor: rootTree.sessionResponse })
-);
-Navigation.registerComponent('td.IncomingCall', () =>
-    withProps(IncomingCall.Component, { tree: rootTree.incomingCall, sessionResponseCursor: rootTree.sessionResponse })
-);
-Navigation.registerComponent('td.Modal', () => Modal.Component);
+registerContainer('td.Modal', Modal.Component);
+registerContainer('td.Login', Login.Component, {
+    tree: rootTree.login,
+    sessionResponseCursor: rootTree.sessionResponse,
+    init,
+});
+registerContainer('td.SignUp', SignUp.Component, {
+    tree: rootTree.signUp,
+});
+registerSessionAwareContainer('td.Main', Main.Component, rootTree.sessionResponse, {
+    tree: rootTree.main,
+    sessionResponseCursor: rootTree.sessionResponse,
+    deinit,
+});
+registerSessionAwareContainer('td.Call', Call.Component, rootTree.sessionResponse, {
+    tree: rootTree.call,
+});
+registerSessionAwareContainer('td.IncomingCall', IncomingCall.Component, rootTree.sessionResponse, {
+    tree: rootTree.incomingCall,
+});
 
 async function init() {
     const client = Voximplant.getInstance();

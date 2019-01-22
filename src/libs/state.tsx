@@ -1,6 +1,7 @@
-import * as React from 'react';
-import * as _ from 'lodash';
+// @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
+import * as _ from 'lodash';
+import * as React from 'react';
 import { Cursor } from '../contrib/my-baobab';
 
 function initCursor(cursor: Cursor, modelSchema: any): void {

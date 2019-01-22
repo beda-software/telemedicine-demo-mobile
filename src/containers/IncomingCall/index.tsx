@@ -5,7 +5,6 @@ import { Navigation } from 'react-native-navigation';
 
 import { CallButton } from 'src/components/CallButton';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { CallService } from 'src/services/call';
 import { Session } from 'src/services/session';
@@ -22,9 +21,9 @@ export const initial: Model = {
 
 interface ComponentProps {
     componentId: string;
+    session: Session;
     callerDisplayName: string;
     tree: Cursor<Model>;
-    sessionResponseCursor: Cursor<RemoteData<Session>>;
     callId: string;
     answerCall: () => Promise<void>;
     declineCall: () => Promise<void>;

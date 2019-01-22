@@ -26,6 +26,7 @@ export const initial: Model = {
 
 interface ComponentProps {
     tree: Cursor<Model>;
+    session: Session;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
     deinit: () => void;
 }
@@ -83,17 +84,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async fetchContacts() {
-        const { sessionResponseCursor } = this.props;
+        const { session } = this.props;
 
-        // TODO: how to deal with it?
-        if (isSuccessCursor(sessionResponseCursor)) {
-            await getFHIRResources(
-                this.props.tree.contactListBundleResponse,
-                'User',
-                {},
-                sessionResponseCursor.data.get().token
-            );
-        }
+        await getFHIRResources(this.props.tree.contactListBundleResponse, 'User', {}, session.token);
     }
 
     public async makeOutgoingCall(user: User) {
@@ -112,13 +105,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public renderContent() {
-        const { sessionResponseCursor, tree } = this.props;
+        const { tree, session } = this.props;
 
-        // TODO: how to deal with it?
-        const sessionUsername = isSuccessCursor(sessionResponseCursor)
-            ? sessionResponseCursor.data.username.get()
-            : null;
-
+        const sessionUsername = session.username;
         const bundleResponseCursor = tree.contactListBundleResponse;
         if (isNotAskedCursor(bundleResponseCursor) || isLoadingCursor(bundleResponseCursor)) {
             return <Preloader isVisible={true} />;

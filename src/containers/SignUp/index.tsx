@@ -20,7 +20,6 @@ import { User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import { Session } from 'src/services/session';
 import { signUp } from 'src/services/sign-up';
 import COLOR from 'src/styles/Color';
 import s from './style';
@@ -45,7 +44,6 @@ export const initial: Model = {
 
 interface ComponentProps {
     tree: Cursor<Model>;
-    sessionResponseCursor: Cursor<RemoteData<Session>>;
 }
 
 @schema({ tree: {} })
