@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
+import * as R from 'ramda';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { RemoteData, loading, success, failure, RemoteDataResult } from 'src/libs/schema';
+import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
 import { baseUrl } from './constants';
 
 interface ServiceConfig {
@@ -20,7 +20,7 @@ function buildQueryParams(params: object) {
 }
 
 export async function request<S = any>(config: ServiceConfig): Promise<S> {
-    const { method, path, headers, params, body, hydrate = JSON.stringify, dehydrate = _.identity } = config;
+    const { method, path, headers, params, body, hydrate = JSON.stringify, dehydrate = R.identity } = config;
 
     const resultingHeaders = {
         'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export async function request<S = any>(config: ServiceConfig): Promise<S> {
     };
 
     const payload = {
-        body: _.includes(['POST', 'PUT', 'PATCH'], method) ? hydrate(body) : undefined,
+        body: R.includes(method, ['POST', 'PUT', 'PATCH']) ? hydrate(body) : undefined,
         method,
         headers: resultingHeaders,
     };

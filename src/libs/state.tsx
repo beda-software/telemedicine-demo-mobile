@@ -1,36 +1,43 @@
 // @ts-ignore
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import * as _ from 'lodash';
+import * as R from 'ramda';
+import * as RA from 'ramda-adjunct';
 import * as React from 'react';
 import { Cursor } from '../contrib/my-baobab';
 
 function initCursor(cursor: Cursor, modelSchema: any): void {
-    if (_.isFunction(modelSchema)) {
+    if (RA.isFunction(modelSchema)) {
         if (!cursor.exists()) {
             modelSchema(cursor);
         }
-    } else if (_.isPlainObject(modelSchema) && !_.isArray(modelSchema)) {
-        _.each(modelSchema, (childSchema, path) => {
+    } else if (RA.isPlainObject(modelSchema) && !RA.isArray(modelSchema)) {
+        R.forEachObjIndexed((childSchema, path: string) => {
             initCursor(cursor.select(path), childSchema);
-        });
+        }, modelSchema);
     } else if (!cursor.exists()) {
         cursor.set(modelSchema);
     }
 }
 
 export function arePropsEqual(oldProps: any, newProps: any) {
-    const oldKeys = _.keys(oldProps);
-    const newKeys = _.keys(newProps);
+    const oldKeys = R.keys(oldProps);
+    const newKeys = R.keys(newProps);
     if (oldKeys.length !== newKeys.length) {
         return false;
     }
 
-    return !_.some(oldProps, (oldProp, key) => {
-        if (oldProp instanceof Cursor) {
-            return oldProp.path !== newProps[key].path;
-        }
-        return !_.isEqual(oldProp, newProps[key]);
-    });
+    return !R.any(
+        RA.isTrue,
+        R.values(
+            R.mapObjIndexed((oldProp, key: string) => {
+                if (oldProp instanceof Cursor) {
+                    return oldProp.path !== newProps[key].path;
+                }
+
+                return !R.equals(oldProp, newProps[key]);
+            }, oldProps)
+        )
+    );
 }
 
 export function schema<P>(model: any) {
@@ -46,11 +53,14 @@ export function schema<P>(model: any) {
 
             this.onUpdate = this.onUpdate.bind(this);
 
-            _.each(props.passProps as any, (prop, propName) => {
-                if (prop instanceof Cursor) {
-                    this.handleNewCursor(prop, propName);
-                }
-            });
+            R.forEachObjIndexed(
+                (prop, propName: string) => {
+                    if (prop instanceof Cursor) {
+                        this.handleNewCursor(prop, propName);
+                    }
+                },
+                props.passProps as any
+            );
         }
 
         public handleNewCursor(cursor: Cursor, cursorName: string) {
@@ -63,11 +73,14 @@ export function schema<P>(model: any) {
         }
 
         public componentWillUnmount() {
-            _.each(this.props.passProps as any, (cursor) => {
-                if (cursor instanceof Cursor) {
-                    cursor.off('update', this.onUpdate);
-                }
-            });
+            R.forEachObjIndexed(
+                (prop) => {
+                    if (prop instanceof Cursor) {
+                        prop.off('update', this.onUpdate);
+                    }
+                },
+                this.props.passProps as any
+            );
         }
 
         public shouldComponentUpdate(nextProps: WrapperProps) {
@@ -75,16 +88,19 @@ export function schema<P>(model: any) {
         }
 
         public componentWillReceiveProps(props: WrapperProps) {
-            _.each(props.passProps as any, (prop, propName) => {
-                if (prop instanceof Cursor) {
-                    const oldProp = this.props.passProps[propName];
-                    if (oldProp.path !== prop.path) {
-                        oldProp.off('update', this.onUpdate);
-                        this.handleNewCursor(prop, propName);
-                        console.error("Cursor path's was changed. This should never happen!!!");
+            R.forEachObjIndexed(
+                (prop, propName: string) => {
+                    if (prop instanceof Cursor) {
+                        const oldProp = this.props.passProps[propName];
+                        if (oldProp.path !== prop.path) {
+                            oldProp.off('update', this.onUpdate);
+                            this.handleNewCursor(prop, propName);
+                            console.error("Cursor path's was changed. This should never happen!!!");
+                        }
                     }
-                }
-            });
+                },
+                props.passProps as any
+            );
         }
 
         public onUpdate() {
