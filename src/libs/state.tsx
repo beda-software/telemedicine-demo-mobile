@@ -18,7 +18,7 @@ function initCursor(cursor: Cursor, modelSchema: any): void {
     }
 }
 
-function arePropsEqual(oldProps: any, newProps: any) {
+export function arePropsEqual(oldProps: any, newProps: any) {
     const oldKeys = _.keys(oldProps);
     const newKeys = _.keys(newProps);
     if (oldKeys.length !== newKeys.length) {

@@ -67,3 +67,5 @@ android/app/google-services.json
 
 # Vim
 *.swp
+
+.jest

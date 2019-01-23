@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "module": "esnext",
-        "target": "es5",
+        "module": "commonjs",
+        "target": "es6",
         "noEmit": true,
         "lib": ["es6", "dom"],
         "sourceMap": true,
@@ -17,6 +17,7 @@
         "suppressImplicitAnyIndexErrors": true,
         "noUnusedLocals": true,
         "experimentalDecorators": true,
+        "esModuleInterop": true,
         "baseUrl": ".",
         "paths": {
             "*": ["*", "*.ios", "*.android"],
