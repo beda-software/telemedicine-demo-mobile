@@ -12,7 +12,7 @@ import { schema } from 'src/libs/state';
 import { CallService } from 'src/services/call';
 import { createConversation } from 'src/services/chat';
 import { getFHIRResources } from 'src/services/fhir';
-import { clearSession, Session } from 'src/services/session';
+import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
@@ -34,8 +34,6 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     session: Session;
-    sessionResponseCursor: Cursor<RemoteData<Session>>;
-    deinit: () => void;
 }
 
 @schema({ tree: {} })
@@ -44,15 +42,13 @@ export class Component extends React.Component<ComponentProps, {}> {
         return {
             topBar: {
                 title: {
-                    text: 'Telemedicine Demo',
+                    text: 'Contacts',
                 },
-                leftButtons: [],
-                rightButtons: [
-                    {
-                        id: 'logout',
-                        text: 'Logout',
-                    },
-                ],
+            },
+            sideMenu: {
+                left: {
+                    enabled: true,
+                },
             },
         };
     }
@@ -67,27 +63,6 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public async componentDidMount() {
         await this.fetchContacts();
-    }
-
-    public async navigationButtonPressed({ buttonId }: any) {
-        if (this.props.tree.isPending.get()) {
-            return;
-        }
-
-        if (buttonId === 'logout') {
-            await this.logout();
-        }
-    }
-
-    public async logout() {
-        this.props.tree.isPending.set(true);
-        try {
-            await clearSession(this.props.sessionResponseCursor);
-            await this.props.deinit();
-            await Navigation.setStackRoot('root', { component: { name: 'td.Login' } });
-        } finally {
-            this.props.tree.isPending.set(false);
-        }
     }
 
     public async fetchContacts() {

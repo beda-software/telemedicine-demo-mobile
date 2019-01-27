@@ -130,7 +130,7 @@ export async function createConversation(cursor: Cursor<RemoteData<Conversation>
                 }),
                 participantsUsernames
             ),
-            'test name',
+            undefined,
             true
         );
 

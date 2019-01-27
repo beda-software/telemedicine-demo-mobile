@@ -57,6 +57,11 @@ export class Component extends React.Component<ComponentProps, {}> {
             topBar: {
                 visible: false,
             },
+            sideMenu: {
+                left: {
+                    enabled: false,
+                },
+            },
         };
     }
 

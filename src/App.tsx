@@ -10,6 +10,7 @@ import * as IncomingCall from 'src/containers/IncomingCall';
 import * as Login from 'src/containers/Login';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
+import * as LeftMenu from 'src/containers/LeftMenu';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
 import { CallService } from 'src/services/call';
@@ -30,6 +31,7 @@ const initial: Model = {
     chat: Chat.initial,
     call: Call.initial,
     incomingCall: IncomingCall.initial,
+    leftMenu: LeftMenu.initial,
 };
 
 interface Model {
@@ -42,6 +44,7 @@ interface Model {
     chat: Chat.Model;
     call: Call.Model;
     incomingCall: IncomingCall.Model;
+    leftMenu: LeftMenu.Model;
 }
 
 const rootTree = getTree(initial, {});
@@ -55,15 +58,16 @@ registerContainer('td.Login', Login.Component, {
 registerContainer('td.SignUp', SignUp.Component, {
     tree: rootTree.signUp,
 });
-registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
-    tree: rootTree.contactList,
+registerContainer('td.LeftMenu', LeftMenu.Component, {
+    tree: rootTree.leftMenu,
     sessionResponseCursor: rootTree.sessionResponse,
     deinit,
 });
+registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
+    tree: rootTree.contactList,
+});
 registerSessionAwareContainer('td.ChatList', ChatList.Component, rootTree.sessionResponse, {
     tree: rootTree.chatList,
-    sessionResponseCursor: rootTree.sessionResponse,
-    deinit,
 });
 registerSessionAwareContainer('td.Chat', Chat.Component, rootTree.sessionResponse, {
     tree: rootTree.chat,
@@ -142,30 +146,48 @@ function bootstrap() {
         if (await restoreSession()) {
             await Navigation.setRoot({
                 root: {
-                    stack: {
-                        id: 'root',
-                        children: [
-                            {
-                                component: {
-                                    name: 'td.ChatList',
-                                },
+                    sideMenu: {
+                        left: {
+                            component: {
+                                name: 'td.LeftMenu',
                             },
-                        ],
+                        },
+                        center: {
+                            stack: {
+                                id: 'root',
+                                children: [
+                                    {
+                                        component: {
+                                            name: 'td.ContactList',
+                                        },
+                                    },
+                                ],
+                            },
+                        },
                     },
                 },
             });
         } else {
             await Navigation.setRoot({
                 root: {
-                    stack: {
-                        id: 'root',
-                        children: [
-                            {
-                                component: {
-                                    name: 'td.Login',
-                                },
+                    sideMenu: {
+                        left: {
+                            component: {
+                                name: 'td.LeftMenu',
                             },
-                        ],
+                        },
+                        center: {
+                            stack: {
+                                id: 'root',
+                                children: [
+                                    {
+                                        component: {
+                                            name: 'td.Login',
+                                        },
+                                    },
+                                ],
+                            },
+                        },
                     },
                 },
             });
