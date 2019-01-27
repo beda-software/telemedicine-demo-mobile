@@ -1,10 +1,13 @@
 declare module 'react-native-voximplant' {
     import * as React from 'react';
 
-    interface Instance {
+    interface Subscribable<T> {
+        on: (eventName: string, callback: (event: T) => void) => void;
+        off: (eventName: string, callback: (event: T) => void) => void;
+    }
+
+    interface Instance extends Subscribable<Event> {
         getCallById: (id: string) => Call;
-        on: (eventName: string, callback: (event: Event) => void) => void;
-        off: (eventName: string, callback: (event: Event) => void) => void;
         handlePushNotification: (notification: any) => void;
         registerPushNotificationsToken: (token: string) => void;
         unregisterPushNotificationsToken: (token: string) => void;
@@ -18,15 +21,13 @@ declare module 'react-native-voximplant' {
         requestOneTimeLoginKey: (fullUserName: string) => { oneTimeKey: string };
     }
 
-    interface Endpoint {
-        on: (eventName: string, callback: (event: Event) => void) => void;
-        off: (eventName: string, callback: (event: Event) => void) => void;
+    interface Endpoint extends Subscribable<Event> {
         displayName: string;
     }
 
     interface Event {}
 
-    interface Call {
+    interface Call extends Subscribable<Event> {
         callId: string;
         decline: () => void;
         hangup: () => void;
@@ -35,13 +36,9 @@ declare module 'react-native-voximplant' {
         sendAudio: (send: boolean) => void;
         sendVideo: (send: boolean) => void;
         getEndpoints: () => Endpoint[];
-        on: (eventName: string, callback: (event: Event) => void) => void;
-        off: (eventName: string, callback: (event: Event) => void) => void;
     }
 
-    interface AudioDeviceManager {
-        on: (eventName: string, callback: (event: Event) => void) => void;
-        off: (eventName: string, callback: (event: Event) => void) => void;
+    interface AudioDeviceManager extends Subscribable<Event> {
         selectAudioDevice: (device: string) => void;
         getAudioDevices: () => string[];
         callKitStartAudio: () => void;
@@ -74,6 +71,10 @@ declare module 'react-native-voximplant' {
         [x: string]: string;
     }
 
+    interface MessengerEventTypes {
+        [x: string]: string;
+    }
+
     interface CallEvents {
         [x: string]: string;
     }
@@ -86,9 +87,64 @@ declare module 'react-native-voximplant' {
         [x: string]: string;
     }
 
+    interface MessagingUser {
+        conversationsList: string[];
+        userId: string;
+    }
+
+    interface MessagingParticipant {
+        canManageParticipants: boolean;
+        canWrite: boolean;
+        userId: string;
+    }
+
+    interface MessagingConversation {
+        uuid: string;
+
+        createdAt: number;
+        customData: object;
+        distinct: boolean;
+        isUber: boolean;
+        lastRead: number;
+        lastSeq: number;
+        lastUpdate: number;
+        participants: MessagingParticipant[];
+        publicJoin: boolean;
+        title: string;
+    }
+
+    interface MessagingMessage {
+        conversation: string;
+        payload: any[];
+        sender: string;
+        sequence: number;
+        text: string;
+        uuid: string;
+    }
+
+    interface Messaging extends Subscribable<any> {
+        getUser: (uuid: string) => void;
+        getUsers: (uuids: string[]) => void;
+        createConversation: (
+            participants: MessagingParticipant[],
+            title?: string,
+            distinct?: boolean,
+            enablePublicJoin?: boolean,
+            customData?: any,
+            moderators?: string[]
+        ) => void;
+        getConversation: (uuid: string) => void;
+        getConversations: (uuids: string[]) => void;
+        User: MessagingUser;
+        Conversation: MessagingConversation;
+        Message: MessagingMessage;
+        MessengerEventTypes: MessengerEventTypes;
+    }
+
     interface Voximplant {
         Instance: Instance;
         getInstance: () => Instance;
+        getMessenger: () => Messaging;
         Hardware: Hardware;
         CallEvents: CallEvents;
         EndpointEvents: EndpointEvents;
@@ -96,9 +152,11 @@ declare module 'react-native-voximplant' {
         ClientState: ClientState;
         Endpoint: Endpoint;
         Call: Call;
+        Event: Event;
         VideoView: React.ComponentClass<any, any>;
         RenderScaleType: RenderScaleType;
         LoginTokens: LoginTokens;
+        Messaging: Messaging;
     }
 
     export const Voximplant: Voximplant;

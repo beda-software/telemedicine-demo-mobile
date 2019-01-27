@@ -87,7 +87,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                     };
                     await saveSession(this.props.sessionResponseCursor, session);
                     await this.props.init();
-                    await Navigation.setStackRoot('root', { component: { name: 'td.Main' } });
+                    await Navigation.setStackRoot('root', { component: { name: 'td.ContactList' } });
                 } else {
                     await Navigation.showOverlay({
                         component: {

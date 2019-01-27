@@ -1,3 +1,4 @@
 // TODO: get from env
 export const baseUrl = 'http://telemedicine-demo.beda.software';
-export const appDomain = 'voice-chat.beda-software.voximplant.com';
+export const appName = 'voice-chat.beda-software';
+export const appDomain = `${appName}.voximplant.com`;

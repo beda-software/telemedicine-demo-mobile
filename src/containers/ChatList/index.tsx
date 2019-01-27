@@ -1,30 +1,36 @@
+import * as R from 'ramda';
 import * as React from 'react';
 import { FlatList, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
+import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
 import { Preloader } from 'src/components/Preloader';
-import { Bundle, BundleEntry, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isNotAskedCursor, isSuccessCursor, notAsked, RemoteData } from 'src/libs/schema';
+import { isLoading, isNotAsked, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
-import { CallService } from 'src/services/call';
-import { getFHIRResources } from 'src/services/fhir';
+import { getChatUser, getConversations, makeUsername } from 'src/services/chat';
 import { clearSession, Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
 
+type ChatUser = Voximplant['Messaging']['User'];
+type Conversation = Voximplant['Messaging']['Conversation'];
+
 export interface Model {
-    contactListBundleResponse: RemoteData<Bundle<User>>;
     isPending: boolean;
+    chatUserResponse: RemoteData<ChatUser>;
+    conversationsResponse: RemoteData<Conversation[]>;
 }
 
 export const initial: Model = {
-    contactListBundleResponse: notAsked,
     isPending: false,
+    chatUserResponse: notAsked,
+    conversationsResponse: notAsked,
 };
 
 interface ComponentProps {
+    componentId: string;
     tree: Cursor<Model>;
     session: Session;
     sessionResponseCursor: Cursor<RemoteData<Session>>;
@@ -58,8 +64,22 @@ export class Component extends React.Component<ComponentProps, {}> {
         Navigation.events().bindComponent(this);
     }
 
-    public async componentDidMount() {
-        await this.fetchContacts();
+    public async componentDidAppear() {
+        this.props.tree.isPending.set(true);
+        try {
+            const userResponse = await getChatUser(this.props.tree.chatUserResponse, this.props.session.username);
+            if (isSuccess(userResponse)) {
+                if (userResponse.data.conversationsList) {
+                    const conversationsResponse = await getConversations(
+                        this.props.tree.conversationsResponse,
+                        userResponse.data.conversationsList
+                    );
+                    console.log(conversationsResponse);
+                }
+            }
+        } finally {
+            this.props.tree.isPending.set(false);
+        }
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
@@ -83,50 +103,35 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public async fetchContacts() {
-        const { session } = this.props;
-
-        await getFHIRResources(this.props.tree.contactListBundleResponse, 'User', {}, session.token);
-    }
-
-    public async makeOutgoingCall(user: User) {
-        this.props.tree.isPending.set(true);
-
-        try {
-            try {
-                await CallService.requestPermissions(false);
-            } catch (err) {
-                return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
-            }
-            await CallService.startOutgoingCall(user.username, user.displayName);
-        } finally {
-            this.props.tree.isPending.set(false);
-        }
+    public async openChat(conversation: Conversation) {
+        await Navigation.push(this.props.componentId, {
+            component: {
+                name: 'td.Chat',
+                passProps: {
+                    conversationUuid: conversation.uuid,
+                },
+            },
+        });
     }
 
     public renderContent() {
-        const { tree, session } = this.props;
+        const { tree } = this.props;
 
-        const sessionUsername = session.username;
-        const bundleResponseCursor = tree.contactListBundleResponse;
-        if (isNotAskedCursor(bundleResponseCursor) || isLoadingCursor(bundleResponseCursor)) {
+        const conversationsResponse = tree.conversationsResponse.get();
+
+        if (isNotAsked(conversationsResponse) || isLoading(conversationsResponse)) {
             return <Preloader isVisible={true} />;
         }
 
-        if (isSuccessCursor(bundleResponseCursor)) {
-            const bundle = bundleResponseCursor.data.get();
-            const contactList = bundle.entry || [];
+        if (isSuccess(conversationsResponse)) {
+            const conversations = conversationsResponse.data;
 
             return (
-                <FlatList<BundleEntry<User>>
-                    data={contactList}
-                    listKey="contact-list"
-                    keyExtractor={(item) => item.resource!.id}
+                <FlatList<Conversation>
+                    data={conversations}
+                    listKey="chat-list"
+                    keyExtractor={(item) => item.uuid}
                     renderItem={({ item }) => {
-                        if (item.resource!.username === sessionUsername) {
-                            return null;
-                        }
-
                         return (
                             <View
                                 style={{
@@ -137,13 +142,20 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 }}
                             >
                                 <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>{item.resource!.displayName}</Text>
+                                    <Text style={s.contactListItem}>
+                                        {item.title
+                                            ? item.title
+                                            : R.join(
+                                                  ', ',
+                                                  R.map(({ userId }) => makeUsername(userId), item.participants)
+                                              )}
+                                    </Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <CallButton
-                                        iconName="call"
+                                        iconName="chat"
                                         color={COLOR.ACCENT}
-                                        buttonPressed={() => this.makeOutgoingCall(item.resource!)}
+                                        buttonPressed={() => this.openChat(item)}
                                     />
                                 </View>
                             </View>
@@ -155,7 +167,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         return (
             <View>
-                <Text>Something went wrong</Text>
+                <Text>Something went wrong. {JSON.stringify(conversationsResponse.error)}</Text>
             </View>
         );
     }
@@ -166,7 +178,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         return (
             <SafeAreaView style={s.safearea}>
                 <StatusBar backgroundColor={COLOR.PRIMARY_DARK} />
-                <View style={s.useragent}>{this.renderContent()}</View>
+                {this.renderContent()}
                 <Preloader isVisible={isPending} />
             </SafeAreaView>
         );

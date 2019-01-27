@@ -3,14 +3,17 @@ import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';
+import * as Chat from 'src/containers/Chat';
+import * as ChatList from 'src/containers/ChatList';
+import * as ContactList from 'src/containers/ContactList';
 import * as IncomingCall from 'src/containers/IncomingCall';
 import * as Login from 'src/containers/Login';
-import * as Main from 'src/containers/Main';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
 import { CallService } from 'src/services/call';
+import { setup as chatServiceSetup } from 'src/services/chat';
 import { voxImplantReLogin } from 'src/services/login';
 import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
 import { getSession, saveSession, Session } from 'src/services/session';
@@ -22,7 +25,9 @@ const initial: Model = {
     pushTokenResponse: loading,
     login: Login.initial,
     signUp: SignUp.initial,
-    main: Main.initial,
+    contactList: ContactList.initial,
+    chatList: ChatList.initial,
+    chat: Chat.initial,
     call: Call.initial,
     incomingCall: IncomingCall.initial,
 };
@@ -32,7 +37,9 @@ interface Model {
     pushTokenResponse: RemoteData<PushToken>;
     login: Login.Model;
     signUp: SignUp.Model;
-    main: Main.Model;
+    contactList: ContactList.Model;
+    chatList: ChatList.Model;
+    chat: Chat.Model;
     call: Call.Model;
     incomingCall: IncomingCall.Model;
 }
@@ -48,10 +55,18 @@ registerContainer('td.Login', Login.Component, {
 registerContainer('td.SignUp', SignUp.Component, {
     tree: rootTree.signUp,
 });
-registerSessionAwareContainer('td.Main', Main.Component, rootTree.sessionResponse, {
-    tree: rootTree.main,
+registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
+    tree: rootTree.contactList,
     sessionResponseCursor: rootTree.sessionResponse,
     deinit,
+});
+registerSessionAwareContainer('td.ChatList', ChatList.Component, rootTree.sessionResponse, {
+    tree: rootTree.chatList,
+    sessionResponseCursor: rootTree.sessionResponse,
+    deinit,
+});
+registerSessionAwareContainer('td.Chat', Chat.Component, rootTree.sessionResponse, {
+    tree: rootTree.chat,
 });
 registerSessionAwareContainer('td.Call', Call.Component, rootTree.sessionResponse, {
     tree: rootTree.call,
@@ -132,7 +147,7 @@ function bootstrap() {
                         children: [
                             {
                                 component: {
-                                    name: 'td.Main',
+                                    name: 'td.ChatList',
                                 },
                             },
                         ],
@@ -192,6 +207,7 @@ function bootstrap() {
             });
         },
     });
+    chatServiceSetup();
 }
 
 bootstrap();
