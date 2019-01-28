@@ -78,10 +78,11 @@ export class Component extends React.Component<ComponentProps, {}> {
                     text: 'Chat',
                 },
                 rightButtons: [
-                    {
-                        id: 'delete',
-                        text: 'Delete',
-                    },
+                    // TODO: discuss and implement better behavior
+                    // {
+                    //     id: 'delete',
+                    //     text: 'Delete',
+                    // },
                 ],
             },
             sideMenu: {
@@ -122,8 +123,13 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public async navigationButtonPressed({ buttonId }: any) {
         if (buttonId === 'delete') {
-            await removeConversation(this.props.tree.removeConversationResponse, this.props.conversationUuid);
-            await Navigation.pop(this.props.componentId);
+            this.props.tree.isPending.set(true);
+            try {
+                await removeConversation(this.props.tree.removeConversationResponse, this.props.conversationUuid);
+                await Navigation.pop(this.props.componentId);
+            } finally {
+                this.props.tree.isPending.set(false);
+            }
         }
     }
 
@@ -142,8 +148,20 @@ export class Component extends React.Component<ComponentProps, {}> {
                 }
                 tree.messages.set(messagesResponse.data);
             } else {
-                // TODO: handle error!!!!
+                await Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: 'Something went wrong with fetching messages history' },
+                    },
+                });
             }
+        } else {
+            await Navigation.showOverlay({
+                component: {
+                    name: 'td.Modal',
+                    passProps: { text: 'Something went wrong with fetching chat' },
+                },
+            });
         }
     }
 
@@ -178,7 +196,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                 }
                 tree.messages.apply((messages) => [...messagesResponse.data, ...messages]);
             } else {
-                // TODO: handle error!!!!
+                await Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: 'Something went wrong with fetching messages history' },
+                    },
+                });
             }
         }
     }
@@ -240,7 +263,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     public renderForm() {
         return (
             <Form onSubmit={this.onSubmit}>
-                {({ handleSubmit, reset }) => (
+                {({ handleSubmit }) => (
                     <View>
                         <View
                             style={{
@@ -277,7 +300,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                     )}
                                 </Field>
                                 <TouchableOpacity
-                                    onPress={() => handleSubmit()!.then(reset)}
+                                    onPress={() => handleSubmit()}
                                     hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}
                                 >
                                     <Icon name="send" size={20} color={COLOR.ACCENT} />

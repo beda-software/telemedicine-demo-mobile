@@ -82,7 +82,7 @@ registerSessionAwareContainer('td.IncomingCall', IncomingCall.Component, rootTre
 async function init() {
     const client = Voximplant.getInstance();
 
-    const pushTokenResponse = await getPushToken(rootTree.pushTokenResponse);
+    const pushTokenResponse = rootTree.pushTokenResponse.get();
 
     if (isSuccess(pushTokenResponse)) {
         await client.registerPushNotificationsToken(pushTokenResponse.data);
@@ -230,6 +230,7 @@ function bootstrap() {
         },
     });
     chatServiceSetup();
+    getPushToken(rootTree.pushTokenResponse);
 }
 
 bootstrap();

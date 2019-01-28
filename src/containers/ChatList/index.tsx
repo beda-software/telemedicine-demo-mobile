@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import * as _ from 'lodash';
 import * as React from 'react';
 import { FlatList, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
@@ -78,6 +79,22 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
+    public getChatTitle({ title, participants }: Conversation) {
+        if (title) {
+            return title;
+        }
+
+        const { username: myUsername } = this.props.session;
+
+        // TODO: re-write it
+        const usernames = R.filter(
+            (username) => username !== myUsername,
+            R.map(({ userId }) => makeUsername(userId), participants)
+        );
+
+        return R.join(', ', usernames);
+    }
+
     public async openChat(conversation: Conversation) {
         await Navigation.push(this.props.componentId, {
             component: {
@@ -117,14 +134,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 }}
                             >
                                 <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>
-                                        {item.title
-                                            ? item.title
-                                            : R.join(
-                                                  ', ',
-                                                  R.map(({ userId }) => makeUsername(userId), item.participants)
-                                              )}
-                                    </Text>
+                                    <Text style={s.contactListItem}>{this.getChatTitle(item)}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <CallButton

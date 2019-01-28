@@ -78,7 +78,12 @@ export class Component extends React.Component<ComponentProps, {}> {
             try {
                 await CallService.requestPermissions(false);
             } catch (err) {
-                return Navigation.showOverlay({ component: { name: 'td.Modal', passProps: { text: err.message } } });
+                return Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: err.message },
+                    },
+                });
             }
             await CallService.startOutgoingCall(user.username, user.displayName);
         } finally {
@@ -87,22 +92,40 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async openChat(user: User) {
-        const conversationResponse = await createConversation(this.props.tree.createConversationResponse, [
-            user.username,
-        ]);
+        this.props.tree.isPending.set(true);
 
-        if (isSuccess(conversationResponse)) {
-            await Navigation.push(this.props.componentId, {
-                component: {
-                    name: 'td.Chat',
-                    passProps: {
-                        conversationUuid: conversationResponse.data.uuid,
+        try {
+            const conversationResponse = await createConversation(
+                this.props.tree.createConversationResponse,
+                this.props.session.username,
+                [user.username],
+                undefined,
+                true
+            );
+
+            if (isSuccess(conversationResponse)) {
+                await Navigation.push(this.props.componentId, {
+                    component: {
+                        name: 'td.Chat',
+                        passProps: {
+                            conversationUuid: conversationResponse.data.uuid,
+                        },
                     },
-                },
-            });
-        } else {
-            console.log('error while creating conversation');
-            // TODO: log error
+                });
+            } else {
+                await Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: {
+                            text: `Something went wrong with conversation creating. ${JSON.stringify(
+                                conversationResponse.error
+                            )}`,
+                        },
+                    },
+                });
+            }
+        } finally {
+            this.props.tree.isPending.set(false);
         }
     }
 

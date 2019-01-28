@@ -64,7 +64,7 @@ function catchEvent<T>(
     service: Subscribable<T>,
     eventName: string,
     predicate = (data: T) => true,
-    asyncTimeout = 60000
+    asyncTimeout = 10000
 ) {
     return new Promise<T>((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -119,8 +119,35 @@ interface ConversationsCache {
 
 const conversationsCache: ConversationsCache = {};
 
-export async function createConversation(cursor: Cursor<RemoteData<Conversation>>, participantsUsernames: string[]) {
+export async function createConversation(
+    cursor: Cursor<RemoteData<Conversation>>,
+    myUsername: string,
+    participantsUsernames: string[],
+    title?: string,
+    distinct?: boolean
+) {
     return wrapService(cursor, async () => {
+        if (distinct) {
+            // This is just a workaround for distinct. Rewrite it after the issue is fixed
+            const myUserId = makeUserId(myUsername);
+            messaging.getUser(myUserId);
+            const myUser = await catchChatUser(myUserId);
+            messaging.getConversations(myUser.conversationsList);
+            const conversations = await Promise.all(R.map(catchConversation, myUser.conversationsList));
+            const existingConversation = R.find(
+                (conversation) =>
+                    R.equals(
+                        R.sort(R.descend(R.identity), R.map((p) => p.userId, conversation.participants)),
+                        R.sort(R.descend(R.identity), [myUserId, ...R.map(makeUserId, participantsUsernames)])
+                    ),
+                conversations
+            );
+            if (existingConversation) {
+                console.log('found', existingConversation);
+                return existingConversation;
+            }
+        }
+
         messaging.createConversation(
             R.map(
                 (username) => ({
@@ -130,8 +157,7 @@ export async function createConversation(cursor: Cursor<RemoteData<Conversation>
                 }),
                 participantsUsernames
             ),
-            undefined,
-            true
+            title
         );
 
         const event = await catchEvent<ConversationEvent>(
@@ -184,7 +210,7 @@ export function getConversations(cursor: Cursor<RemoteData<Conversation[]>>, uui
     return wrapService(cursor, () => {
         messaging.getConversations(uuids);
 
-        return Promise.all(uuids.map(catchConversation));
+        return Promise.all(R.map(catchConversation, uuids));
     });
 }
 
@@ -217,7 +243,7 @@ export function getMessages(cursor: Cursor<RemoteData<Message[]>>, conversationU
     });
 }
 
-export async function setup() {
+export function setup() {
     messaging.on(EventTypes.Error, (event) => {
         console.log('EVENT ERROR CAUGHT', event);
     });

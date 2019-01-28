@@ -47,13 +47,13 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async hideMenu() {
-        await Navigation.mergeOptions(this.props.componentId, {
-            sideMenu: {
-                left: {
-                    visible: false,
-                },
-            },
-        });
+        // await Navigation.mergeOptions(this.props.componentId, {
+        //     sideMenu: {
+        //         left: {
+        //             visible: false,
+        //         },
+        //     },
+        // });
     }
 
     public render() {

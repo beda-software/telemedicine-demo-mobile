@@ -123,6 +123,7 @@ declare module 'react-native-voximplant' {
     }
 
     interface Messaging extends Subscribable<any> {
+        getMe: () => string;
         getUser: (uuid: string) => void;
         getUsers: (uuids: string[]) => void;
         createConversation: (
@@ -131,7 +132,7 @@ declare module 'react-native-voximplant' {
             distinct?: boolean,
             enablePublicJoin?: boolean,
             customData?: any,
-            moderators?: string[]
+            isUber?: boolean
         ) => void;
         getConversation: (uuid: string) => void;
         getConversations: (uuids: string[]) => void;
