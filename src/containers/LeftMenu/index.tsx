@@ -2,6 +2,7 @@ import * as React from 'react';
 import autoBind from 'react-autobind';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { Preloader } from 'src/components/Preloader';
 import { Cursor } from 'src/contrib/typed-baobab';
@@ -62,32 +63,53 @@ export class Component extends React.Component<ComponentProps, {}> {
             <SafeAreaView style={s.safearea}>
                 {isSuccess(this.props.sessionResponseCursor.get()) ? (
                     <View>
+                        <View style={{ alignItems: 'center', paddingRight: 40, paddingBottom: 20, paddingTop: 20 }}>
+                            <Text style={{ fontSize: 20, color: COLOR.ACCENT }}>Telemedicine Demo</Text>
+                        </View>
                         <TouchableOpacity
-                            style={{ padding: 15, borderBottomWidth: 1, color: COLOR.ACCENT }}
+                            style={{
+                                padding: 15,
+                                borderTopWidth: 1,
+                                borderTopColor: COLOR.ACCENT,
+                                flexDirection: 'row',
+                            }}
                             onPress={async () => {
                                 await Navigation.setStackRoot('root', { component: { name: 'td.ContactList' } });
                                 await this.hideMenu();
                             }}
                         >
-                            <Text>Contacts</Text>
+                            <Icon name="contacts" size={22} color={COLOR.ACCENT} />
+                            <Text style={{ marginLeft: 5 }}>Contacts</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={{ padding: 15, borderBottomWidth: 1, color: COLOR.ACCENT }}
+                            style={{
+                                padding: 15,
+                                borderTopWidth: 1,
+                                borderTopColor: COLOR.ACCENT,
+                                flexDirection: 'row',
+                            }}
                             onPress={async () => {
                                 await Navigation.setStackRoot('root', { component: { name: 'td.ChatList' } });
                                 await this.hideMenu();
                             }}
                         >
-                            <Text>Chats</Text>
+                            <Icon name="message" size={22} color={COLOR.ACCENT} />
+                            <Text style={{ marginLeft: 5 }}>Chats</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={{ padding: 15, borderBottomWidth: 1, color: COLOR.ACCENT }}
+                            style={{
+                                padding: 15,
+                                borderTopWidth: 1,
+                                borderTopColor: COLOR.ACCENT,
+                                flexDirection: 'row',
+                            }}
                             onPress={async () => {
                                 await this.logout();
                                 await this.hideMenu();
                             }}
                         >
-                            <Text>Logout</Text>
+                            <Icon name="exit-to-app" size={22} color={COLOR.ACCENT} />
+                            <Text style={{ marginLeft: 5 }}>Logout</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
