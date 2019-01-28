@@ -36,7 +36,7 @@
         "react-native-navigation": "^2.5.1",
         "react-native-notifications": "1.1.20",
         "react-native-vector-icons": "^6.2.0",
-        "react-native-voximplant": "1.4.0",
+        "react-native-voximplant": "https://github.com/beda-software/react-native-voximplant",
         "tslib": "^1.9.3",
         "uuid": "^3.3.2"
     },
