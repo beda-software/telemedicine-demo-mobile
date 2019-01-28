@@ -183,12 +183,13 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public async onSubmit(values: FormValues) {
+    public async onSubmit(values: FormValues, form: any) {
         if (!values.message) {
             return;
         }
 
         await sendMessage(this.props.conversationUuid, values.message);
+        form.reset();
     }
 
     public renderMessages() {
@@ -266,12 +267,10 @@ export class Component extends React.Component<ComponentProps, {}> {
                                     {(fieldProps) => (
                                         <InputField
                                             underlineColorAndroid="transparent"
-                                            // style={s.formInput}
-                                            // errorStyle={s.formInputError}
                                             placeholder="Type message here"
                                             autoCapitalize="none"
                                             autoCorrect={false}
-                                            onSubmitEditing={() => handleSubmit()!.then(reset)}
+                                            onSubmitEditing={() => handleSubmit()}
                                             style={{ padding: 8, width: window.width - 45 }}
                                             {...fieldProps}
                                         />

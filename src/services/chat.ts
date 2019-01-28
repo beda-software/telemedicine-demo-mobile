@@ -190,6 +190,7 @@ export function getConversations(cursor: Cursor<RemoteData<Conversation[]>>, uui
 
 export async function sendMessage(conversationUuid: string, message: string, payload: any[] = []) {
     MessagingModule.sendMessage(conversationUuid, message, payload);
+    // TODO: await catch event
 }
 
 export function getMessages(cursor: Cursor<RemoteData<Message[]>>, conversationUuid: string, seq: number) {
