@@ -116,7 +116,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         props.tree.set(initial);
 
-        const unsubscribeFromConversationEvents = subscribeToMessagingEvents(props.conversation.uuid, {
+        const unsubscribeFromConversationEvents = subscribeToMessagingEvents({
             onSendMessage: this.onSendMessage,
             onTyping: this.onTyping,
         });

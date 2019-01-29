@@ -36,7 +36,7 @@ function setupMessagingListeners(service: Subscribable<any>, callbacks: Conversa
     });
 }
 
-export function subscribeToMessagingEvents(conversationUuid: string, callbacks: ConversationCallbacks) {
+export function subscribeToMessagingEvents(callbacks: ConversationCallbacks) {
     setupMessagingListeners(messaging, callbacks, true);
 
     return () => {

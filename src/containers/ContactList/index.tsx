@@ -72,7 +72,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         Navigation.events().bindComponent(this);
     }
 
-    public async componentDidMount() {
+    public async componentDidAppear() {
         await this.fetchContacts();
     }
 

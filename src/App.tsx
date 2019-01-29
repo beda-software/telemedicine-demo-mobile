@@ -4,12 +4,13 @@ import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';
 import * as Chat from 'src/containers/Chat';
-import * as ObservationList from 'src/containers/ObservationList';
 import * as ContactList from 'src/containers/ContactList';
 import * as IncomingCall from 'src/containers/IncomingCall';
 import * as LeftMenu from 'src/containers/LeftMenu';
 import * as Login from 'src/containers/Login';
 import * as Modal from 'src/containers/Modal';
+import * as ObservationList from 'src/containers/ObservationList';
+import * as ObservationAdd from 'src/containers/ObservationList/Add';
 import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
@@ -27,7 +28,10 @@ const initial: Model = {
     login: Login.initial,
     signUp: SignUp.initial,
     contactList: ContactList.initial,
-    observationList: ObservationList.initial,
+    observation: {
+        list: ObservationList.initial,
+        add: ObservationAdd.initial,
+    },
     chat: Chat.initial,
     call: Call.initial,
     incomingCall: IncomingCall.initial,
@@ -40,7 +44,10 @@ interface Model {
     login: Login.Model;
     signUp: SignUp.Model;
     contactList: ContactList.Model;
-    observationList: ObservationList.Model;
+    observation: {
+        list: ObservationList.Model;
+        add: ObservationAdd.Model;
+    };
     chat: Chat.Model;
     call: Call.Model;
     incomingCall: IncomingCall.Model;
@@ -64,7 +71,10 @@ registerContainer('td.LeftMenu', LeftMenu.Component, {
     deinit,
 });
 registerSessionAwareContainer('td.ObservationList', ObservationList.Component, rootTree.sessionResponse, {
-    tree: rootTree.observationList,
+    tree: rootTree.observation.list,
+});
+registerSessionAwareContainer('td.ObservationAdd', ObservationAdd.Component, rootTree.sessionResponse, {
+    tree: rootTree.observation.add,
 });
 registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
     tree: rootTree.contactList,

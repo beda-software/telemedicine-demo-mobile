@@ -47,6 +47,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                         color: 'black',
                     },
                 ],
+                rightButtons: [
+                    {
+                        id: 'add',
+                        text: 'Add',
+                    },
+                ],
             },
             sideMenu: {
                 left: {
@@ -64,11 +70,18 @@ export class Component extends React.Component<ComponentProps, {}> {
         Navigation.events().bindComponent(this);
     }
 
-    public async componentDidMount() {
+    public async componentDidAppear() {
         await this.fetchObservations();
     }
 
     public navigationButtonPressed({ buttonId }: any) {
+        if (buttonId === 'add') {
+            Navigation.push(this.props.componentId, {
+                component: {
+                    name: 'td.ObservationAdd',
+                },
+            });
+        }
         if (buttonId === 'menu') {
             Navigation.mergeOptions(this.props.componentId, {
                 sideMenu: {
