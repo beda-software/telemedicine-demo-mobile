@@ -32,6 +32,8 @@ import {
     removeConversation,
     sendMessage,
     subscribeToConversationEvents,
+    subscribeToUsersStatuses,
+    typing,
 } from 'src/services/chat';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
@@ -53,6 +55,7 @@ export interface Model {
     removeConversationResponse: RemoteData<any>;
     messages: Message[];
     lastSeq: number;
+    isOnline: boolean;
 }
 
 export const initial: Model = {
@@ -62,6 +65,7 @@ export const initial: Model = {
     removeConversationResponse: notAsked,
     messages: [],
     lastSeq: 1,
+    isOnline: false,
 };
 
 interface ComponentProps {
@@ -79,7 +83,10 @@ export class Component extends React.Component<ComponentProps, {}> {
             topBar: {
                 title: {
                     text: 'Chat',
+                    color: COLOR.BLACK,
                 },
+                subtitle: { text: 'Offline', color: COLOR.GRAY },
+
                 rightButtons: [
                     // TODO: discuss and implement better behavior
                     // {
@@ -97,6 +104,8 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     private readonly unsubscribe: () => void;
+    private onTypingTimeout: NodeJS.Timeout | null;
+    private onKeyPressTimeout: NodeJS.Timeout | null;
 
     constructor(props: ComponentProps) {
         super(props);
@@ -106,9 +115,19 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         props.tree.set(initial);
 
-        this.unsubscribe = subscribeToConversationEvents(props.conversationUuid, {
+        const unsubscribeFromConversationEvents = subscribeToConversationEvents(props.conversationUuid, {
             onSendMessage: this.onSendMessage,
+            onTyping: this.onTyping,
         });
+        const unsubscribeFromUsersStatuses = subscribeToUsersStatuses(
+            R.map((user) => user.username, props.users),
+            this.onUserStatusChange
+        );
+
+        this.unsubscribe = () => {
+            unsubscribeFromConversationEvents();
+            unsubscribeFromUsersStatuses();
+        };
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
@@ -142,13 +161,110 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public componentWillUnmount() {
         this.unsubscribe();
+
+        if (this.onKeyPressTimeout) {
+            clearTimeout(this.onKeyPressTimeout);
+        }
+        if (this.onTypingTimeout) {
+            clearTimeout(this.onTypingTimeout);
+        }
     }
 
     public onSendMessage(event: any) {
         if (event.message.conversation === this.props.conversationUuid) {
-            const tree = this.props.tree;
+            const { tree, componentId } = this.props;
+            const isOnline = tree.isOnline.get();
 
             tree.messages.apply((messages) => [...messages, event.message]);
+
+            Navigation.mergeOptions(componentId, {
+                topBar: {
+                    subtitle: {
+                        text: isOnline ? 'Online' : 'Offline',
+                        color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
+                    },
+                },
+            });
+        }
+    }
+
+    public onTyping(event: any) {
+        const { tree, componentId, session } = this.props;
+
+        const myUserId = makeUserId(session.username);
+
+        const conversationResponse = tree.conversationResponse.get();
+        if (isSuccess(conversationResponse)) {
+            const usersIds = R.filter(
+                (pUserId) => pUserId !== myUserId,
+                R.map((p) => p.userId, conversationResponse.data.participants)
+            );
+            if (R.includes(event.userId, usersIds)) {
+                tree.isOnline.set(true);
+                Navigation.mergeOptions(componentId, {
+                    topBar: {
+                        subtitle: {
+                            text: 'Typing...',
+                            color: COLOR.GRAY,
+                        },
+                    },
+                });
+
+                if (this.onTypingTimeout) {
+                    clearTimeout(this.onTypingTimeout);
+                    this.onTypingTimeout = null;
+                }
+
+                this.onTypingTimeout = setTimeout(() => {
+                    const isOnline = tree.isOnline.get();
+
+                    Navigation.mergeOptions(componentId, {
+                        topBar: {
+                            subtitle: {
+                                text: isOnline ? 'Online' : 'Offline',
+                                color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
+                            },
+                        },
+                    });
+                    this.onTypingTimeout = null;
+                }, 5000);
+            }
+        }
+    }
+
+    public async onKeyPress() {
+        if (!this.onKeyPressTimeout) {
+            await typing(this.props.conversationUuid);
+
+            this.onKeyPressTimeout = setTimeout(() => {
+                this.onKeyPressTimeout = null;
+            }, 1000);
+        }
+    }
+
+    public onUserStatusChange(event: any) {
+        const { userId, userStatus } = event;
+
+        const { tree, session, componentId } = this.props;
+        const myUserId = makeUserId(session.username);
+
+        const conversationResponse = tree.conversationResponse.get();
+        if (isSuccess(conversationResponse)) {
+            const usersIds = R.filter(
+                (pUserId) => pUserId !== myUserId,
+                R.map((p) => p.userId, conversationResponse.data.participants)
+            );
+            if (R.includes(userId, usersIds)) {
+                tree.isOnline.set(userStatus.online);
+                Navigation.mergeOptions(componentId, {
+                    topBar: {
+                        subtitle: {
+                            text: userStatus.online ? 'Online' : 'Offline',
+                            color: userStatus.online ? COLOR.ACCENT : COLOR.GRAY,
+                        },
+                    },
+                });
+            }
         }
     }
 
@@ -267,6 +383,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                             onSubmitEditing={() => handleSubmit()}
                                             style={{ padding: 8, width: window.width - 45 }}
                                             {...fieldProps}
+                                            onKeyPress={this.onKeyPress}
                                         />
                                     )}
                                 </Field>

@@ -136,7 +136,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                         },
                         options: {
                             topBar: {
-                                title: { text: user.displayName },
+                                title: { text: user.displayName, color: COLOR.BLACK },
                             },
                         },
                     },

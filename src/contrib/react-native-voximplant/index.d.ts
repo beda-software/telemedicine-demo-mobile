@@ -122,6 +122,11 @@ declare module 'react-native-voximplant' {
         uuid: string;
     }
 
+    interface MessagingUserStatus {
+        online: boolean;
+        timestamp: number;
+    }
+
     interface Messaging extends Subscribable<any> {
         setStatus: (status: boolean) => void;
         getMe: () => string;
@@ -140,6 +145,7 @@ declare module 'react-native-voximplant' {
         getConversation: (uuid: string) => void;
         getConversations: (uuids: string[]) => void;
         User: MessagingUser;
+        UserStatus: MessagingUserStatus;
         Conversation: MessagingConversation;
         Message: MessagingMessage;
         MessengerEventTypes: MessengerEventTypes;

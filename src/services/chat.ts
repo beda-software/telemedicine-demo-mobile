@@ -10,6 +10,7 @@ import { catchEvent, Subscribable, wrapService } from './utils';
 type ChatUser = Voximplant['Messaging']['User'];
 type Conversation = Voximplant['Messaging']['Conversation'];
 type Message = Voximplant['Messaging']['Message'];
+type ChatUserStatus = Voximplant['Messaging']['UserStatus'];
 
 interface ChatUserEvent {
     user: ChatUser;
@@ -37,15 +38,21 @@ interface RetransmitEventsEvent {
     events: RetransmitEvent[];
 }
 
+interface UserStatusEvent {
+    userStatus: ChatUserStatus;
+    userId: string;
+}
+
 const EventTypes = Voximplant.Messaging.MessengerEventTypes;
 const MessagingModule: any = NativeModules.VIMessagingModule;
 
 interface ConversationCallbacks {
-    onSendMessage: (event: any) => void;
+    onSendMessage: (event: MessageEvent) => void;
+    onTyping: (event: any) => void;
 }
 
 function setupConversationListeners(service: Subscribable<any>, callbacks: ConversationCallbacks, setup: boolean) {
-    Object.keys(Voximplant.Messaging.MessengerEventTypes).forEach((eventName) => {
+    Object.keys(EventTypes).forEach((eventName) => {
         const callbackName = `on${eventName}`;
         if (typeof callbacks[callbackName] !== 'undefined') {
             service[setup ? 'on' : 'off'](eventName, callbacks[callbackName]);
@@ -61,12 +68,24 @@ export function subscribeToConversationEvents(conversationUuid: string, callback
     };
 }
 
-export function subscribeToUsersStatuses(usernames: string[], callback: (userStatus: any) => void) {
-    const userIds = R.map(makeUserId, usernames);
-    messaging.subscribe(userIds);
+export function subscribeToUsersStatuses(
+    usernames: string[],
+    callback: (userId: string, userStatus: ChatUserStatus) => void
+) {
+    const usersIds = R.map(makeUserId, usernames);
+    messaging.subscribe(usersIds);
+
+    function handler(event: UserStatusEvent) {
+        if (R.includes(event.userId, usersIds)) {
+            callback(event);
+        }
+    }
+
+    messaging.on(EventTypes.SetStatus, handler);
 
     return () => {
-        messaging.unsubscribe(userIds);
+        messaging.unsubscribe(usersIds);
+        messaging.off(EventTypes.SetStatus, handler);
     };
 }
 
@@ -125,7 +144,6 @@ export async function createConversation(
                 conversations
             );
             if (existingConversation) {
-                console.log('found', existingConversation);
                 return existingConversation;
             }
         }
@@ -198,6 +216,11 @@ export function getConversations(cursor: Cursor<RemoteData<Conversation[]>>, uui
 
 export async function sendMessage(conversationUuid: string, message: string, payload: any[] = []) {
     MessagingModule.sendMessage(conversationUuid, message, payload);
+    // TODO: await catch event
+}
+
+export async function typing(conversationUuid: string) {
+    MessagingModule.typing(conversationUuid);
     // TODO: await catch event
 }
 
