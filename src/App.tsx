@@ -4,13 +4,12 @@ import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';
 import * as Chat from 'src/containers/Chat';
-import * as ChatList from 'src/containers/ChatList';
 import * as ContactList from 'src/containers/ContactList';
 import * as IncomingCall from 'src/containers/IncomingCall';
+import * as LeftMenu from 'src/containers/LeftMenu';
 import * as Login from 'src/containers/Login';
 import * as Modal from 'src/containers/Modal';
 import * as SignUp from 'src/containers/SignUp';
-import * as LeftMenu from 'src/containers/LeftMenu';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
 import { CallService } from 'src/services/call';
@@ -27,7 +26,6 @@ const initial: Model = {
     login: Login.initial,
     signUp: SignUp.initial,
     contactList: ContactList.initial,
-    chatList: ChatList.initial,
     chat: Chat.initial,
     call: Call.initial,
     incomingCall: IncomingCall.initial,
@@ -40,7 +38,6 @@ interface Model {
     login: Login.Model;
     signUp: SignUp.Model;
     contactList: ContactList.Model;
-    chatList: ChatList.Model;
     chat: Chat.Model;
     call: Call.Model;
     incomingCall: IncomingCall.Model;
@@ -65,9 +62,6 @@ registerContainer('td.LeftMenu', LeftMenu.Component, {
 });
 registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
     tree: rootTree.contactList,
-});
-registerSessionAwareContainer('td.ChatList', ChatList.Component, rootTree.sessionResponse, {
-    tree: rootTree.chatList,
 });
 registerSessionAwareContainer('td.Chat', Chat.Component, rootTree.sessionResponse, {
     tree: rootTree.chat,

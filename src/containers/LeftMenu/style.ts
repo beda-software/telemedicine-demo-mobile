@@ -7,15 +7,13 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: COLOR.WHITE,
     },
-    contactListItem: {
-        color: COLOR.BUTTON,
-        fontSize: 16,
-        alignSelf: 'flex-start',
-        paddingTop: 10,
-        textAlign: 'center',
+    header: { alignItems: 'center', paddingRight: 40, paddingBottom: 20, paddingTop: 20 },
+    headerText: { fontSize: 20, color: COLOR.ACCENT },
+    menuItem: {
+        padding: 15,
+        borderTopWidth: 1,
+        borderTopColor: COLOR.ACCENT,
+        flexDirection: 'row',
     },
-    useragent: {
-        flex: 1,
-        flexDirection: 'column',
-    },
+    menuItemText: { marginLeft: 5 },
 });

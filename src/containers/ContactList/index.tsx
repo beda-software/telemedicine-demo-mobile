@@ -1,5 +1,6 @@
+import * as R from 'ramda';
 import * as React from 'react';
-import { FlatList, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { FlatList, Platform, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
 
@@ -44,6 +45,16 @@ export class Component extends React.Component<ComponentProps, {}> {
                 title: {
                     text: 'Contacts',
                 },
+                leftButtons: [
+                    {
+                        id: 'menu',
+                        icon:
+                            Platform.OS === 'ios'
+                                ? require('src/images/burger_ios.png')
+                                : require('src/images/burger_android.png'),
+                        color: 'black',
+                    },
+                ],
             },
             sideMenu: {
                 left: {
@@ -63,6 +74,18 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public async componentDidMount() {
         await this.fetchContacts();
+    }
+
+    public navigationButtonPressed({ buttonId }: any) {
+        if (buttonId === 'menu') {
+            Navigation.mergeOptions(this.props.componentId, {
+                sideMenu: {
+                    left: {
+                        visible: true,
+                    },
+                },
+            });
+        }
     }
 
     public async fetchContacts() {
@@ -91,7 +114,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public async openChat(user: User) {
+    public async openChat(user: User, users: User[]) {
         this.props.tree.isPending.set(true);
 
         try {
@@ -109,6 +132,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                         name: 'td.Chat',
                         passProps: {
                             conversationUuid: conversationResponse.data.uuid,
+                            users,
+                        },
+                        options: {
+                            topBar: {
+                                title: { text: user.displayName },
+                            },
                         },
                     },
                 });
@@ -141,14 +170,15 @@ export class Component extends React.Component<ComponentProps, {}> {
         if (isSuccessCursor(bundleResponseCursor)) {
             const bundle = bundleResponseCursor.data.get();
             const contactList = bundle.entry || [];
+            const users = R.map((contactEntry) => contactEntry.resource!, contactList);
 
             return (
-                <FlatList<BundleEntry<User>>
-                    data={contactList}
+                <FlatList<User>
+                    data={users}
                     listKey="contact-list"
-                    keyExtractor={(item) => item.resource!.id}
+                    keyExtractor={(item) => item.id}
                     renderItem={({ item }) => {
-                        if (item.resource!.username === sessionUsername) {
+                        if (item.username === sessionUsername) {
                             return null;
                         }
 
@@ -162,18 +192,18 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 }}
                             >
                                 <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>{item.resource!.displayName}</Text>
+                                    <Text style={s.contactListItem}>{item.displayName}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }}>
                                     <CallButton
                                         iconName="chat"
                                         color={COLOR.ACCENT}
-                                        buttonPressed={() => this.openChat(item.resource!)}
+                                        buttonPressed={() => this.openChat(item, users)}
                                     />
                                     <CallButton
                                         iconName="call"
                                         color={COLOR.ACCENT}
-                                        buttonPressed={() => this.makeOutgoingCall(item.resource!)}
+                                        buttonPressed={() => this.makeOutgoingCall(item)}
                                     />
                                 </View>
                             </View>

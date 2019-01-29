@@ -104,7 +104,7 @@ export interface Bundle<R> {
     timestamp?: instant;
     total?: unsignedInt;
     link?: BundleLink[];
-    entry?: BundleEntry<R>[];
+    entry?: Array<BundleEntry<R>>;
     signature?: Signature;
 }
 

@@ -20,6 +20,7 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { InputField } from 'src/components/InputFIeld';
 import { Preloader } from 'src/components/Preloader';
+import { User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
@@ -64,6 +65,7 @@ export const initial: Model = {
 
 interface ComponentProps {
     componentId: string;
+    users: User[];
     tree: Cursor<Model>;
     session: Session;
     conversationUuid: string;
@@ -170,18 +172,14 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async loadHistory() {
-        console.log('LOAD HISTORY CALLED');
         const { tree, conversationUuid } = this.props;
         const lastSeq = tree.lastSeq.get();
 
         if (lastSeq < 1) {
-            console.log('all messages loaded');
-
             return;
         }
 
         if (isLoadingCursor(tree.messagesResponse)) {
-            console.log('already loading...');
             return;
         }
 
@@ -215,10 +213,23 @@ export class Component extends React.Component<ComponentProps, {}> {
         form.reset();
     }
 
+    public renderName(sender: string) {
+        const username = makeUsername(sender);
+        const { users } = this.props;
+
+        const foundUser = R.find((user) => user.username === username, users);
+        if (foundUser) {
+            return foundUser.displayName;
+        }
+
+        return username;
+    }
+
     public renderMessages() {
         const { tree, session } = this.props;
 
         const messages = tree.messages.get();
+
         return (
             <FlatList<Message>
                 data={R.reverse(messages)}
@@ -232,24 +243,16 @@ export class Component extends React.Component<ComponentProps, {}> {
                     const isMe = item.sender === makeUserId(session.username);
                     return (
                         <View
-                            style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                justifyContent: isMe ? 'flex-end' : 'flex-start',
-                            }}
+                            style={[
+                                s.chatMessageWrapper,
+                                {
+                                    justifyContent: isMe ? 'flex-end' : 'flex-start',
+                                },
+                            ]}
                         >
-                            <View
-                                style={{
-                                    margin: 5,
-                                    borderWidth: 1,
-                                    borderColor: COLOR.ACCENT,
-                                    borderRadius: 15,
-                                    padding: 10,
-                                    fontSize: 16,
-                                }}
-                            >
+                            <View style={s.chatMessage}>
                                 {!isMe ? (
-                                    <Text style={{ color: COLOR.ACCENT }}>{makeUsername(item.sender)}</Text>
+                                    <Text style={{ color: COLOR.ACCENT }}>{this.renderName(item.sender)}</Text>
                                 ) : null}
                                 <Text>{item.text}</Text>
                             </View>
@@ -265,32 +268,13 @@ export class Component extends React.Component<ComponentProps, {}> {
             <Form onSubmit={this.onSubmit}>
                 {({ handleSubmit }) => (
                     <View>
-                        <View
-                            style={{
-                                backgroundColor: COLOR.GRAY,
-                                padding: 6,
-                                borderTopWidth: 1,
-                                borderTopColor: COLOR.ACCENT,
-                            }}
-                        >
-                            <View
-                                style={{
-                                    backgroundColor: COLOR.WHITE,
-                                    borderColor: COLOR.ACCENT,
-                                    borderWidth: 1,
-                                    borderRadius: 15,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    height: 40,
-                                    paddingRight: 5,
-                                }}
-                            >
+                        <View style={s.form}>
+                            <View style={s.messageInput}>
                                 <Field name="message">
                                     {(fieldProps) => (
                                         <InputField
                                             underlineColorAndroid="transparent"
-                                            placeholder="Type message here"
+                                            placeholder="Write a message"
                                             autoCapitalize="none"
                                             autoCorrect={false}
                                             onSubmitEditing={() => handleSubmit()}

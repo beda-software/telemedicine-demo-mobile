@@ -33,6 +33,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         super(props);
 
         autoBind(this);
+
+        Navigation.events().bindComponent(this);
     }
 
     public async logout() {
@@ -47,13 +49,13 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async hideMenu() {
-        // await Navigation.mergeOptions(this.props.componentId, {
-        //     sideMenu: {
-        //         left: {
-        //             visible: false,
-        //         },
-        //     },
-        // });
+        await Navigation.mergeOptions(this.props.componentId, {
+            sideMenu: {
+                left: {
+                    visible: false,
+                },
+            },
+        });
     }
 
     public render() {
@@ -63,53 +65,28 @@ export class Component extends React.Component<ComponentProps, {}> {
             <SafeAreaView style={s.safearea}>
                 {isSuccess(this.props.sessionResponseCursor.get()) ? (
                     <View>
-                        <View style={{ alignItems: 'center', paddingRight: 40, paddingBottom: 20, paddingTop: 20 }}>
-                            <Text style={{ fontSize: 20, color: COLOR.ACCENT }}>Telemedicine Demo</Text>
+                        <View style={s.header}>
+                            <Text style={s.headerText}>Telemedicine Demo</Text>
                         </View>
                         <TouchableOpacity
-                            style={{
-                                padding: 15,
-                                borderTopWidth: 1,
-                                borderTopColor: COLOR.ACCENT,
-                                flexDirection: 'row',
-                            }}
+                            style={s.menuItem}
                             onPress={async () => {
-                                await Navigation.setStackRoot('root', { component: { name: 'td.ContactList' } });
                                 await this.hideMenu();
+                                await Navigation.setStackRoot('root', { component: { name: 'td.ContactList' } });
                             }}
                         >
                             <Icon name="contacts" size={22} color={COLOR.ACCENT} />
-                            <Text style={{ marginLeft: 5 }}>Contacts</Text>
+                            <Text style={s.menuItemText}>Contacts</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={{
-                                padding: 15,
-                                borderTopWidth: 1,
-                                borderTopColor: COLOR.ACCENT,
-                                flexDirection: 'row',
-                            }}
-                            onPress={async () => {
-                                await Navigation.setStackRoot('root', { component: { name: 'td.ChatList' } });
-                                await this.hideMenu();
-                            }}
-                        >
-                            <Icon name="message" size={22} color={COLOR.ACCENT} />
-                            <Text style={{ marginLeft: 5 }}>Chats</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{
-                                padding: 15,
-                                borderTopWidth: 1,
-                                borderTopColor: COLOR.ACCENT,
-                                flexDirection: 'row',
-                            }}
+                            style={s.menuItem}
                             onPress={async () => {
                                 await this.logout();
                                 await this.hideMenu();
                             }}
                         >
                             <Icon name="exit-to-app" size={22} color={COLOR.ACCENT} />
-                            <Text style={{ marginLeft: 5 }}>Logout</Text>
+                            <Text style={s.menuItemText}>Logout</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
