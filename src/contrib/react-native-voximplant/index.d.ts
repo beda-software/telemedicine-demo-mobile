@@ -123,9 +123,12 @@ declare module 'react-native-voximplant' {
     }
 
     interface Messaging extends Subscribable<any> {
+        setStatus: (status: boolean) => void;
         getMe: () => string;
         getUser: (uuid: string) => void;
         getUsers: (uuids: string[]) => void;
+        subscribe: (users: string[]) => void;
+        unsubscribe: (users: string[]) => void;
         createConversation: (
             participants: MessagingParticipant[],
             title?: string,

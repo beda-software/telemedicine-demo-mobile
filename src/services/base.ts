@@ -54,6 +54,7 @@ export async function request<S = any>(config: ServiceConfig): Promise<S> {
     }
 }
 
+// TODO: use utils/wrapService
 export async function service<S = any, F = any>(
     cursor: Cursor<RemoteData<S, F>>,
     config: ServiceConfig

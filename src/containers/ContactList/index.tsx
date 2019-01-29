@@ -6,7 +6,7 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { CallButton } from 'src/components/CallButton';
 import { Preloader } from 'src/components/Preloader';
-import { Bundle, BundleEntry, User } from 'src/contrib/aidbox';
+import { Bundle, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isNotAskedCursor, isSuccess, isSuccessCursor, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
