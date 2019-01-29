@@ -250,21 +250,14 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public onUserStatusChange(event: any) {
-        const { tree, componentId } = this.props;
+        const { tree } = this.props;
         if (!this.isCompanion(event.userId)) {
             return;
         }
 
         const isOnline = event.userStatus.online;
         tree.isOnline.set(isOnline);
-        Navigation.mergeOptions(componentId, {
-            topBar: {
-                subtitle: {
-                    text: isOnline ? 'Online' : 'Offline',
-                    color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
-                },
-            },
-        });
+        this.setOnline(isOnline);
     }
 
     public async loadMessages(lastSeq: number) {
