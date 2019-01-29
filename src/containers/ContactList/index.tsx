@@ -177,12 +177,11 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         if (isSuccessCursor(bundleResponseCursor)) {
             const bundle = bundleResponseCursor.data.get();
-            const contactList = bundle.entry || [];
-            const users = R.map((contactEntry) => contactEntry.resource!, contactList);
+            const resources = R.map((entry) => entry.resource!, bundle.entry || []);
 
             return (
                 <FlatList<User>
-                    data={users}
+                    data={resources}
                     listKey="contact-list"
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => {
@@ -206,7 +205,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                     <CallButton
                                         iconName="chat"
                                         color={COLOR.ACCENT}
-                                        buttonPressed={() => this.openChat(item, users)}
+                                        buttonPressed={() => this.openChat(item, resources)}
                                     />
                                     <CallButton
                                         iconName="call"

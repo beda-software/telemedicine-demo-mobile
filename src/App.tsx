@@ -4,6 +4,7 @@ import { Voximplant } from 'react-native-voximplant';
 
 import * as Call from 'src/containers/Call';
 import * as Chat from 'src/containers/Chat';
+import * as ObservationList from 'src/containers/ObservationList';
 import * as ContactList from 'src/containers/ContactList';
 import * as IncomingCall from 'src/containers/IncomingCall';
 import * as LeftMenu from 'src/containers/LeftMenu';
@@ -26,6 +27,7 @@ const initial: Model = {
     login: Login.initial,
     signUp: SignUp.initial,
     contactList: ContactList.initial,
+    observationList: ObservationList.initial,
     chat: Chat.initial,
     call: Call.initial,
     incomingCall: IncomingCall.initial,
@@ -38,6 +40,7 @@ interface Model {
     login: Login.Model;
     signUp: SignUp.Model;
     contactList: ContactList.Model;
+    observationList: ObservationList.Model;
     chat: Chat.Model;
     call: Call.Model;
     incomingCall: IncomingCall.Model;
@@ -59,6 +62,9 @@ registerContainer('td.LeftMenu', LeftMenu.Component, {
     tree: rootTree.leftMenu,
     sessionResponseCursor: rootTree.sessionResponse,
     deinit,
+});
+registerSessionAwareContainer('td.ObservationList', ObservationList.Component, rootTree.sessionResponse, {
+    tree: rootTree.observationList,
 });
 registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
     tree: rootTree.contactList,

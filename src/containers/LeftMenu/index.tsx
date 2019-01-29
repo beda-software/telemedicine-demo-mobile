@@ -81,6 +81,16 @@ export class Component extends React.Component<ComponentProps, {}> {
                         <TouchableOpacity
                             style={s.menuItem}
                             onPress={async () => {
+                                await this.hideMenu();
+                                await Navigation.setStackRoot('root', { component: { name: 'td.ObservationList' } });
+                            }}
+                        >
+                            <Icon name="healing" size={22} color={COLOR.ACCENT} />
+                            <Text style={s.menuItemText}>Observations</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={s.menuItem}
+                            onPress={async () => {
                                 await this.logout();
                                 await this.hideMenu();
                             }}
