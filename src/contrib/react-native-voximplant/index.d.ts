@@ -127,6 +127,41 @@ declare module 'react-native-voximplant' {
         timestamp: number;
     }
 
+    interface MessengerEvent {
+        userId: string;
+    }
+
+    interface UserEvent extends MessengerEvent {
+        user: MessagingUser;
+    }
+
+    interface ConversationEvent extends MessengerEvent {
+        conversation: MessagingConversation;
+    }
+
+    interface MessageEvent extends MessengerEvent {
+        message: MessagingMessage;
+    }
+
+    interface RetransmitEvent extends MessengerEvent {
+        sequence: number;
+        messengerEventType: string;
+        userId: string;
+        message?: MessagingMessage;
+        conversation?: MessagingConversation;
+    }
+
+    interface RetransmitEventsEvent {
+        toSequence: number;
+        fromSequence: number;
+        events: RetransmitEvent[];
+        userId: string;
+    }
+
+    interface StatusEvent extends MessengerEvent {
+        userStatus: MessagingUserStatus;
+    }
+
     interface Messaging extends Subscribable<any> {
         setStatus: (status: boolean) => void;
         getMe: () => string;
@@ -149,6 +184,15 @@ declare module 'react-native-voximplant' {
         Conversation: MessagingConversation;
         Message: MessagingMessage;
         MessengerEventTypes: MessengerEventTypes;
+        EventHandlers: {
+            StatusEvent: StatusEvent;
+            RetransmitEvent: RetransmitEvent;
+            RetransmitEventsEvent: RetransmitEventsEvent;
+            MessageEvent: MessageEvent;
+            ConversationEvent: ConversationEvent;
+            UserEvent: UserEvent;
+            MessengerEvent: MessengerEvent;
+        };
     }
 
     interface Voximplant {

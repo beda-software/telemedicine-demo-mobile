@@ -5364,13 +5364,9 @@ react-native-vector-icons@^6.2.0:
     prop-types "^15.6.2"
     yargs "^8.0.2"
 
-react-native-voximplant@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/react-native-voximplant/-/react-native-voximplant-1.4.0.tgz#66fd90befbe082def5e9b5a01021e01b8be9b551"
-
 "react-native-voximplant@https://github.com/beda-software/react-native-voximplant":
   version "1.4.0"
-  resolved "https://github.com/beda-software/react-native-voximplant#240614400a6dd5d5bb28e9819ea5cea0b01dcefd"
+  resolved "https://github.com/beda-software/react-native-voximplant#7f04ec38d95655953eb7808cedad5f28aa01b1ad"
 
 react-native@^0.57.3:
   version "0.57.8"

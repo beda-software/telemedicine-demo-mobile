@@ -95,6 +95,10 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async makeOutgoingCall(user: User) {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         this.props.tree.isPending.set(true);
 
         try {
@@ -115,6 +119,10 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async openChat(user: User, users: User[]) {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         this.props.tree.isPending.set(true);
 
         try {
@@ -131,7 +139,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                     component: {
                         name: 'td.Chat',
                         passProps: {
-                            conversationUuid: conversationResponse.data.uuid,
+                            conversation: conversationResponse.data,
                             users,
                         },
                         options: {

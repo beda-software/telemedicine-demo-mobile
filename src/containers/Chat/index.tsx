@@ -25,13 +25,12 @@ import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import {
-    getConversation,
     getMessages,
     makeUserId,
     makeUsername,
     removeConversation,
     sendMessage,
-    subscribeToConversationEvents,
+    subscribeToMessagingEvents,
     subscribeToUsersStatuses,
     typing,
 } from 'src/services/chat';
@@ -43,6 +42,10 @@ const window = Dimensions.get('window');
 
 type Message = Voximplant['Messaging']['Message'];
 type Conversation = Voximplant['Messaging']['Conversation'];
+type EventHandlers = Voximplant['Messaging']['EventHandlers'];
+type MessageEvent = EventHandlers['MessageEvent'];
+type MessengerEvent = EventHandlers['MessengerEvent'];
+type StatusEvent = EventHandlers['StatusEvent'];
 
 interface FormValues {
     message: string;
@@ -50,7 +53,6 @@ interface FormValues {
 
 export interface Model {
     isPending: boolean;
-    conversationResponse: RemoteData<Conversation>;
     messagesResponse: RemoteData<Message[]>;
     removeConversationResponse: RemoteData<any>;
     messages: Message[];
@@ -60,7 +62,6 @@ export interface Model {
 
 export const initial: Model = {
     isPending: false,
-    conversationResponse: notAsked,
     messagesResponse: notAsked,
     removeConversationResponse: notAsked,
     messages: [],
@@ -73,7 +74,7 @@ interface ComponentProps {
     users: User[];
     tree: Cursor<Model>;
     session: Session;
-    conversationUuid: string;
+    conversation: Conversation;
 }
 
 @schema({ tree: {} })
@@ -115,7 +116,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         props.tree.set(initial);
 
-        const unsubscribeFromConversationEvents = subscribeToConversationEvents(props.conversationUuid, {
+        const unsubscribeFromConversationEvents = subscribeToMessagingEvents(props.conversation.uuid, {
             onSendMessage: this.onSendMessage,
             onTyping: this.onTyping,
         });
@@ -134,7 +135,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         if (buttonId === 'delete') {
             this.props.tree.isPending.set(true);
             try {
-                await removeConversation(this.props.tree.removeConversationResponse, this.props.conversationUuid);
+                await removeConversation(this.props.tree.removeConversationResponse, this.props.conversation.uuid);
                 await Navigation.pop(this.props.componentId);
             } finally {
                 this.props.tree.isPending.set(false);
@@ -143,20 +144,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async componentDidMount() {
-        const { tree, conversationUuid } = this.props;
-        const conversationResponse = await getConversation(tree.conversationResponse, conversationUuid);
-        if (isSuccess(conversationResponse)) {
-            const { lastSeq } = conversationResponse.data;
+        const { lastSeq } = this.props.conversation;
 
-            await this.loadMessages(lastSeq);
-        } else {
-            await Navigation.showOverlay({
-                component: {
-                    name: 'td.Modal',
-                    passProps: { text: 'Something went wrong with fetching chat' },
-                },
-            });
-        }
+        await this.loadMessages(lastSeq);
     }
 
     public componentWillUnmount() {
@@ -171,20 +161,12 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public isCompanion(userId: string) {
-        const { tree, session } = this.props;
+        const { session, conversation } = this.props;
 
         const myUserId = makeUserId(session.username);
 
-        const conversationResponse = tree.conversationResponse.get();
-        if (isSuccess(conversationResponse)) {
-            const usersIds = R.filter(
-                (pUserId) => pUserId !== myUserId,
-                R.map((p) => p.userId, conversationResponse.data.participants)
-            );
-            return R.includes(userId, usersIds);
-        }
-
-        return false;
+        const usersIds = R.filter((pUserId) => pUserId !== myUserId, R.map((p) => p.userId, conversation.participants));
+        return R.includes(userId, usersIds);
     }
 
     public setSubtitle(text: string, color: string) {
@@ -204,8 +186,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         this.setSubtitle(isOnline ? 'Online' : 'Offline', isOnline ? COLOR.ACCENT : COLOR.GRAY);
     }
 
-    public onSendMessage(event: any) {
-        if (event.message.conversation === this.props.conversationUuid) {
+    public onSendMessage(event: MessageEvent) {
+        if (event.message.conversation === this.props.conversation.uuid) {
             const { tree } = this.props;
             const isOnline = tree.isOnline.get();
 
@@ -214,7 +196,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public onTyping(event: any) {
+    public onTyping(event: MessengerEvent) {
         const { tree } = this.props;
 
         if (!this.isCompanion(event.userId)) {
@@ -241,7 +223,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public async onKeyPress() {
         if (!this.onKeyPressTimeout) {
-            await typing(this.props.conversationUuid);
+            await typing(this.props.conversation.uuid);
 
             this.onKeyPressTimeout = setTimeout(() => {
                 this.onKeyPressTimeout = null;
@@ -249,7 +231,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public onUserStatusChange(event: any) {
+    public onUserStatusChange(event: StatusEvent) {
         const { tree } = this.props;
         if (!this.isCompanion(event.userId)) {
             return;
@@ -261,9 +243,9 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async loadMessages(lastSeq: number) {
-        const { tree, conversationUuid } = this.props;
+        const { tree, conversation } = this.props;
 
-        const messagesResponse = await getMessages(tree.messagesResponse, conversationUuid, lastSeq);
+        const messagesResponse = await getMessages(tree.messagesResponse, conversation.uuid, lastSeq);
         if (isSuccess(messagesResponse)) {
             if (messagesResponse.data.length) {
                 tree.lastSeq.set(messagesResponse.data[0].sequence - 1);
@@ -293,10 +275,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             return;
         }
 
-        const conversationResponse = tree.conversationResponse.get();
-        if (isSuccess(conversationResponse)) {
-            await this.loadMessages(lastSeq);
-        }
+        await this.loadMessages(lastSeq);
     }
 
     public async onSubmit(values: FormValues, form: any) {
@@ -304,7 +283,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             return;
         }
 
-        await sendMessage(this.props.conversationUuid, values.message);
+        await sendMessage(this.props.conversation.uuid, values.message);
         form.reset();
     }
 

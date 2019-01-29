@@ -7,51 +7,27 @@ import { RemoteData, success } from 'src/libs/schema';
 import { appName } from './constants';
 import { catchEvent, Subscribable, wrapService } from './utils';
 
-type ChatUser = Voximplant['Messaging']['User'];
+type User = Voximplant['Messaging']['User'];
 type Conversation = Voximplant['Messaging']['Conversation'];
 type Message = Voximplant['Messaging']['Message'];
-type ChatUserStatus = Voximplant['Messaging']['UserStatus'];
 
-interface ChatUserEvent {
-    user: ChatUser;
-}
-
-interface ConversationEvent {
-    conversation: Conversation;
-}
-
-interface MessageEvent {
-    message: Message;
-}
-
-interface RetransmitEvent {
-    sequence: number;
-    messengerEventType: string;
-    userId: string;
-    message?: Message;
-    conversation?: Conversation;
-}
-
-interface RetransmitEventsEvent {
-    toSequence: number;
-    fromSequence: number;
-    events: RetransmitEvent[];
-}
-
-interface UserStatusEvent {
-    userStatus: ChatUserStatus;
-    userId: string;
-}
+type EventHandlers = Voximplant['Messaging']['EventHandlers'];
+type StatusEvent = EventHandlers['StatusEvent'];
+type RetransmitEventsEvent = EventHandlers['RetransmitEventsEvent'];
+type MessageEvent = EventHandlers['MessageEvent'];
+type ConversationEvent = EventHandlers['ConversationEvent'];
+type UserEvent = EventHandlers['UserEvent'];
+type MessengerEvent = EventHandlers['MessengerEvent'];
 
 const EventTypes = Voximplant.Messaging.MessengerEventTypes;
 const MessagingModule: any = NativeModules.VIMessagingModule;
 
 interface ConversationCallbacks {
     onSendMessage: (event: MessageEvent) => void;
-    onTyping: (event: any) => void;
+    onTyping: (event: MessengerEvent) => void;
 }
 
-function setupConversationListeners(service: Subscribable<any>, callbacks: ConversationCallbacks, setup: boolean) {
+function setupMessagingListeners(service: Subscribable<any>, callbacks: ConversationCallbacks, setup: boolean) {
     Object.keys(EventTypes).forEach((eventName) => {
         const callbackName = `on${eventName}`;
         if (typeof callbacks[callbackName] !== 'undefined') {
@@ -60,19 +36,19 @@ function setupConversationListeners(service: Subscribable<any>, callbacks: Conve
     });
 }
 
-export function subscribeToConversationEvents(conversationUuid: string, callbacks: ConversationCallbacks) {
-    setupConversationListeners(messaging, callbacks, true);
+export function subscribeToMessagingEvents(conversationUuid: string, callbacks: ConversationCallbacks) {
+    setupMessagingListeners(messaging, callbacks, true);
 
     return () => {
-        setupConversationListeners(messaging, callbacks, false);
+        setupMessagingListeners(messaging, callbacks, false);
     };
 }
 
-export function subscribeToUsersStatuses(usernames: string[], callback: (event: UserStatusEvent) => void) {
+export function subscribeToUsersStatuses(usernames: string[], callback: (event: StatusEvent) => void) {
     const usersIds = R.map(makeUserId, usernames);
     messaging.subscribe(usersIds);
 
-    function handler(event: UserStatusEvent) {
+    function handler(event: StatusEvent) {
         if (R.includes(event.userId, usersIds)) {
             callback(event);
         }
@@ -96,18 +72,18 @@ export function makeUsername(userId: string) {
 
 const messaging = Voximplant.getMessenger();
 
-async function catchChatUser(uuid: string) {
-    const event = await catchEvent<ChatUserEvent>(messaging, EventTypes.GetUser, ({ user }) => user.userId === uuid);
+async function catchUser(uuid: string) {
+    const event = await catchEvent<UserEvent>(messaging, EventTypes.GetUser, ({ user }) => user.userId === uuid);
 
     return event.user;
 }
 
-export function getChatUser(cursor: Cursor<RemoteData<ChatUser>>, username: string) {
+export function getUser(cursor: Cursor<RemoteData<User>>, username: string) {
     return wrapService(cursor, async () => {
         const userId = makeUserId(username);
         messaging.getUser(userId);
 
-        return catchChatUser(userId);
+        return catchUser(userId);
     });
 }
 
@@ -129,7 +105,7 @@ export async function createConversation(
             // This is just a workaround for distinct. Rewrite it after the issue is fixed
             const myUserId = makeUserId(myUsername);
             messaging.getUser(myUserId);
-            const myUser = await catchChatUser(myUserId);
+            const myUser = await catchUser(myUserId);
             messaging.getConversations(myUser.conversationsList);
             const conversations = await Promise.all(R.map(catchConversation, myUser.conversationsList));
             const existingConversation = R.find(
