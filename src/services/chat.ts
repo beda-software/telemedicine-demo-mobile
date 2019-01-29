@@ -68,10 +68,7 @@ export function subscribeToConversationEvents(conversationUuid: string, callback
     };
 }
 
-export function subscribeToUsersStatuses(
-    usernames: string[],
-    callback: (userId: string, userStatus: ChatUserStatus) => void
-) {
+export function subscribeToUsersStatuses(usernames: string[], callback: (event: UserStatusEvent) => void) {
     const usersIds = R.map(makeUserId, usernames);
     messaging.subscribe(usersIds);
 

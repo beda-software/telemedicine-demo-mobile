@@ -170,26 +170,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
     }
 
-    public onSendMessage(event: any) {
-        if (event.message.conversation === this.props.conversationUuid) {
-            const { tree, componentId } = this.props;
-            const isOnline = tree.isOnline.get();
-
-            tree.messages.apply((messages) => [...messages, event.message]);
-
-            Navigation.mergeOptions(componentId, {
-                topBar: {
-                    subtitle: {
-                        text: isOnline ? 'Online' : 'Offline',
-                        color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
-                    },
-                },
-            });
-        }
-    }
-
-    public onTyping(event: any) {
-        const { tree, componentId, session } = this.props;
+    public isCompanion(userId: string) {
+        const { tree, session } = this.props;
 
         const myUserId = makeUserId(session.username);
 
@@ -199,37 +181,62 @@ export class Component extends React.Component<ComponentProps, {}> {
                 (pUserId) => pUserId !== myUserId,
                 R.map((p) => p.userId, conversationResponse.data.participants)
             );
-            if (R.includes(event.userId, usersIds)) {
-                tree.isOnline.set(true);
-                Navigation.mergeOptions(componentId, {
-                    topBar: {
-                        subtitle: {
-                            text: 'Typing...',
-                            color: COLOR.GRAY,
-                        },
-                    },
-                });
-
-                if (this.onTypingTimeout) {
-                    clearTimeout(this.onTypingTimeout);
-                    this.onTypingTimeout = null;
-                }
-
-                this.onTypingTimeout = setTimeout(() => {
-                    const isOnline = tree.isOnline.get();
-
-                    Navigation.mergeOptions(componentId, {
-                        topBar: {
-                            subtitle: {
-                                text: isOnline ? 'Online' : 'Offline',
-                                color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
-                            },
-                        },
-                    });
-                    this.onTypingTimeout = null;
-                }, 5000);
-            }
+            return R.includes(userId, usersIds);
         }
+
+        return false;
+    }
+
+    public setSubtitle(text: string, color: string) {
+        const { componentId } = this.props;
+
+        Navigation.mergeOptions(componentId, {
+            topBar: {
+                subtitle: {
+                    text,
+                    color,
+                },
+            },
+        });
+    }
+
+    public setOnline(isOnline: boolean) {
+        this.setSubtitle(isOnline ? 'Online' : 'Offline', isOnline ? COLOR.ACCENT : COLOR.GRAY);
+    }
+
+    public onSendMessage(event: any) {
+        if (event.message.conversation === this.props.conversationUuid) {
+            const { tree } = this.props;
+            const isOnline = tree.isOnline.get();
+
+            tree.messages.apply((messages) => [...messages, event.message]);
+            this.setOnline(isOnline);
+        }
+    }
+
+    public onTyping(event: any) {
+        const { tree } = this.props;
+
+        if (!this.isCompanion(event.userId)) {
+            return;
+        }
+
+        tree.isOnline.set(true);
+
+        this.setSubtitle('Typing...', COLOR.GRAY);
+
+        if (this.onTypingTimeout) {
+            clearTimeout(this.onTypingTimeout);
+            this.onTypingTimeout = null;
+        }
+
+        this.onTypingTimeout = setTimeout(() => {
+            const isOnline = tree.isOnline.get();
+
+            this.setOnline(isOnline);
+
+            this.onTypingTimeout = null;
+        }, 5000);
     }
 
     public async onKeyPress() {
@@ -243,29 +250,21 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public onUserStatusChange(event: any) {
-        const { userId, userStatus } = event;
-
-        const { tree, session, componentId } = this.props;
-        const myUserId = makeUserId(session.username);
-
-        const conversationResponse = tree.conversationResponse.get();
-        if (isSuccess(conversationResponse)) {
-            const usersIds = R.filter(
-                (pUserId) => pUserId !== myUserId,
-                R.map((p) => p.userId, conversationResponse.data.participants)
-            );
-            if (R.includes(userId, usersIds)) {
-                tree.isOnline.set(userStatus.online);
-                Navigation.mergeOptions(componentId, {
-                    topBar: {
-                        subtitle: {
-                            text: userStatus.online ? 'Online' : 'Offline',
-                            color: userStatus.online ? COLOR.ACCENT : COLOR.GRAY,
-                        },
-                    },
-                });
-            }
+        const { tree, componentId } = this.props;
+        if (!this.isCompanion(event.userId)) {
+            return;
         }
+
+        const isOnline = event.userStatus.online;
+        tree.isOnline.set(isOnline);
+        Navigation.mergeOptions(componentId, {
+            topBar: {
+                subtitle: {
+                    text: isOnline ? 'Online' : 'Offline',
+                    color: isOnline ? COLOR.ACCENT : COLOR.GRAY,
+                },
+            },
+        });
     }
 
     public async loadMessages(lastSeq: number) {
