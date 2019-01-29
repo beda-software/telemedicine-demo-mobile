@@ -13,7 +13,7 @@ import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
 import { CallService } from 'src/services/call';
-import { setup as chatServiceSetup } from 'src/services/chat';
+import { chatServiceSetup } from 'src/services/chat';
 import { voxImplantReLogin } from 'src/services/login';
 import { getPushToken, PushToken, subscribeToPushNotifications } from 'src/services/pushnotifications';
 import { getSession, saveSession, Session } from 'src/services/session';

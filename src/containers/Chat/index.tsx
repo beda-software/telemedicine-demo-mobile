@@ -31,6 +31,7 @@ import {
     makeUsername,
     removeConversation,
     sendMessage,
+    subscribeToConversationEvents,
 } from 'src/services/chat';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
@@ -103,24 +104,11 @@ export class Component extends React.Component<ComponentProps, {}> {
         autoBind(this);
         Navigation.events().bindComponent(this);
 
-        const messaging = Voximplant.getMessenger();
-        const handler = (e: any) => {
-            console.log('called', e);
-            if (e.messengerEventType === 'SendMessage' && e.message.conversation === this.props.conversationUuid) {
-                const tree = this.props.tree;
-                tree.messages.apply((messages) => [...messages, e.message]);
-            }
-        };
-        Object.keys(Voximplant.Messaging.MessengerEventTypes).forEach((eventName) => {
-            messaging.on(eventName, handler);
-        });
-
-        this.unsubscribe = () => {
-            Object.keys(Voximplant.Messaging.MessengerEventTypes).forEach((eventName) => {
-                messaging.off(eventName, handler);
-            });
-        };
         props.tree.set(initial);
+
+        this.unsubscribe = subscribeToConversationEvents(props.conversationUuid, {
+            onSendMessage: this.onSendMessage,
+        });
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
@@ -141,22 +129,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         if (isSuccess(conversationResponse)) {
             const { lastSeq } = conversationResponse.data;
 
-            const messagesResponse = await getMessages(tree.messagesResponse, conversationUuid, lastSeq);
-            if (isSuccess(messagesResponse)) {
-                if (messagesResponse.data.length) {
-                    tree.lastSeq.set(messagesResponse.data[0].sequence - 1);
-                } else {
-                    tree.lastSeq.set(0);
-                }
-                tree.messages.set(messagesResponse.data);
-            } else {
-                await Navigation.showOverlay({
-                    component: {
-                        name: 'td.Modal',
-                        passProps: { text: 'Something went wrong with fetching messages history' },
-                    },
-                });
-            }
+            await this.loadMessages(lastSeq);
         } else {
             await Navigation.showOverlay({
                 component: {
@@ -171,8 +144,37 @@ export class Component extends React.Component<ComponentProps, {}> {
         this.unsubscribe();
     }
 
-    public async loadHistory() {
+    public onSendMessage(event: any) {
+        if (event.message.conversation === this.props.conversationUuid) {
+            const tree = this.props.tree;
+
+            tree.messages.apply((messages) => [...messages, event.message]);
+        }
+    }
+
+    public async loadMessages(lastSeq: number) {
         const { tree, conversationUuid } = this.props;
+
+        const messagesResponse = await getMessages(tree.messagesResponse, conversationUuid, lastSeq);
+        if (isSuccess(messagesResponse)) {
+            if (messagesResponse.data.length) {
+                tree.lastSeq.set(messagesResponse.data[0].sequence - 1);
+            } else {
+                tree.lastSeq.set(0);
+            }
+            tree.messages.apply((messages) => [...messagesResponse.data, ...messages]);
+        } else {
+            await Navigation.showOverlay({
+                component: {
+                    name: 'td.Modal',
+                    passProps: { text: 'Something went wrong with fetching messages history' },
+                },
+            });
+        }
+    }
+
+    public async loadHistory() {
+        const { tree } = this.props;
         const lastSeq = tree.lastSeq.get();
 
         if (lastSeq < 1) {
@@ -185,22 +187,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         const conversationResponse = tree.conversationResponse.get();
         if (isSuccess(conversationResponse)) {
-            const messagesResponse = await getMessages(tree.messagesResponse, conversationUuid, lastSeq);
-            if (isSuccess(messagesResponse)) {
-                if (messagesResponse.data.length) {
-                    tree.lastSeq.set(messagesResponse.data[0].sequence - 1);
-                } else {
-                    tree.lastSeq.set(0);
-                }
-                tree.messages.apply((messages) => [...messagesResponse.data, ...messages]);
-            } else {
-                await Navigation.showOverlay({
-                    component: {
-                        name: 'td.Modal',
-                        passProps: { text: 'Something went wrong with fetching messages history' },
-                    },
-                });
-            }
+            await this.loadMessages(lastSeq);
         }
     }
 

@@ -44,6 +44,27 @@ interface RetransmitEventsEvent {
 const EventTypes = Voximplant.Messaging.MessengerEventTypes;
 const MessagingModule: any = NativeModules.VIMessagingModule;
 
+interface ConversationCallbacks {
+    onSendMessage: (event: any) => void;
+}
+
+function setupConversationListeners(service: any, callbacks: ConversationCallbacks, setup: boolean) {
+    Object.keys(Voximplant.Messaging.MessengerEventTypes).forEach((eventName) => {
+        const callbackName = `on${eventName}`;
+        if (typeof callbacks[callbackName] !== 'undefined') {
+            service[setup ? 'on' : 'off'](eventName, callbacks[callbackName]);
+        }
+    });
+}
+
+export function subscribeToConversationEvents(conversationUuid: string, callbacks: ConversationCallbacks) {
+    setupConversationListeners(messaging, callbacks, true);
+
+    return () => {
+        setupConversationListeners(messaging, callbacks, false);
+    };
+}
+
 async function wrapService<T>(cursor: Cursor<RemoteData<T>>, fn: () => Promise<T>): Promise<RemoteDataResult<T>> {
     cursor.set(loading);
 
@@ -243,7 +264,7 @@ export function getMessages(cursor: Cursor<RemoteData<Message[]>>, conversationU
     });
 }
 
-export function setup() {
+export function chatServiceSetup() {
     messaging.on(EventTypes.Error, (event) => {
         console.log('EVENT ERROR CAUGHT', event);
     });
