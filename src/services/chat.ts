@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { AppState, NativeModules } from 'react-native';
+import { NativeModules } from 'react-native';
 import { Voximplant } from 'react-native-voximplant';
 
 import { Cursor } from 'src/contrib/typed-baobab';
@@ -238,14 +238,6 @@ export function chatServiceSetup() {
                 ...conversationsCache[conversationUuid],
                 lastSeq: event.message.sequence,
             };
-        }
-    });
-
-    AppState.addEventListener('change', async (appState) => {
-        if (appState === 'active') {
-            messaging.setStatus(true);
-        } else {
-            messaging.setStatus(false);
         }
     });
 }

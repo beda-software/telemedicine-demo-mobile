@@ -31,7 +31,6 @@ import {
     removeConversation,
     sendMessage,
     subscribeToMessagingEvents,
-    subscribeToUsersStatuses,
     typing,
 } from 'src/services/chat';
 import { Session } from 'src/services/session';
@@ -45,7 +44,6 @@ type Conversation = Voximplant['Messaging']['Conversation'];
 type EventHandlers = Voximplant['Messaging']['EventHandlers'];
 type MessageEvent = EventHandlers['MessageEvent'];
 type MessengerEvent = EventHandlers['MessengerEvent'];
-type StatusEvent = EventHandlers['StatusEvent'];
 
 interface FormValues {
     message: string;
@@ -116,19 +114,10 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         props.tree.set(initial);
 
-        const unsubscribeFromConversationEvents = subscribeToMessagingEvents(props.conversation.uuid, {
+        this.unsubscribe = subscribeToMessagingEvents(props.conversation.uuid, {
             onSendMessage: this.onSendMessage,
             onTyping: this.onTyping,
         });
-        const unsubscribeFromUsersStatuses = subscribeToUsersStatuses(
-            R.map((user) => user.username, props.users),
-            this.onUserStatusChange
-        );
-
-        this.unsubscribe = () => {
-            unsubscribeFromConversationEvents();
-            unsubscribeFromUsersStatuses();
-        };
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
@@ -192,7 +181,9 @@ export class Component extends React.Component<ComponentProps, {}> {
             const isOnline = tree.isOnline.get();
 
             tree.messages.apply((messages) => [...messages, event.message]);
-            this.setOnline(isOnline);
+            if (this.isCompanion(event.userId)) {
+                this.setOnline(isOnline);
+            }
         }
     }
 
@@ -229,17 +220,6 @@ export class Component extends React.Component<ComponentProps, {}> {
                 this.onKeyPressTimeout = null;
             }, 1000);
         }
-    }
-
-    public onUserStatusChange(event: StatusEvent) {
-        const { tree } = this.props;
-        if (!this.isCompanion(event.userId)) {
-            return;
-        }
-
-        const isOnline = event.userStatus.online;
-        tree.isOnline.set(isOnline);
-        this.setOnline(isOnline);
     }
 
     public async loadMessages(lastSeq: number) {

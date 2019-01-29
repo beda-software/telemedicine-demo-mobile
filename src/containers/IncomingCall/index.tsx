@@ -67,6 +67,10 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async answerCall() {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         this.props.tree.isPending.set(true);
 
         try {
@@ -80,6 +84,10 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async declineCall() {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         this.props.tree.isPending.set(true);
         await this.props.declineCall();
     }

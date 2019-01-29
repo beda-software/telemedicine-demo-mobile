@@ -189,6 +189,10 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public endCall() {
+        if (this.props.tree.isPending.get()) {
+            return;
+        }
+
         this.props.tree.isPending.set(true);
         this.props.endCall();
     }
