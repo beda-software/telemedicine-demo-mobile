@@ -20,7 +20,7 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { InputField } from 'src/components/InputFIeld';
 import { Preloader } from 'src/components/Preloader';
-import { User } from 'src/contrib/aidbox';
+import { Observation, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
@@ -290,6 +290,48 @@ export class Component extends React.Component<ComponentProps, {}> {
         form.reset();
     }
 
+    public async sendObservation() {
+        const modalId = 'observation-list-modal';
+
+        await Navigation.showModal({
+            stack: {
+                children: [
+                    {
+                        component: {
+                            id: modalId,
+                            name: 'td.ObservationList',
+                            passProps: {
+                                onSelect: async (item: Observation) => {
+                                    await Navigation.dismissModal(modalId);
+
+                                    await sendMessage(this.props.conversation.uuid, '', [
+                                        {
+                                            data: item,
+                                            type: 'fhirResource',
+                                        },
+                                    ]);
+                                },
+                            },
+                            options: {
+                                topBar: {
+                                    visible: true,
+                                    title: {
+                                        text: 'Attach observation',
+                                    },
+                                    leftButtons: [
+                                        {
+                                            id: 'closeModal',
+                                        },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        });
+    }
+
     public renderName(sender: string) {
         const username = makeUsername(sender);
         const { users } = this.props;
@@ -300,6 +342,22 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
 
         return username;
+    }
+
+    public renderMessage(item: Message) {
+        if (item.payload && item.payload.length) {
+            const firstPayload = item.payload[0];
+            if (firstPayload.type === 'fhirResource') {
+                return (
+                    <View style={s.messagePayload}>
+                        <Text>{firstPayload.data.resourceType}</Text>
+                        <Text>{firstPayload.data.id}</Text>
+                    </View>
+                );
+            }
+        }
+
+        return <Text>{item.text}</Text>;
     }
 
     public renderMessages() {
@@ -331,7 +389,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 {!isMe ? (
                                     <Text style={{ color: COLOR.ACCENT }}>{this.renderName(item.sender)}</Text>
                                 ) : null}
-                                <Text>{item.text}</Text>
+                                {this.renderMessage(item)}
                             </View>
                         </View>
                     );
@@ -355,17 +413,24 @@ export class Component extends React.Component<ComponentProps, {}> {
                                             autoCapitalize="none"
                                             autoCorrect={false}
                                             onSubmitEditing={() => handleSubmit()}
-                                            style={{ padding: 8, width: window.width - 45 }}
+                                            style={{ padding: 8, width: window.width - 75 }}
                                             {...fieldProps}
                                             onKeyPress={this.onKeyPress}
                                         />
                                     )}
                                 </Field>
+
+                                <TouchableOpacity
+                                    onPress={() => this.sendObservation()}
+                                    hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}
+                                >
+                                    <Icon name="healing" size={25} color={COLOR.ACCENT} />
+                                </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => handleSubmit()}
                                     hitSlop={{ top: 10, left: 10, bottom: 10, right: 10 }}
                                 >
-                                    <Icon name="send" size={20} color={COLOR.ACCENT} />
+                                    <Icon name="send" size={25} color={COLOR.ACCENT} />
                                 </TouchableOpacity>
                             </View>
                         </View>

@@ -37,4 +37,11 @@ export default StyleSheet.create({
         fontSize: 16,
     },
     chatMessageWrapper: { flex: 1, flexDirection: 'row' },
+    messagePayload: {
+        borderWidth: 1,
+        borderRadius: 15,
+        padding: 15,
+        marginTop: 5,
+        borderColor: COLOR.ACCENT,
+    },
 });

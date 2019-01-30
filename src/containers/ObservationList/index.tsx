@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import * as React from 'react';
-import { FlatList, Platform, SafeAreaView, StatusBar, Text, View } from 'react-native';
+import { FlatList, Platform, SafeAreaView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 
 import { Preloader } from 'src/components/Preloader';
@@ -27,6 +27,7 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     session: Session;
+    onSelect?: (item: Observation) => void;
 }
 
 function getNameByCode(code: string) {
@@ -109,6 +110,9 @@ export class Component extends React.Component<ComponentProps, {}> {
                 },
             });
         }
+        if (buttonId === 'closeModal') {
+            Navigation.dismissModal(this.props.componentId);
+        }
     }
 
     public async fetchObservations() {
@@ -118,7 +122,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public renderContent() {
-        const { tree } = this.props;
+        const { tree, onSelect } = this.props;
 
         const bundleResponseCursor = tree.observationListBundleResponse;
         if (isNotAskedCursor(bundleResponseCursor) || isLoadingCursor(bundleResponseCursor)) {
@@ -136,21 +140,23 @@ export class Component extends React.Component<ComponentProps, {}> {
                     keyExtractor={(item) => item.id!}
                     renderItem={({ item }) => {
                         return (
-                            <View
+                            <TouchableOpacity
                                 style={{
                                     alignSelf: 'center',
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     paddingLeft: 10,
                                 }}
+                                onPress={onSelect ? () => onSelect(item) : () => {}}
                             >
                                 <View style={{ flex: 1 }}>
                                     <Text style={s.contactListItem}>
+                                        {/* TODO: Use proper function*/}
                                         {getNameByCode(item.code.coding[0].code)}: {item.value!.Quantity!.value}
                                     </Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }} />
-                            </View>
+                            </TouchableOpacity>
                         );
                     }}
                 />
