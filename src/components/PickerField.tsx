@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FieldRenderProps } from 'react-final-form';
-import { Picker, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
 
 interface PickerFieldOption {
     label: string;
@@ -12,22 +13,19 @@ interface PickerFieldProps extends FieldRenderProps {
     [x: string]: any;
 }
 
-export const PickerField = React.forwardRef((props: PickerFieldProps, ref: React.Ref<Picker>) => {
+export const PickerField = React.forwardRef((props: PickerFieldProps, ref: React.Ref<RNPickerSelect>) => {
     const { input, meta, options, ...inputProps } = props;
     const { touched, error } = meta;
 
     return (
         <View>
-            <Picker
+            <RNPickerSelect
                 {...inputProps}
                 onValueChange={(value) => input.onChange(value)}
-                selectedValue={input.value}
+                value={input.value}
                 ref={ref}
-            >
-                {options.map(({ label, value }) => (
-                    <Picker.Item label={label} value={value} />
-                ))}
-            </Picker>
+                items={options}
+            />
             {touched && error && <Text style={props.errorStyle}>{error}</Text>}
         </View>
     );

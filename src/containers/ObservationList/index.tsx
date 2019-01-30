@@ -29,6 +29,23 @@ interface ComponentProps {
     session: Session;
 }
 
+function getNameByCode(code: string) {
+    switch (code) {
+        case '8310-5': {
+            return 'Temperature';
+        }
+        case '3141-9': {
+            return 'Body weight';
+        }
+        case '8302-2': {
+            return 'Body height';
+        }
+        default: {
+            return undefined;
+        }
+    }
+}
+
 @schema({ tree: {} })
 export class Component extends React.Component<ComponentProps, {}> {
     public static options() {
@@ -128,7 +145,9 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 }}
                             >
                                 <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>Temperature: {item.value!.Quantity!.value}</Text>
+                                    <Text style={s.contactListItem}>
+                                        {getNameByCode(item.code.coding[0].code)}: {item.value!.Quantity!.value}
+                                    </Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }} />
                             </View>
