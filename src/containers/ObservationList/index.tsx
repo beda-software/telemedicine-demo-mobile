@@ -57,6 +57,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             sideMenu: {
                 left: {
                     enabled: true,
+                    visible: false,
                 },
             },
         };
@@ -127,7 +128,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 }}
                             >
                                 <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>{item.id!}</Text>
+                                    <Text style={s.contactListItem}>Temperature: {item.value!.Quantity!.value}</Text>
                                 </View>
                                 <View style={{ flexDirection: 'row' }} />
                             </View>
