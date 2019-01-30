@@ -18,6 +18,7 @@ import validate from './validation';
 
 interface FormValues {
     value: string;
+    code: string;
 }
 
 export interface Model {
@@ -34,6 +35,23 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     session: Session;
+}
+
+function getUnitByCode(code: string) {
+    switch (code) {
+        case '8310-5': {
+            return 'degF';
+        }
+        case '3141-9': {
+            return 'kg';
+        }
+        case '8302-2': {
+            return 'cm';
+        }
+        default: {
+            return undefined;
+        }
+    }
 }
 
 @schema({ tree: {} })
@@ -91,7 +109,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 coding: [
                     {
                         system: 'http://loinc.org',
-                        code: '8310-5',
+                        code: values.code,
                     },
                 ],
             },
@@ -99,7 +117,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 Quantity: {
                     system: 'http://unitsofmeasure.org',
                     value: parseFloat(values.value),
-                    code: 'degF',
+                    code: getUnitByCode(values.code),
                 },
             },
             effective: {
@@ -140,8 +158,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                     return (
                         <View>
                             <Text style={s.formInputLabel}>Select measure type</Text>
-
-                            <Field name="type">
+                            <Field name="code">
                                 {(fieldProps) => (
                                     <PickerField
                                         underlineColorAndroid="transparent"
@@ -149,14 +166,16 @@ export class Component extends React.Component<ComponentProps, {}> {
                                         errorStyle={s.formInputError}
                                         options={[
                                             { label: 'Temperature', value: '8310-5' },
-                                            { label: 'Height', value: 'height' },
+                                            { label: 'Weight', value: '3141-9' },
+                                            { label: 'Height', value: '8302-2' },
                                         ]}
                                         {...fieldProps}
                                     />
                                 )}
                             </Field>
 
-                            <Text style={s.formInputLabel}>Your current temperature</Text>
+                            {console.log(Form)}
+                            <Text style={s.formInputLabel}>Your current measure</Text>
                             <Field name="value">
                                 {(fieldProps) => (
                                     <InputField
