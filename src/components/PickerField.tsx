@@ -10,23 +10,27 @@ interface PickerFieldOption {
 
 interface PickerFieldProps extends FieldRenderProps {
     options: PickerFieldOption[];
+    style: object;
+    errorStyle: object;
     [x: string]: any;
 }
 
 export const PickerField = React.forwardRef((props: PickerFieldProps, ref: React.Ref<RNPickerSelect>) => {
-    const { input, meta, options, ...inputProps } = props;
+    const { input, meta, options, errorStyle, style, ...inputProps } = props;
     const { touched, error } = meta;
 
     return (
         <View>
             <RNPickerSelect
                 {...inputProps}
+                style={style}
                 onValueChange={(value) => input.onChange(value)}
                 value={input.value}
                 ref={ref}
                 items={options}
+                useNativeAndroidPickerStyle={false}
             />
-            {touched && error && <Text style={props.errorStyle}>{error}</Text>}
+            {touched && error && <Text style={errorStyle}>{error}</Text>}
         </View>
     );
 });

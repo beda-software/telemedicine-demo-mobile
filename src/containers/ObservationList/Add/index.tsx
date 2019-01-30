@@ -162,7 +162,10 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 {(fieldProps) => (
                                     <PickerField
                                         underlineColorAndroid="transparent"
-                                        style={s.formInput}
+                                        style={{
+                                            inputIOS: s.formInput,
+                                            inputAndroid: s.formInput,
+                                        }}
                                         errorStyle={s.formInputError}
                                         options={[
                                             { label: 'Temperature', value: '8310-5' },

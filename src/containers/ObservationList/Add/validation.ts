@@ -10,7 +10,7 @@ const schema = {
             minLength: 1,
         },
     },
-    required: ['value'],
+    required: ['code', 'value'],
 };
 
 export default makeValidator(schema);
