@@ -4,6 +4,7 @@ import { SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 
 import { InputField } from 'src/components/InputFIeld';
+import { PickerField } from 'src/components/PickerField';
 import { Preloader } from 'src/components/Preloader';
 import { Observation } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
@@ -138,6 +139,23 @@ export class Component extends React.Component<ComponentProps, {}> {
 
                     return (
                         <View>
+                            <Text style={s.formInputLabel}>Select measure type</Text>
+
+                            <Field name="type">
+                                {(fieldProps) => (
+                                    <PickerField
+                                        underlineColorAndroid="transparent"
+                                        style={s.formInput}
+                                        errorStyle={s.formInputError}
+                                        options={[
+                                            { label: 'Temperature', value: '8310-5' },
+                                            { label: 'Height', value: 'height' },
+                                        ]}
+                                        {...fieldProps}
+                                    />
+                                )}
+                            </Field>
+
                             <Text style={s.formInputLabel}>Your current temperature</Text>
                             <Field name="value">
                                 {(fieldProps) => (
