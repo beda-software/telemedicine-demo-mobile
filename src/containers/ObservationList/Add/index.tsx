@@ -175,7 +175,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                             </Field>
 
                             {console.log(Form)}
-                            <Text style={s.formInputLabel}>Your current temperature</Text>
+                            <Text style={s.formInputLabel}>Your current measure</Text>
                             <Field name="value">
                                 {(fieldProps) => (
                                     <InputField
