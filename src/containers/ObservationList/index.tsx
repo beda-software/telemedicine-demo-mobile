@@ -11,6 +11,7 @@ import { schema } from 'src/libs/state';
 import { getFHIRResources } from 'src/services/fhir';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
+import { getNameByCode } from 'src/utils/fhir';
 import s from './style';
 
 export interface Model {
@@ -28,23 +29,6 @@ interface ComponentProps {
     tree: Cursor<Model>;
     session: Session;
     onSelect?: (item: Observation) => void;
-}
-
-function getNameByCode(code: string) {
-    switch (code) {
-        case '8310-5': {
-            return 'Temperature';
-        }
-        case '3141-9': {
-            return 'Body weight';
-        }
-        case '8302-2': {
-            return 'Body height';
-        }
-        default: {
-            return undefined;
-        }
-    }
 }
 
 @schema({ tree: {} })
