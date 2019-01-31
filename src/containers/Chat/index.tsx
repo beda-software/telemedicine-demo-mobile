@@ -38,6 +38,7 @@ import {
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
 import s from './style';
+import { getNameByCode, getValue } from 'src/utils/fhir';
 
 const window = Dimensions.get('window');
 
@@ -76,6 +77,14 @@ interface ComponentProps {
     tree: Cursor<Model>;
     session: Session;
     conversation: Conversation;
+}
+
+function getObservationInfo(observation: Observation) {
+    const code = R.path(['code', 'coding', 0, 'code'], observation);
+
+    if (code) {
+        return `${getNameByCode(code)}: ${getValue(observation)}`;
+    }
 }
 
 @schema({ tree: {} })
@@ -363,8 +372,9 @@ export class Component extends React.Component<ComponentProps, {}> {
             if (firstPayload.type === 'fhirResource') {
                 return (
                     <View style={s.messagePayload}>
+                        {console.log(firstPayload.data)}
                         <Text>{firstPayload.data.resourceType}</Text>
-                        <Text>{firstPayload.data.id}</Text>
+                        <Text>{getObservationInfo(firstPayload.data)}</Text>
                     </View>
                 );
             }
