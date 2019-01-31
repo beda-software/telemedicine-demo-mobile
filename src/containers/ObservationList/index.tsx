@@ -101,6 +101,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 },
             });
         }
+
         if (buttonId === 'menu') {
             Navigation.mergeOptions(this.props.componentId, {
                 sideMenu: {
@@ -109,9 +110,6 @@ export class Component extends React.Component<ComponentProps, {}> {
                     },
                 },
             });
-        }
-        if (buttonId === 'closeModal') {
-            Navigation.dismissModal(this.props.componentId);
         }
     }
 

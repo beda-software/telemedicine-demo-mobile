@@ -131,7 +131,11 @@ function bootstrap() {
     // in multiple threads because it is a singleton, and multiple connects/disconnects between calls
     // leads to errors
     async function _restoreSession() {
-        const sessionResponse = await getSession(rootTree.sessionResponse);
+        let sessionResponse = rootTree.sessionResponse.get();
+
+        if (!isSuccess(sessionResponse)) {
+            sessionResponse = await getSession(rootTree.sessionResponse);
+        }
 
         if (isSuccess(sessionResponse)) {
             const session = sessionResponse.data;
@@ -241,6 +245,11 @@ function bootstrap() {
     });
     chatServiceSetup();
     getPushToken(rootTree.pushTokenResponse);
+
+    // VoxImplant closes session in case of inactivity,
+    // so we try restore session every 10 min
+    const sessionRestoreInterval = 10 * 60 * 1000;
+    setInterval(() => restoreSession(), sessionRestoreInterval);
 }
 
 bootstrap();

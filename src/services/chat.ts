@@ -240,4 +240,13 @@ export function chatServiceSetup() {
             };
         }
     });
+
+    const client = Voximplant.getInstance();
+
+    setInterval(async () => {
+        const connectionState = await client.getClientState();
+        if (connectionState === Voximplant.ClientState.LOGGED_IN) {
+            messaging.setStatus(true);
+        }
+    }, 10 * 1000);
 }

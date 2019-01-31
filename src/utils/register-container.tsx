@@ -6,6 +6,7 @@ import { Navigation } from 'react-native-navigation';
 
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isSuccess, RemoteData } from 'src/libs/schema';
+import { schema } from 'src/libs/state';
 import { Session } from 'src/services/session';
 
 function withProps<P>(Component: React.ComponentType<P>, props: Partial<P>) {
@@ -24,6 +25,7 @@ function withSession<P>(
     Component: React.ComponentType<P & { session: Session }>,
     sessionResponseCursor: Cursor<RemoteData<Session>>
 ) {
+    @schema({})
     class Wrapper extends React.Component<P> {
         public render() {
             const sessionResponse = sessionResponseCursor.get();

@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as R from 'ramda';
 import * as React from 'react';
 import autoBind from 'react-autobind';
@@ -108,6 +109,7 @@ export class Component extends React.Component<ComponentProps, {}> {
     private readonly unsubscribe: () => void;
     private onTypingTimeout: NodeJS.Timeout | null;
     private onKeyPressTimeout: NodeJS.Timeout | null;
+    private onUserStatusChangeTimeout: NodeJS.Timeout | null;
 
     constructor(props: ComponentProps) {
         super(props);
@@ -158,6 +160,9 @@ export class Component extends React.Component<ComponentProps, {}> {
         }
         if (this.onTypingTimeout) {
             clearTimeout(this.onTypingTimeout);
+        }
+        if (this.onUserStatusChangeTimeout) {
+            clearTimeout(this.onUserStatusChangeTimeout);
         }
     }
 
@@ -212,7 +217,6 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         if (this.onTypingTimeout) {
             clearTimeout(this.onTypingTimeout);
-            this.onTypingTimeout = null;
         }
 
         this.onTypingTimeout = setTimeout(() => {
@@ -243,6 +247,17 @@ export class Component extends React.Component<ComponentProps, {}> {
         const isOnline = event.userStatus.online;
         tree.isOnline.set(isOnline);
         this.setOnline(isOnline);
+
+        if (isOnline) {
+            if (this.onUserStatusChangeTimeout) {
+                clearTimeout(this.onUserStatusChangeTimeout);
+            }
+
+            this.onUserStatusChangeTimeout = setTimeout(() => {
+                tree.isOnline.set(false);
+                this.setOnline(false);
+            }, 10000 + 5000);
+        }
     }
 
     public async loadMessages(lastSeq: number) {
@@ -290,44 +305,42 @@ export class Component extends React.Component<ComponentProps, {}> {
         form.reset();
     }
 
-    public async sendObservation() {
-        const modalId = 'observation-list-modal';
+    public sendObservation() {
+        const modalId = _.uniqueId('observation-list-modal');
 
-        await Navigation.showModal({
-            stack: {
-                children: [
-                    {
-                        component: {
-                            id: modalId,
-                            name: 'td.ObservationList',
-                            passProps: {
-                                onSelect: async (item: Observation) => {
-                                    await Navigation.dismissModal(modalId);
+        // This is a workaround for this issue
+        // TODO: https://github.com/wix/react-native-navigation/issues/3496
+        Navigation.push(this.props.componentId, {
+            component: {
+                id: modalId,
+                name: 'td.ObservationList',
+                passProps: {
+                    onSelect: async (item: Observation) => {
+                        await sendMessage(this.props.conversation.uuid, '', [
+                            {
+                                data: item,
+                                title: 'FHIR Resource',
+                                type: 'fhirResource',
+                            },
+                        ]);
 
-                                    await sendMessage(this.props.conversation.uuid, '', [
-                                        {
-                                            data: item,
-                                            type: 'fhirResource',
-                                        },
-                                    ]);
-                                },
-                            },
-                            options: {
-                                topBar: {
-                                    visible: true,
-                                    title: {
-                                        text: 'Attach observation',
-                                    },
-                                    leftButtons: [
-                                        {
-                                            id: 'closeModal',
-                                        },
-                                    ],
-                                },
-                            },
-                        },
+                        await Navigation.pop(modalId);
                     },
-                ],
+                },
+                options: {
+                    topBar: {
+                        title: {
+                            text: 'Attach observation',
+                        },
+                        backButton: { visible: true },
+                    },
+                },
+            },
+        });
+        Navigation.mergeOptions(modalId, {
+            topBar: {
+                leftButtons: [],
+                backButton: { visible: true },
             },
         });
     }
