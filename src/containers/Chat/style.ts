@@ -38,10 +38,16 @@ export default StyleSheet.create({
     },
     chatMessageWrapper: { flex: 1, flexDirection: 'row' },
     messagePayload: {
+        flexDirection: 'row',
         borderWidth: 1,
         borderRadius: 15,
         padding: 15,
         marginTop: 5,
         borderColor: COLOR.ACCENT,
+        alignItems: 'center',
+    },
+    messagePayloadContent: {
+        flexDirection: 'column',
+        paddingLeft: 5,
     },
 });

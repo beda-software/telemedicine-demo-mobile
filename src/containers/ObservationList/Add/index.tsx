@@ -13,6 +13,7 @@ import { schema } from 'src/libs/state';
 import { saveFHIRResource } from 'src/services/fhir';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
+import { getUnitByCode } from 'src/utils/fhir';
 import s from './style';
 import validate from './validation';
 
@@ -35,23 +36,6 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     session: Session;
-}
-
-function getUnitByCode(code: string) {
-    switch (code) {
-        case '8310-5': {
-            return 'degF';
-        }
-        case '3141-9': {
-            return 'kg';
-        }
-        case '8302-2': {
-            return 'cm';
-        }
-        default: {
-            return undefined;
-        }
-    }
 }
 
 @schema({ tree: {} })
