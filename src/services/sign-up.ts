@@ -1,7 +1,7 @@
+import { User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData } from 'src/libs/schema';
 import { service } from './base';
-import { User } from 'src/contrib/aidbox';
 
 interface SignUpBody {
     username: string;
