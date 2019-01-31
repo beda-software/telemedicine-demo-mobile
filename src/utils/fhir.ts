@@ -5,7 +5,7 @@ import { Observation } from 'src/contrib/aidbox';
 export function getUnitByCode(code: string) {
     switch (code) {
         case '8310-5': {
-            return 'degF';
+            return 'degC';
         }
         case '3141-9': {
             return 'kg';

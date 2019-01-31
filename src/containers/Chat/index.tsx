@@ -368,16 +368,27 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public renderMessage(item: Message) {
         if (item.payload && item.payload.length) {
-            const firstPayload = item.payload[0];
-            if (firstPayload.type === 'fhirResource') {
-                return (
-                    <View style={s.messagePayload}>
-                        {console.log(firstPayload.data)}
-                        <Text>{firstPayload.data.resourceType}</Text>
-                        <Text>{getObservationInfo(firstPayload.data)}</Text>
-                    </View>
-                );
-            }
+            return R.map((payload: any) => {
+                if (payload.type === 'fhirResource') {
+                    const resource: Observation = payload.data;
+
+                    return (
+                        <View style={s.messagePayload} key={resource.id}>
+                            <Icon name="healing" size={25} color={COLOR.ACCENT} />
+                            <View style={s.messagePayloadContent}>
+                                <Text>{resource.resourceType}</Text>
+                                <Text>
+                                    {resource.resourceType === 'Observation'
+                                        ? getObservationInfo(resource)
+                                        : resource.id}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                }
+
+                return null;
+            }, item.payload);
         }
 
         return <Text>{item.text}</Text>;
