@@ -37,8 +37,8 @@ import {
 } from 'src/services/chat';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
-import s from './style';
 import { getNameByCode, getValue } from 'src/utils/fhir';
+import s from './style';
 
 const window = Dimensions.get('window');
 
@@ -80,11 +80,13 @@ interface ComponentProps {
 }
 
 function getObservationInfo(observation: Observation) {
-    const code = R.path(['code', 'coding', 0, 'code'], observation);
+    const code = R.path<string>(['code', 'coding', 0, 'code'], observation);
 
     if (code) {
         return `${getNameByCode(code)}: ${getValue(observation)}`;
     }
+
+    return '';
 }
 
 @schema({ tree: {} })
@@ -315,16 +317,11 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public sendObservation() {
-        const modalId = _.uniqueId('observation-list-modal');
-
-        // This is a workaround for this issue
-        // TODO: https://github.com/wix/react-native-navigation/issues/3496
         Navigation.push(this.props.componentId, {
             component: {
-                id: modalId,
-                name: 'td.ObservationList',
+                name: 'td.ObservationAdd',
                 passProps: {
-                    onSelect: async (item: Observation) => {
+                    onSave: async (item: Observation) => {
                         await sendMessage(this.props.conversation.uuid, '', [
                             {
                                 data: item,
@@ -332,24 +329,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 type: 'fhirResource',
                             },
                         ]);
-
-                        await Navigation.pop(modalId);
                     },
                 },
-                options: {
-                    topBar: {
-                        title: {
-                            text: 'Attach observation',
-                        },
-                        backButton: { visible: true },
-                    },
-                },
-            },
-        });
-        Navigation.mergeOptions(modalId, {
-            topBar: {
-                leftButtons: [],
-                backButton: { visible: true },
             },
         });
     }

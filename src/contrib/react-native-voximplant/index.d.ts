@@ -162,6 +162,11 @@ declare module 'react-native-voximplant' {
         userStatus: MessagingUserStatus;
     }
 
+    interface MessengerNotifications {
+        SendMessage: string;
+        EditMessage: string;
+    }
+
     interface Messaging extends Subscribable<any> {
         setStatus: (status: boolean) => void;
         getMe: () => string;
@@ -193,6 +198,8 @@ declare module 'react-native-voximplant' {
             UserEvent: UserEvent;
             MessengerEvent: MessengerEvent;
         };
+        MessengerNotifications: MessengerNotifications;
+        managePushNotifications: (notifications: string[]) => void;
     }
 
     interface Voximplant {

@@ -100,8 +100,12 @@ export async function voxImplantReLogin(session: Session) {
         const { accessToken } = voxImplantTokens;
         console.log(`voxImplantReLogin: loginWithToken: user: ${username}, token: ${accessToken}`);
 
-        const { tokens } = await client.loginWithToken(fullUsername, accessToken);
-        return success(tokens);
+        try {
+            const { tokens } = await client.loginWithToken(fullUsername, accessToken);
+            return success(tokens);
+        } catch (err) {
+            return failure(err);
+        }
     }
 
     return success(voxImplantTokens);

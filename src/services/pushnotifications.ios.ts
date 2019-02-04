@@ -50,3 +50,5 @@ export function subscribeToPushNotifications(callback: (x: any) => void) {
     NotificationsIOS.addEventListener('notificationReceivedBackground', handler);
     NotificationsIOS.addEventListener('notificationReceivedForeground', handler);
 }
+
+export function showLocalNotification(title: string, text: string) {}

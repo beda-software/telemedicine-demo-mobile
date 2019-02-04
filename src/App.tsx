@@ -97,6 +97,9 @@ async function init() {
     if (isSuccess(pushTokenResponse)) {
         await client.registerPushNotificationsToken(pushTokenResponse.data);
         console.log('PushToken registered', pushTokenResponse.data);
+
+        const messaging = Voximplant.getMessenger();
+        messaging.managePushNotifications([Voximplant.Messaging.MessengerNotifications.SendMessage]);
     }
 }
 
@@ -245,11 +248,6 @@ function bootstrap() {
     });
     chatServiceSetup();
     getPushToken(rootTree.pushTokenResponse);
-
-    // VoxImplant closes session in case of inactivity,
-    // so we try restore session every 10 min
-    const sessionRestoreInterval = 10 * 60 * 1000;
-    setInterval(() => restoreSession(), sessionRestoreInterval);
 }
 
 bootstrap();

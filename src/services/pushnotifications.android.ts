@@ -42,3 +42,19 @@ export function subscribeToPushNotifications(callback: (x: any) => void) {
     ).setDescription('Incoming call received');
     firebase.notifications().android.createChannel(channel);
 }
+
+export function showLocalNotification(title: string, text: string) {
+    console.log('PushManager: showLocalNotification');
+    try {
+        const notification = new firebase.notifications.Notification()
+            .setNotificationId('notificationId')
+            .setTitle(title);
+        notification.android.setSmallIcon('ic_vox_notification');
+        notification.android.setChannelId('td_channel_id');
+        firebase.notifications().displayNotification(notification);
+    } catch (e) {
+        console.warn(
+            'React Native Firebase is not set up. Enable google-services plugin at the bottom of the build.gradle file'
+        );
+    }
+}

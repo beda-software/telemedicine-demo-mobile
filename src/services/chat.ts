@@ -4,6 +4,7 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData, success } from 'src/libs/schema';
+import { showLocalNotification } from 'src/services/pushnotifications';
 import { appName } from './constants';
 import { catchEvent, Subscribable, wrapService } from './utils';
 

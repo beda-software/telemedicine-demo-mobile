@@ -36,6 +36,7 @@ interface ComponentProps {
     componentId: string;
     tree: Cursor<Model>;
     session: Session;
+    onSave: (observation: Observation) => void;
 }
 
 @schema({ tree: {} })
@@ -113,13 +114,16 @@ export class Component extends React.Component<ComponentProps, {}> {
         try {
             const response = await saveFHIRResource(tree.response, resource, session.token);
             if (isSuccess(response)) {
+                if (this.props.onSave) {
+                    await this.props.onSave(response.data);
+                }
                 await Navigation.pop(componentId);
             } else {
                 await Navigation.showOverlay({
                     component: {
                         name: 'td.Modal',
                         passProps: {
-                            text: `Something went wrong while creating the obsevation. ${JSON.stringify(
+                            text: `Something went wrong while creating the observation. ${JSON.stringify(
                                 response.error
                             )}`,
                         },
