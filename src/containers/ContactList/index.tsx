@@ -1,4 +1,3 @@
-import * as R from 'ramda';
 import * as React from 'react';
 import { FlatList, Platform, SafeAreaView, StatusBar, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
@@ -8,10 +7,10 @@ import { CallButton } from 'src/components/CallButton';
 import { Preloader } from 'src/components/Preloader';
 import { Bundle, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isNotAskedCursor, isSuccess, isSuccessCursor, notAsked, RemoteData } from 'src/libs/schema';
+import { isFailure, isLoading, isNotAsked, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { CallService } from 'src/services/call';
-import { createConversation } from 'src/services/chat';
+import { createConversation, prepareConversationsCache } from 'src/services/chat';
 import { getFHIRResources } from 'src/services/fhir';
 import { Session } from 'src/services/session';
 import COLOR from 'src/styles/Color';
@@ -22,12 +21,14 @@ type Conversation = Voximplant['Messaging']['Conversation'];
 export interface Model {
     contactListBundleResponse: RemoteData<Bundle<User>>;
     createConversationResponse: RemoteData<Conversation>;
+    contacts: User[];
     isPending: boolean;
 }
 
 export const initial: Model = {
     contactListBundleResponse: notAsked,
     createConversationResponse: notAsked,
+    contacts: [],
     isPending: false,
 };
 
@@ -71,6 +72,8 @@ export class Component extends React.Component<ComponentProps, {}> {
         props.tree.set(initial);
 
         Navigation.events().bindComponent(this);
+
+        prepareConversationsCache(props.session.username);
     }
 
     public async componentDidAppear() {
@@ -90,9 +93,13 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async fetchContacts() {
-        const { session } = this.props;
+        const { session, tree } = this.props;
 
-        await getFHIRResources(this.props.tree.contactListBundleResponse, 'User', {}, session.token);
+        const response = await getFHIRResources(tree.contactListBundleResponse, 'User', {}, session.token);
+        if (isSuccess(response)) {
+            const entries = response.data.entry || [];
+            tree.contacts.set(entries.map((entry) => entry!.resource!));
+        }
     }
 
     public async makeOutgoingCall(user: User) {
@@ -169,62 +176,60 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public renderContent() {
         const { tree, session } = this.props;
-
         const sessionUsername = session.username;
-        const bundleResponseCursor = tree.contactListBundleResponse;
-        if (isNotAskedCursor(bundleResponseCursor) || isLoadingCursor(bundleResponseCursor)) {
+        const contacts = tree.contacts.get();
+        const bundleResponse = tree.contactListBundleResponse.get();
+
+        if (!contacts.length && (isNotAsked(bundleResponse) || isLoading(bundleResponse))) {
             return <Preloader isVisible={true} />;
         }
 
-        if (isSuccessCursor(bundleResponseCursor)) {
-            const bundle = bundleResponseCursor.data.get();
-            const resources = R.map((entry) => entry.resource!, bundle.entry || []);
-
+        if (isFailure(bundleResponse)) {
             return (
-                <FlatList<User>
-                    data={resources}
-                    listKey="contact-list"
-                    keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => {
-                        if (item.username === sessionUsername) {
-                            return null;
-                        }
-
-                        return (
-                            <View
-                                style={{
-                                    alignSelf: 'center',
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    paddingLeft: 10,
-                                }}
-                            >
-                                <View style={{ flex: 1 }}>
-                                    <Text style={s.contactListItem}>{item.displayName}</Text>
-                                </View>
-                                <View style={{ flexDirection: 'row' }}>
-                                    <CallButton
-                                        iconName="chat"
-                                        color={COLOR.ACCENT}
-                                        buttonPressed={() => this.openChat(item, resources)}
-                                    />
-                                    <CallButton
-                                        iconName="call"
-                                        color={COLOR.ACCENT}
-                                        buttonPressed={() => this.makeOutgoingCall(item)}
-                                    />
-                                </View>
-                            </View>
-                        );
-                    }}
-                />
+                <View>
+                    <Text>Something went wrong</Text>
+                </View>
             );
         }
 
         return (
-            <View>
-                <Text>Something went wrong</Text>
-            </View>
+            <FlatList<User>
+                data={contacts}
+                listKey="contact-list"
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => {
+                    if (item.username === sessionUsername) {
+                        return null;
+                    }
+
+                    return (
+                        <View
+                            style={{
+                                alignSelf: 'center',
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                paddingLeft: 10,
+                            }}
+                        >
+                            <View style={{ flex: 1 }}>
+                                <Text style={s.contactListItem}>{item.displayName}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row' }}>
+                                <CallButton
+                                    iconName="chat"
+                                    color={COLOR.ACCENT}
+                                    buttonPressed={() => this.openChat(item, contacts)}
+                                />
+                                <CallButton
+                                    iconName="call"
+                                    color={COLOR.ACCENT}
+                                    buttonPressed={() => this.makeOutgoingCall(item)}
+                                />
+                            </View>
+                        </View>
+                    );
+                }}
+            />
         );
     }
 

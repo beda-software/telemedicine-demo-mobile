@@ -4,7 +4,6 @@ import { Voximplant } from 'react-native-voximplant';
 
 import { Cursor } from 'src/contrib/typed-baobab';
 import { RemoteData, success } from 'src/libs/schema';
-import { showLocalNotification } from 'src/services/pushnotifications';
 import { appName } from './constants';
 import { catchEvent, Subscribable, wrapService } from './utils';
 
@@ -93,6 +92,15 @@ interface ConversationsCache {
 }
 
 const conversationsCache: ConversationsCache = {};
+
+export async function prepareConversationsCache(myUsername: string) {
+    // This is just a workaround for distinct. Rewrite it after the issue is fixed
+    const myUserId = makeUserId(myUsername);
+    messaging.getUser(myUserId);
+    const myUser = await catchUser(myUserId);
+    messaging.getConversations(myUser.conversationsList);
+    await Promise.all(R.map(catchConversation, myUser.conversationsList));
+}
 
 export async function createConversation(
     cursor: Cursor<RemoteData<Conversation>>,

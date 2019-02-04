@@ -10,8 +10,7 @@ import * as IncomingCall from 'src/containers/IncomingCall';
 import * as LeftMenu from 'src/containers/LeftMenu';
 import * as Login from 'src/containers/Login';
 import * as Modal from 'src/containers/Modal';
-import * as ObservationList from 'src/containers/ObservationList';
-import * as ObservationAdd from 'src/containers/ObservationList/Add';
+import * as ObservationAdd from 'src/containers/ObservationAdd';
 import * as SignUp from 'src/containers/SignUp';
 import { getTree } from 'src/contrib/typed-baobab';
 import { isSuccess, loading, RemoteData } from 'src/libs/schema';
@@ -28,9 +27,10 @@ const initial: Model = {
     pushTokenResponse: loading,
     login: Login.initial,
     signUp: SignUp.initial,
-    contactList: ContactList.initial,
+    contact: {
+        list: ContactList.initial,
+    },
     observation: {
-        list: ObservationList.initial,
         add: ObservationAdd.initial,
     },
     chat: Chat.initial,
@@ -44,9 +44,8 @@ interface Model {
     pushTokenResponse: RemoteData<PushToken>;
     login: Login.Model;
     signUp: SignUp.Model;
-    contactList: ContactList.Model;
+    contact: { list: ContactList.Model };
     observation: {
-        list: ObservationList.Model;
         add: ObservationAdd.Model;
     };
     chat: Chat.Model;
@@ -71,14 +70,11 @@ registerContainer('td.LeftMenu', LeftMenu.Component, {
     sessionResponseCursor: rootTree.sessionResponse,
     deinit,
 });
-registerSessionAwareContainer('td.ObservationList', ObservationList.Component, rootTree.sessionResponse, {
-    tree: rootTree.observation.list,
-});
 registerSessionAwareContainer('td.ObservationAdd', ObservationAdd.Component, rootTree.sessionResponse, {
     tree: rootTree.observation.add,
 });
 registerSessionAwareContainer('td.ContactList', ContactList.Component, rootTree.sessionResponse, {
-    tree: rootTree.contactList,
+    tree: rootTree.contact.list,
 });
 registerSessionAwareContainer('td.Chat', Chat.Component, rootTree.sessionResponse, {
     tree: rootTree.chat,
