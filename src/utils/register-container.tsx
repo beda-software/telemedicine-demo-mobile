@@ -4,9 +4,9 @@ import * as React from 'react';
 import { Button, Text, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 
+import { Preloader } from 'src/components/Preloader';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isSuccess, RemoteData } from 'src/libs/schema';
-import { schema } from 'src/libs/state';
+import { isLoading, isSuccess, RemoteData } from 'src/libs/schema';
 import { Session } from 'src/services/session';
 
 function withProps<P>(Component: React.ComponentType<P>, props: Partial<P>) {
@@ -25,10 +25,28 @@ function withSession<P>(
     Component: React.ComponentType<P & { session: Session }>,
     sessionResponseCursor: Cursor<RemoteData<Session>>
 ) {
-    @schema({})
     class Wrapper extends React.Component<P> {
+        constructor(props: P) {
+            super(props);
+            this.onUpdate = this.onUpdate.bind(this);
+
+            (sessionResponseCursor as any).on('update', this.onUpdate);
+        }
+
+        public componentWillUnmount() {
+            (sessionResponseCursor as any).off('update', this.onUpdate);
+        }
+
+        public onUpdate() {
+            this.forceUpdate();
+        }
+
         public render() {
             const sessionResponse = sessionResponseCursor.get();
+
+            if (isLoading(sessionResponse)) {
+                return <Preloader isVisible={true} />;
+            }
 
             if (isSuccess(sessionResponse)) {
                 return <Component {...this.props} session={sessionResponse.data} />;

@@ -1,3 +1,4 @@
+import * as R from 'ramda';
 import { AppState } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import { Voximplant } from 'react-native-voximplant';
@@ -145,10 +146,12 @@ function bootstrap() {
 
             const voxImplantTokensResponse = await voxImplantReLogin(session);
             if (isSuccess(voxImplantTokensResponse)) {
-                await saveSession(rootTree.sessionResponse, {
-                    ...session,
-                    voxImplantTokens: voxImplantTokensResponse.data,
-                });
+                if (!R.equals(session.voxImplantTokens, voxImplantTokensResponse.data)) {
+                    await saveSession(rootTree.sessionResponse, {
+                        ...session,
+                        voxImplantTokens: voxImplantTokensResponse.data,
+                    });
+                }
 
                 return true;
             }
