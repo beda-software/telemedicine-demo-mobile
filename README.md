@@ -1,6 +1,7 @@
 # React Native Telemedicine Demo Application
 
 [Latest android build](https://gitlab.bro.engineering/telemedicine-demo/telemedicine-demo-mobile/builds/artifacts/master/raw/android/app/build/outputs/apk/release/app-release.apk?job=build)
+[iOS TestFlight public link](https://testflight.apple.com/join/5HcPFeAO)
 
 ## Getting started
 
