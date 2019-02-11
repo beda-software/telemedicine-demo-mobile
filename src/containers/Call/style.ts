@@ -12,17 +12,6 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'stretch',
     },
-    modalBackground: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        padding: 20,
-    },
-    innerContainer: {
-        borderRadius: 10,
-    },
-    innerContainerTransparent: {
-        backgroundColor: COLOR.WHITE,
-        padding: 20,
-    },
     useragent: {
         flex: 1,
         flexDirection: 'column',
@@ -47,12 +36,5 @@ export default StyleSheet.create({
     callConnectingLabel: {
         fontSize: 18,
         alignSelf: 'center',
-    },
-    itemSeparator: {
-        height: 1,
-        width: '100%',
-        backgroundColor: '#607D8B',
-        marginTop: 10,
-        marginBottom: 10,
     },
 });
