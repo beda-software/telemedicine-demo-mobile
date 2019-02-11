@@ -4,6 +4,7 @@ import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
+import { Logo } from 'src/components/Logo';
 import { Preloader } from 'src/components/Preloader';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isSuccess, RemoteData } from 'src/libs/schema';
@@ -66,7 +67,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 {isSuccess(this.props.sessionResponseCursor.get()) ? (
                     <View>
                         <View style={s.header}>
-                            <Text style={s.headerText}>Telemedicine Demo</Text>
+                            <Logo />
                         </View>
                         <TouchableOpacity
                             style={s.menuItem}

@@ -7,6 +7,9 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: COLOR.WHITE,
     },
+    logo: {
+        marginBottom: 50,
+    },
     container: {
         flex: 1,
         justifyContent: 'center',

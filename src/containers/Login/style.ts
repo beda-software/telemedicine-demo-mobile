@@ -7,6 +7,9 @@ export default StyleSheet.create({
         flex: 1,
         backgroundColor: COLOR.WHITE,
     },
+    logo: {
+        marginBottom: 50,
+    },
     loginForm: {
         paddingHorizontal: 20,
         alignItems: 'stretch',

@@ -178,7 +178,6 @@ export class Component extends React.Component<ComponentProps, {}> {
                                         autoCorrect={false}
                                         onSubmitEditing={() => handleSubmit()}
                                         blurOnSubmit
-                                        autoFocus
                                         {...fieldProps}
                                     />
                                 )}

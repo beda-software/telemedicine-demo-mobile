@@ -182,7 +182,9 @@ export class Component extends React.Component<ComponentProps, {}> {
                 <StatusBar backgroundColor={COLOR.PRIMARY_DARK} />
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={[s.container]}>
-                        <Logo />
+                        <View style={s.logo}>
+                            <Logo />
+                        </View>
                         <KeyboardAvoidingView behavior="padding" style={s.loginForm}>
                             {this.renderForm()}
                         </KeyboardAvoidingView>

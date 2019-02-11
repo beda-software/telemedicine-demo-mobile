@@ -8,12 +8,12 @@ export default StyleSheet.create({
         padding: 5,
     },
     logoText: {
-        fontSize: 35,
-        color: COLOR.ACCENT,
+        fontSize: 20,
+        fontWeight: '800',
+        color: COLOR.BLACK,
     },
     subLogo: {
         alignItems: 'center',
-        marginBottom: 50,
     },
     subLogoText: {
         fontSize: 18,
