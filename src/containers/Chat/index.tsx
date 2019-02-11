@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import * as R from 'ramda';
 import * as React from 'react';
 import autoBind from 'react-autobind';
@@ -26,6 +27,7 @@ import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import {
+    ChatMessage,
     getMessages,
     makeUserId,
     makeUsername,
@@ -42,7 +44,6 @@ import s from './style';
 
 const window = Dimensions.get('window');
 
-type Message = Voximplant['Messaging']['Message'];
 type Conversation = Voximplant['Messaging']['Conversation'];
 type EventHandlers = Voximplant['Messaging']['EventHandlers'];
 type MessageEvent = EventHandlers['MessageEvent'];
@@ -55,9 +56,9 @@ interface FormValues {
 
 export interface Model {
     isPending: boolean;
-    messagesResponse: RemoteData<Message[]>;
+    messagesResponse: RemoteData<ChatMessage[]>;
     removeConversationResponse: RemoteData<any>;
-    messages: Message[];
+    messages: ChatMessage[];
     lastSeq: number;
     isOnline: boolean;
 }
@@ -87,6 +88,10 @@ function getObservationInfo(observation: Observation) {
     }
 
     return '';
+}
+
+function formatTimestamp(timestamp: number) {
+    return moment.unix(timestamp).format('HH:mm');
 }
 
 @schema({ tree: {} })
@@ -208,7 +213,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             const { tree } = this.props;
             const isOnline = tree.isOnline.get();
 
-            tree.messages.apply((messages) => [...messages, event.message]);
+            tree.messages.apply((messages) => [...messages, { ...event.message, timestamp: event.timestamp }]);
             if (this.isCompanion(event.userId)) {
                 this.setOnline(isOnline);
             }
@@ -347,7 +352,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         return username;
     }
 
-    public renderMessage(item: Message) {
+    public renderMessage(item: ChatMessage) {
         if (item.payload && item.payload.length) {
             return R.map((payload: any) => {
                 if (payload.type === 'fhirResource') {
@@ -381,7 +386,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         const messages = tree.messages.get();
 
         return (
-            <FlatList<Message>
+            <FlatList<ChatMessage>
                 data={R.reverse(messages)}
                 listKey="message-list"
                 inverted
@@ -400,11 +405,12 @@ export class Component extends React.Component<ComponentProps, {}> {
                                 },
                             ]}
                         >
-                            <View style={s.chatMessage}>
+                            <View style={[s.chatMessage, { alignItems: isMe ? 'flex-end' : 'flex-start' }]}>
                                 {!isMe ? (
                                     <Text style={{ color: COLOR.ACCENT }}>{this.renderName(item.sender)}</Text>
                                 ) : null}
                                 {this.renderMessage(item)}
+                                <Text style={{ color: COLOR.DARKGRAY }}>{formatTimestamp(item.timestamp)}</Text>
                             </View>
                         </View>
                     );

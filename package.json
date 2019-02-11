@@ -25,6 +25,7 @@
         "jsc-android": "236355.1.1",
         "lint-staged": "^8.1.0",
         "lodash": "^4.17.11",
+        "moment": "^2.24.0",
         "prettier": "^1.15.3",
         "ramda": "^0.26.1",
         "ramda-adjunct": "^2.13.0",

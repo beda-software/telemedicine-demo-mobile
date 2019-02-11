@@ -141,12 +141,14 @@ declare module 'react-native-voximplant' {
 
     interface MessageEvent extends MessengerEvent {
         message: MessagingMessage;
+        timestamp: number;
     }
 
     interface RetransmitEvent extends MessengerEvent {
         sequence: number;
         messengerEventType: string;
         userId: string;
+        timestamp: number;
         message?: MessagingMessage;
         conversation?: MessagingConversation;
     }

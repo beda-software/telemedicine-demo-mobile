@@ -5,6 +5,7 @@ export default {
     BUTTON: '#662eff',
     WHITE: '#fff',
     GRAY: '#eee',
+    DARKGRAY: '#BBB',
     BLACK: '#000',
     RED: '#f54b5e',
 };

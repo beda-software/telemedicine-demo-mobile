@@ -27,6 +27,10 @@ interface ConversationCallbacks {
     onTyping: (event: MessengerEvent) => void;
 }
 
+export interface ChatMessage extends Message {
+    timestamp: number;
+}
+
 function setupMessagingListeners(service: Subscribable<any>, callbacks: ConversationCallbacks, setup: boolean) {
     Object.keys(EventTypes).forEach((eventName) => {
         const callbackName = `on${eventName}`;
@@ -206,7 +210,7 @@ export async function typing(conversationUuid: string) {
     // TODO: await catch event
 }
 
-export function getMessages(cursor: Cursor<RemoteData<Message[]>>, conversationUuid: string, seq: number) {
+export function getMessages(cursor: Cursor<RemoteData<ChatMessage[]>>, conversationUuid: string, seq: number) {
     const pageSize = 20;
     const fromSequence = R.max(1, seq - pageSize + 1);
     const toSequence = R.max(1, seq);
@@ -226,7 +230,7 @@ export function getMessages(cursor: Cursor<RemoteData<Message[]>>, conversationU
         // TODO: process delete message and edit message
         return events.events
             .filter(({ messengerEventType }) => messengerEventType === 'SendMessage')
-            .map(({ message }) => message!);
+            .map(({ message, timestamp }) => ({ ...message!, timestamp }));
     });
 }
 

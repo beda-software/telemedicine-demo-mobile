@@ -43,6 +43,7 @@ export default StyleSheet.create({
         borderRadius: 15,
         padding: 15,
         marginTop: 5,
+        marginBottom: 5,
         borderColor: COLOR.ACCENT,
         alignItems: 'center',
     },
