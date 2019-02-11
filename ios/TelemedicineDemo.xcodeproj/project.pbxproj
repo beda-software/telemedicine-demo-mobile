@@ -12,16 +12,16 @@
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1FF3350986275A7B613A8C60 /* Pods_TelemedicineDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59B93D92669D4ECC3E5143A6 /* Pods_TelemedicineDemoTests.framework */; };
-		27D8492FF9C367392854AE75 /* Pods_TelemedicineDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0AAB1CE4537D7BC0A21658 /* Pods_TelemedicineDemo.framework */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* TelemedicineDemoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* TelemedicineDemoTests.m */; };
 		537489CA217716700086A000 /* Intents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 537489C9217716700086A000 /* Intents.framework */; };
 		B20E24FD1F860CC2002552CF /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B20E24FC1F860CC2002552CF /* MaterialIcons.ttf */; };
+		B212C920810DE88F099C3644 /* Pods_TelemedicineDemoTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC576FE5A4669DAC11D11169 /* Pods_TelemedicineDemoTests.framework */; };
 		B2BFF775215BDFA6002C1114 /* CallKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2BFF774215BDFA6002C1114 /* CallKit.framework */; };
 		CE36C7921F98B102005B36F1 /* PushKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE36C7911F98B102005B36F1 /* PushKit.framework */; };
+		D5E2F600ED4CE55634ADAB7A /* Pods_TelemedicineDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2865AAF988DF62201B29B10D /* Pods_TelemedicineDemo.framework */; };
 		DDF7F0ED21E732EC001D2217 /* ReactNativeNavigation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDF7F0EC21E732EC001D2217 /* ReactNativeNavigation.framework */; };
 /* End PBXBuildFile section */
 
@@ -54,20 +54,20 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TelemedicineDemo/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = TelemedicineDemo/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = TelemedicineDemo/main.m; sourceTree = "<group>"; };
+		2865AAF988DF62201B29B10D /* Pods_TelemedicineDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TelemedicineDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E47B1E0B4A5D006451C7 /* TelemedicineDemo-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "TelemedicineDemo-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* TelemedicineDemo-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "TelemedicineDemo-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		44005A0CA83E25C059B4EFA7 /* Pods-TelemedicineDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests.release.xcconfig"; sourceTree = "<group>"; };
+		399112746ECCA53458CEE56B /* Pods-TelemedicineDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		537489C9217716700086A000 /* Intents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Intents.framework; path = System/Library/Frameworks/Intents.framework; sourceTree = SDKROOT; };
-		59B93D92669D4ECC3E5143A6 /* Pods_TelemedicineDemoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TelemedicineDemoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7316EAA277056E3661BF7436 /* Pods-TelemedicineDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo.debug.xcconfig"; sourceTree = "<group>"; };
-		B157679A473BDD207A33D625 /* Pods-TelemedicineDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo.release.xcconfig"; sourceTree = "<group>"; };
+		9AC4A5D0FAA56E4D3BBF733F /* Pods-TelemedicineDemoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemoTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests.release.xcconfig"; sourceTree = "<group>"; };
 		B20E24FC1F860CC2002552CF /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		B2BFF774215BDFA6002C1114 /* CallKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CallKit.framework; path = System/Library/Frameworks/CallKit.framework; sourceTree = SDKROOT; };
-		CB0AAB1CE4537D7BC0A21658 /* Pods_TelemedicineDemo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TelemedicineDemo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE36C7911F98B102005B36F1 /* PushKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PushKit.framework; path = System/Library/Frameworks/PushKit.framework; sourceTree = SDKROOT; };
 		CE36C7931F98CF52005B36F1 /* TelemedicineDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = TelemedicineDemo.entitlements; path = TelemedicineDemo/TelemedicineDemo.entitlements; sourceTree = "<group>"; };
+		D7CF42F68518ACD76C1ABF1B /* Pods-TelemedicineDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D8EE55090785D4D824DFF6DB /* Pods-TelemedicineDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo.release.xcconfig"; sourceTree = "<group>"; };
+		DC576FE5A4669DAC11D11169 /* Pods_TelemedicineDemoTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TelemedicineDemoTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDF7F0EC21E732EC001D2217 /* ReactNativeNavigation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ReactNativeNavigation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		E8F105977254ED14FFC42373 /* Pods-TelemedicineDemoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TelemedicineDemoTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,7 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1FF3350986275A7B613A8C60 /* Pods_TelemedicineDemoTests.framework in Frameworks */,
+				B212C920810DE88F099C3644 /* Pods_TelemedicineDemoTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,7 +87,7 @@
 				537489CA217716700086A000 /* Intents.framework in Frameworks */,
 				B2BFF775215BDFA6002C1114 /* CallKit.framework in Frameworks */,
 				CE36C7921F98B102005B36F1 /* PushKit.framework in Frameworks */,
-				27D8492FF9C367392854AE75 /* Pods_TelemedicineDemo.framework in Frameworks */,
+				D5E2F600ED4CE55634ADAB7A /* Pods_TelemedicineDemo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +125,17 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		13413A36F36968C751391E95 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				399112746ECCA53458CEE56B /* Pods-TelemedicineDemo.debug.xcconfig */,
+				D8EE55090785D4D824DFF6DB /* Pods-TelemedicineDemo.release.xcconfig */,
+				D7CF42F68518ACD76C1ABF1B /* Pods-TelemedicineDemoTests.debug.xcconfig */,
+				9AC4A5D0FAA56E4D3BBF733F /* Pods-TelemedicineDemoTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* TelemedicineDemo */ = {
 			isa = PBXGroup;
 			children = (
@@ -138,17 +149,6 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
 			name = TelemedicineDemo;
-			sourceTree = "<group>";
-		};
-		6271C9621EEDDC4178B63379 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				7316EAA277056E3661BF7436 /* Pods-TelemedicineDemo.debug.xcconfig */,
-				B157679A473BDD207A33D625 /* Pods-TelemedicineDemo.release.xcconfig */,
-				E8F105977254ED14FFC42373 /* Pods-TelemedicineDemoTests.debug.xcconfig */,
-				44005A0CA83E25C059B4EFA7 /* Pods-TelemedicineDemoTests.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -167,7 +167,7 @@
 				00E356EF1AD99517003FC87E /* TelemedicineDemoTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				C6B1AB22B8CC55BD794477A8 /* Frameworks */,
-				6271C9621EEDDC4178B63379 /* Pods */,
+				13413A36F36968C751391E95 /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -192,8 +192,8 @@
 				537489C9217716700086A000 /* Intents.framework */,
 				B2BFF774215BDFA6002C1114 /* CallKit.framework */,
 				CE36C7911F98B102005B36F1 /* PushKit.framework */,
-				CB0AAB1CE4537D7BC0A21658 /* Pods_TelemedicineDemo.framework */,
-				59B93D92669D4ECC3E5143A6 /* Pods_TelemedicineDemoTests.framework */,
+				2865AAF988DF62201B29B10D /* Pods_TelemedicineDemo.framework */,
+				DC576FE5A4669DAC11D11169 /* Pods_TelemedicineDemoTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -205,11 +205,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "TelemedicineDemoTests" */;
 			buildPhases = (
-				A0095AA9B02799162A328068 /* [CP] Check Pods Manifest.lock */,
+				CBA95BC0E3DFD4473570FA85 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				07A752D6FA1D7118F37FDB2F /* [CP] Embed Pods Frameworks */,
+				9D5BC95B926F2807012AD0B1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -225,12 +225,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "TelemedicineDemo" */;
 			buildPhases = (
-				5921EBDEE6240FFFA88E1BFA /* [CP] Check Pods Manifest.lock */,
+				C20DF8A8DBEFD7D676505EC8 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				86107507278A1C18243E9954 /* [CP] Embed Pods Frameworks */,
+				41B1749F2A4BF54EFDB98C5D /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -385,46 +385,6 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh ";
 		};
-		07A752D6FA1D7118F37FDB2F /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
-				"${BUILT_PRODUCTS_DIR}/DoubleConversion/DoubleConversion.framework",
-				"${BUILT_PRODUCTS_DIR}/Folly/folly.framework",
-				"${BUILT_PRODUCTS_DIR}/RNCallKit/RNCallKit.framework",
-				"${BUILT_PRODUCTS_DIR}/React/React.framework",
-				"${BUILT_PRODUCTS_DIR}/SocketRocket/SocketRocket.framework",
-				"${PODS_ROOT}/VoxImplantSDK/VoxImplant.framework",
-				"${PODS_ROOT}/VoxImplantWebRTC/WebRTC.framework",
-				"${BUILT_PRODUCTS_DIR}/glog/glog.framework",
-				"${BUILT_PRODUCTS_DIR}/react-native-notifications/react_native_notifications.framework",
-				"${BUILT_PRODUCTS_DIR}/react-native-voximplant/react_native_voximplant.framework",
-				"${BUILT_PRODUCTS_DIR}/yoga/yoga.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DoubleConversion.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/folly.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RNCallKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketRocket.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VoxImplant.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_notifications.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_voximplant.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/yoga.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -439,28 +399,12 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		5921EBDEE6240FFFA88E1BFA /* [CP] Check Pods Manifest.lock */ = {
+		41B1749F2A4BF54EFDB98C5D /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TelemedicineDemo-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		86107507278A1C18243E9954 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo-frameworks.sh",
@@ -479,6 +423,8 @@
 				"${BUILT_PRODUCTS_DIR}/yoga/yoga.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DoubleConversion.framework",
@@ -499,16 +445,86 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemo/Pods-TelemedicineDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A0095AA9B02799162A328068 /* [CP] Check Pods Manifest.lock */ = {
+		9D5BC95B926F2807012AD0B1 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/CocoaLumberjack/CocoaLumberjack.framework",
+				"${BUILT_PRODUCTS_DIR}/DoubleConversion/DoubleConversion.framework",
+				"${BUILT_PRODUCTS_DIR}/Folly/folly.framework",
+				"${BUILT_PRODUCTS_DIR}/RNCallKit/RNCallKit.framework",
+				"${BUILT_PRODUCTS_DIR}/React/React.framework",
+				"${BUILT_PRODUCTS_DIR}/SocketRocket/SocketRocket.framework",
+				"${PODS_ROOT}/VoxImplantSDK/VoxImplant.framework",
+				"${PODS_ROOT}/VoxImplantWebRTC/WebRTC.framework",
+				"${BUILT_PRODUCTS_DIR}/glog/glog.framework",
+				"${BUILT_PRODUCTS_DIR}/react-native-notifications/react_native_notifications.framework",
+				"${BUILT_PRODUCTS_DIR}/react-native-voximplant/react_native_voximplant.framework",
+				"${BUILT_PRODUCTS_DIR}/yoga/yoga.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CocoaLumberjack.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DoubleConversion.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/folly.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RNCallKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SocketRocket.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/VoxImplant.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WebRTC.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_notifications.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/react_native_voximplant.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/yoga.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-TelemedicineDemoTests/Pods-TelemedicineDemoTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C20DF8A8DBEFD7D676505EC8 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
 			);
 			inputPaths = (
 				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
 				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TelemedicineDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CBA95BC0E3DFD4473570FA85 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/Pods-TelemedicineDemoTests-checkManifestLockResult.txt",
 			);
@@ -584,7 +600,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = E8F105977254ED14FFC42373 /* Pods-TelemedicineDemoTests.debug.xcconfig */;
+			baseConfigurationReference = D7CF42F68518ACD76C1ABF1B /* Pods-TelemedicineDemoTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = 4452VN45AX;
@@ -606,7 +622,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 44005A0CA83E25C059B4EFA7 /* Pods-TelemedicineDemoTests.release.xcconfig */;
+			baseConfigurationReference = 9AC4A5D0FAA56E4D3BBF733F /* Pods-TelemedicineDemoTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
@@ -625,7 +641,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7316EAA277056E3661BF7436 /* Pods-TelemedicineDemo.debug.xcconfig */;
+			baseConfigurationReference = 399112746ECCA53458CEE56B /* Pods-TelemedicineDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TelemedicineDemo/TelemedicineDemo.entitlements;
@@ -651,7 +667,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B157679A473BDD207A33D625 /* Pods-TelemedicineDemo.release.xcconfig */;
+			baseConfigurationReference = D8EE55090785D4D824DFF6DB /* Pods-TelemedicineDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = TelemedicineDemo/TelemedicineDemo.entitlements;

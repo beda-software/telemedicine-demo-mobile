@@ -229,6 +229,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                             style={s.selfView}
                             videoStreamId={localVideoStreamId}
                             scaleType={Voximplant.RenderScaleType.SCALE_FIT}
+                            showOnTop
                         />
                     ) : null}
                 </View>
