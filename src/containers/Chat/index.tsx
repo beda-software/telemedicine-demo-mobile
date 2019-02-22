@@ -26,6 +26,7 @@ import { Observation, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
 import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import { CallService } from 'src/services/call';
 import {
     ChatMessage,
     getMessages,
@@ -61,6 +62,7 @@ export interface Model {
     messages: ChatMessage[];
     lastSeq: number;
     isOnline: boolean;
+    callResponse: RemoteData<Voximplant['Call']>;
 }
 
 export const initial: Model = {
@@ -70,6 +72,7 @@ export const initial: Model = {
     messages: [],
     lastSeq: 1,
     isOnline: false,
+    callResponse: notAsked,
 };
 
 interface ComponentProps {
@@ -150,13 +153,39 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
-        if (buttonId === 'delete') {
+        const { conversation, session } = this.props;
+
+        const conversationalists = conversation.participants.filter(
+            (conversationalist) => conversationalist.userId != makeUserId(session.username)
+        );
+
+        const convName = makeUsername(conversationalists[0].userId);
+        const convDisplayName = this.renderName(convName);
+
+        if (buttonId === 'call') {
+            if (this.props.tree.isPending.get()) {
+                return;
+            }
+
             this.props.tree.isPending.set(true);
+
             try {
-                await removeConversation(this.props.tree.removeConversationResponse, this.props.conversation.uuid);
-                await Navigation.pop(this.props.componentId);
-            } finally {
-                this.props.tree.isPending.set(false);
+                const User = {
+                    username: convName,
+                    displayName: convDisplayName,
+                };
+
+                const callResponse = await CallService.makeOutgoingCall(User, this.props.tree.callResponse);
+                if (isSuccess(callResponse)) {
+                    this.props.tree.isPending.set(false);
+                }
+            } catch (err) {
+                return Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: err.message },
+                    },
+                });
             }
         }
     }
