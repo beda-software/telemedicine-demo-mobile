@@ -30,7 +30,7 @@ TelemedicineDemo.xcworkspace
 #
 build/
 .idea
-.gradle
+*.gradle
 local.properties
 *.iml
 android/.project
