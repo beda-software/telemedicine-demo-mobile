@@ -2,6 +2,8 @@ import * as R from 'ramda';
 import * as RA from 'ramda-adjunct';
 import { AppState, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { Voximplant } from 'react-native-voximplant';
+import { Cursor } from 'src/contrib/typed-baobab';
+import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
 
 import { CallKitService } from './callkit';
 
@@ -130,6 +132,33 @@ export class CallService {
         }
 
         return true;
+    }
+
+    public static async makeOutgoingCall(
+        user: User,
+        cursor: Cursor<RemoteData<Voximplant['Call']>>
+    ): Promise<RemoteDataResult<Voximplant['Call']>> {
+        cursor.set(loading);
+
+        try {
+            try {
+                await this.requestPermissions(false);
+            } catch (err) {
+                const result = failure(err);
+                cursor.set(result);
+
+                return result;
+            }
+
+            const { call } = await this.startOutgoingCall(user.username, user.displayName);
+            const result = success(call);
+            return result;
+        } catch (err) {
+            const result = failure(err);
+            cursor.set(result);
+
+            return result;
+        }
     }
 
     public static async startOutgoingCall(username: string, displayName: string): Promise<Voximplant['Call']> {
