@@ -106,11 +106,10 @@ export class Component extends React.Component<ComponentProps, {}> {
                 subtitle: { text: 'Offline', color: COLOR.GRAY },
 
                 rightButtons: [
-                    // TODO: discuss and implement better behavior
-                    // {
-                    //     id: 'delete',
-                    //     text: 'Delete',
-                    // },
+                    {
+                        id: 'call',
+                        text: 'Call',
+                    },
                 ],
             },
             sideMenu: {
