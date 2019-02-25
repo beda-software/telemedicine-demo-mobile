@@ -111,19 +111,16 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         this.props.tree.isPending.set(true);
 
-        try {
-            const callResponse = await CallService.makeOutgoingCall(
-                {
-                    username: user.username,
-                    displayName: user.displayName,
-                },
-                this.props.tree.callResponse
-            );
+        const callResponse = await CallService.makeOutgoingCall(
+            this.props.tree.callResponse,
+            user.username,
+            user.displayName
+        );
 
-            if (isSuccess(callResponse)) {
-                this.props.tree.isPending.set(false);
-            }
-        } catch (err) {
+        if (isSuccess(callResponse)) {
+            this.props.tree.isPending.set(false);
+        } else {
+            this.props.tree.isPending.set(false);
             return Navigation.showOverlay({
                 component: {
                     name: 'td.Modal',

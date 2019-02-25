@@ -170,12 +170,12 @@ export class Component extends React.Component<ComponentProps, {}> {
             this.props.tree.isPending.set(true);
 
             try {
-                const User = {
-                    username: convName,
-                    displayName: convDisplayName,
-                };
+                const callResponse = await CallService.makeOutgoingCall(
+                    this.props.tree.callResponse,
+                    convName,
+                    convDisplayName
+                );
 
-                const callResponse = await CallService.makeOutgoingCall(User, this.props.tree.callResponse);
                 if (isSuccess(callResponse)) {
                     this.props.tree.isPending.set(false);
                 }
