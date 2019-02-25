@@ -135,28 +135,20 @@ export class CallService {
     }
 
     public static async makeOutgoingCall(
-        user: User,
-        cursor: Cursor<RemoteData<Voximplant['Call']>>
+        cursor: Cursor<RemoteData<Voximplant['Call']>>,
+        username: string,
+        displayName: string
     ): Promise<RemoteDataResult<Voximplant['Call']>> {
         cursor.set(loading);
 
         try {
-            try {
-                await this.requestPermissions(false);
-            } catch (err) {
-                const result = failure(err);
-                cursor.set(result);
-
-                return result;
-            }
-
-            const { call } = await this.startOutgoingCall(user.username, user.displayName);
+            await this.requestPermissions(false);
+            const { call } = await this.startOutgoingCall(username, displayName);
             const result = success(call);
             return result;
         } catch (err) {
             const result = failure(err);
             cursor.set(result);
-
             return result;
         }
     }
