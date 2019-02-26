@@ -144,6 +144,7 @@ export class CallService {
             await this.requestPermissions(false);
             const { call } = await this.startOutgoingCall(username, displayName);
             const result = success(call);
+            cursor.set(result);
             return result;
         } catch (err) {
             const result = failure(err);
