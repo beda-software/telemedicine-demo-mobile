@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import * as _ from 'lodash';
 
 import { Observation } from 'src/contrib/aidbox';
 
@@ -37,8 +37,5 @@ export function getNameByCode(code: string) {
 }
 
 export function getValue(observation: Observation) {
-    return `${R.path(['value', 'Quantity', 'value'], observation)} ${R.path(
-        ['value', 'Quantity', 'code'],
-        observation
-    )}`;
+    return `${_.get(observation, ['value', 'Quantity', 'value'])} ${_.get(observation, ['value', 'Quantity', 'code'])}`;
 }

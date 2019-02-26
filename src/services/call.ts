@@ -1,5 +1,4 @@
-import * as R from 'ramda';
-import * as RA from 'ramda-adjunct';
+import * as _ from 'lodash';
 import { AppState, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { Voximplant } from 'react-native-voximplant';
 import { Cursor } from 'src/contrib/typed-baobab';
@@ -46,7 +45,7 @@ interface CallCallbacks {
 
 function mergeCallbacks<T>(obj1: T, obj2: T) {
     function customizer(fn1: (event: any) => void, fn2: (event: any) => void) {
-        if (RA.isFunction(fn1) && RA.isFunction(fn2)) {
+        if (_.isFunction(fn1) && _.isFunction(fn2)) {
             return (event: any) => {
                 fn1(event);
                 fn2(event);
@@ -55,7 +54,7 @@ function mergeCallbacks<T>(obj1: T, obj2: T) {
 
         return;
     }
-    return R.mergeWith(customizer, obj1, obj2);
+    return _.mergeWith(obj1, obj2, customizer);
 }
 
 function setupCallListeners(
