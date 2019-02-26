@@ -23,7 +23,7 @@ import { InputField } from 'src/components/InputFIeld';
 import { Preloader } from 'src/components/Preloader';
 import { Observation, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
+import { isFailure, isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
 import { CallService } from 'src/services/call';
 import {
@@ -168,17 +168,13 @@ export class Component extends React.Component<ComponentProps, {}> {
 
             this.props.tree.isPending.set(true);
 
-            try {
-                const callResponse = await CallService.makeOutgoingCall(
-                    this.props.tree.callResponse,
-                    convName,
-                    convDisplayName
-                );
+            const callResponse = await CallService.makeOutgoingCall(
+                this.props.tree.callResponse,
+                convName,
+                convDisplayName
+            );
 
-                if (isSuccess(callResponse)) {
-                    this.props.tree.isPending.set(false);
-                }
-            } catch (err) {
+            if (isFailure(callResponse)) {
                 return Navigation.showOverlay({
                     component: {
                         name: 'td.Modal',
@@ -186,6 +182,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                     },
                 });
             }
+
+            this.props.tree.isPending.set(false);
         }
     }
 

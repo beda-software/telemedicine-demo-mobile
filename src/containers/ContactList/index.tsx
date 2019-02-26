@@ -117,10 +117,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             user.displayName
         );
 
-        if (isSuccess(callResponse)) {
-            this.props.tree.isPending.set(false);
-        } else {
-            this.props.tree.isPending.set(false);
+        if (isFailure(callResponse)) {
             return Navigation.showOverlay({
                 component: {
                     name: 'td.Modal',
@@ -128,6 +125,8 @@ export class Component extends React.Component<ComponentProps, {}> {
                 },
             });
         }
+
+        this.props.tree.isPending.set(false);
     }
 
     public async openChat(user: User, users: User[]) {
