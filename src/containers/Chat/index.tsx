@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import * as R from 'ramda';
 import * as React from 'react';
 import autoBind from 'react-autobind';
 import { Field, Form } from 'react-final-form';
@@ -84,7 +83,7 @@ interface ComponentProps {
 }
 
 function getObservationInfo(observation: Observation) {
-    const code = R.path<string>(['code', 'coding', 0, 'code'], observation);
+    const code = _.get<string>(observation, ['code', 'coding', 0, 'code']);
 
     if (code) {
         return `${getNameByCode(code)}: ${getValue(observation)}`;
@@ -142,7 +141,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             onTyping: this.onTyping,
         });
         const unsubscribeFromUsersStatuses = subscribeToUsersStatuses(
-            R.map((user) => user.username, props.users),
+            _.map(props.users, (user) => user.username),
             this.onUserStatusChange
         );
 
@@ -215,8 +214,8 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         const myUserId = makeUserId(session.username);
 
-        const usersIds = R.filter((pUserId) => pUserId !== myUserId, R.map((p) => p.userId, conversation.participants));
-        return R.includes(userId, usersIds);
+        const usersIds = _.filter(_.map(conversation.participants, (p) => p.userId), (pUserId) => pUserId !== myUserId);
+        return _.includes(usersIds, userId);
     }
 
     public setSubtitle(text: string, color: string) {
@@ -372,7 +371,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         const username = makeUsername(sender);
         const { users } = this.props;
 
-        const foundUser = R.find((user) => user.username === username, users);
+        const foundUser = _.find(users, (user) => user.username === username);
         if (foundUser) {
             return foundUser.displayName;
         }
@@ -382,7 +381,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public renderMessage(item: ChatMessage) {
         if (item.payload && item.payload.length) {
-            return R.map((payload: any) => {
+            return _.map(item.payload, (payload: any) => {
                 if (payload.type === 'fhirResource') {
                     const resource: Observation = payload.data;
 
@@ -402,7 +401,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 }
 
                 return null;
-            }, item.payload);
+            });
         }
 
         return <Text>{item.text}</Text>;
@@ -415,7 +414,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         return (
             <FlatList<ChatMessage>
-                data={R.reverse(messages)}
+                data={_.reverse(messages.slice())}
                 listKey="message-list"
                 inverted
                 keyExtractor={(item) => item.uuid}
