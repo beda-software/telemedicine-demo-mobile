@@ -1,7 +1,8 @@
-import * as R from 'ramda';
-import * as RA from 'ramda-adjunct';
+import * as _ from 'lodash';
 import { AppState, NativeModules, PermissionsAndroid, Platform } from 'react-native';
 import { Voximplant } from 'react-native-voximplant';
+import { Cursor } from 'src/contrib/typed-baobab';
+import { failure, loading, RemoteData, RemoteDataResult, success } from 'src/libs/schema';
 
 import { CallKitService } from './callkit';
 
@@ -44,7 +45,7 @@ interface CallCallbacks {
 
 function mergeCallbacks<T>(obj1: T, obj2: T) {
     function customizer(fn1: (event: any) => void, fn2: (event: any) => void) {
-        if (RA.isFunction(fn1) && RA.isFunction(fn2)) {
+        if (_.isFunction(fn1) && _.isFunction(fn2)) {
             return (event: any) => {
                 fn1(event);
                 fn2(event);
@@ -53,7 +54,7 @@ function mergeCallbacks<T>(obj1: T, obj2: T) {
 
         return;
     }
-    return R.mergeWith(customizer, obj1, obj2);
+    return _.mergeWith(obj1, obj2, customizer);
 }
 
 function setupCallListeners(
@@ -130,6 +131,26 @@ export class CallService {
         }
 
         return true;
+    }
+
+    public static async makeOutgoingCall(
+        cursor: Cursor<RemoteData<Voximplant['Call']>>,
+        username: string,
+        displayName: string
+    ): Promise<RemoteDataResult<Voximplant['Call']>> {
+        cursor.set(loading);
+
+        try {
+            await this.requestPermissions(false);
+            const { call } = await this.startOutgoingCall(username, displayName);
+            const result = success(call);
+            cursor.set(result);
+            return result;
+        } catch (err) {
+            const result = failure(err);
+            cursor.set(result);
+            return result;
+        }
     }
 
     public static async startOutgoingCall(username: string, displayName: string): Promise<Voximplant['Call']> {

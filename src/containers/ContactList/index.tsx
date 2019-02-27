@@ -23,6 +23,7 @@ export interface Model {
     createConversationResponse: RemoteData<Conversation>;
     contacts: User[];
     isPending: boolean;
+    callResponse: RemoteData<Voximplant['Call']>;
 }
 
 export const initial: Model = {
@@ -30,6 +31,7 @@ export const initial: Model = {
     createConversationResponse: notAsked,
     contacts: [],
     isPending: false,
+    callResponse: notAsked,
 };
 
 interface ComponentProps {
@@ -109,21 +111,22 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         this.props.tree.isPending.set(true);
 
-        try {
-            try {
-                await CallService.requestPermissions(false);
-            } catch (err) {
-                return Navigation.showOverlay({
-                    component: {
-                        name: 'td.Modal',
-                        passProps: { text: err.message },
-                    },
-                });
-            }
-            await CallService.startOutgoingCall(user.username, user.displayName);
-        } finally {
-            this.props.tree.isPending.set(false);
+        const callResponse = await CallService.makeOutgoingCall(
+            this.props.tree.callResponse,
+            user.username,
+            user.displayName
+        );
+
+        if (isFailure(callResponse)) {
+            return Navigation.showOverlay({
+                component: {
+                    name: 'td.Modal',
+                    passProps: { text: err.message },
+                },
+            });
         }
+
+        this.props.tree.isPending.set(false);
     }
 
     public async openChat(user: User, users: User[]) {
