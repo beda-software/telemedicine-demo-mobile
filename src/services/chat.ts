@@ -1,4 +1,4 @@
-import * as R from 'ramda';
+import * as _ from 'lodash';
 import { NativeModules } from 'react-native';
 import { Voximplant } from 'react-native-voximplant';
 
@@ -49,11 +49,11 @@ export function subscribeToMessagingEvents(callbacks: ConversationCallbacks) {
 }
 
 export function subscribeToUsersStatuses(usernames: string[], callback: (event: StatusEvent) => void) {
-    const usersIds = R.map(makeUserId, usernames);
+    const usersIds = _.map(usernames, makeUserId);
     messaging.subscribe(usersIds);
 
     function handler(event: StatusEvent) {
-        if (R.includes(event.userId, usersIds)) {
+        if (_.includes(usersIds, event.userId)) {
             callback(event);
         }
     }
@@ -103,7 +103,7 @@ export async function prepareConversationsCache(myUsername: string) {
     messaging.getUser(myUserId);
     const myUser = await catchUser(myUserId);
     messaging.getConversations(myUser.conversationsList);
-    await Promise.all(R.map(catchConversation, myUser.conversationsList));
+    await Promise.all(_.map(myUser.conversationsList, catchConversation));
 }
 
 export async function createConversation(
@@ -120,14 +120,12 @@ export async function createConversation(
             messaging.getUser(myUserId);
             const myUser = await catchUser(myUserId);
             messaging.getConversations(myUser.conversationsList);
-            const conversations = await Promise.all(R.map(catchConversation, myUser.conversationsList));
-            const existingConversation = R.find(
-                (conversation) =>
-                    R.equals(
-                        R.sort(R.descend(R.identity), R.map((p) => p.userId, conversation.participants)),
-                        R.sort(R.descend(R.identity), [myUserId, ...R.map(makeUserId, participantsUsernames)])
-                    ),
-                conversations
+            const conversations = await Promise.all(_.map(myUser.conversationsList, catchConversation));
+            const existingConversation = _.find(conversations, (conversation) =>
+                _.isEqual(
+                    _.sortBy(_.map(conversation.participants, (p) => p.userId)),
+                    _.sortBy([myUserId, ..._.map(participantsUsernames, makeUserId)])
+                )
             );
             if (existingConversation) {
                 return existingConversation;
@@ -135,14 +133,11 @@ export async function createConversation(
         }
 
         messaging.createConversation(
-            R.map(
-                (username) => ({
-                    userId: makeUserId(username),
-                    canManageParticipants: false,
-                    canWrite: true,
-                }),
-                participantsUsernames
-            ),
+            _.map(participantsUsernames, (username) => ({
+                userId: makeUserId(username),
+                canManageParticipants: false,
+                canWrite: true,
+            })),
             title
         );
 
@@ -171,7 +166,7 @@ export async function removeConversation(cursor: Cursor<RemoteData<any>>, uuid: 
 }
 
 async function catchConversation(uuid: string): Promise<Conversation> {
-    if (R.has(uuid, conversationsCache)) {
+    if (_.has(conversationsCache, uuid)) {
         return conversationsCache[uuid];
     }
 
@@ -196,7 +191,7 @@ export function getConversations(cursor: Cursor<RemoteData<Conversation[]>>, uui
     return wrapService(cursor, () => {
         messaging.getConversations(uuids);
 
-        return Promise.all(R.map(catchConversation, uuids));
+        return Promise.all(_.map(uuids, catchConversation));
     });
 }
 
@@ -212,8 +207,8 @@ export async function typing(conversationUuid: string) {
 
 export function getMessages(cursor: Cursor<RemoteData<ChatMessage[]>>, conversationUuid: string, seq: number) {
     const pageSize = 20;
-    const fromSequence = R.max(1, seq - pageSize + 1);
-    const toSequence = R.max(1, seq);
+    const fromSequence = _.max([1, seq - pageSize + 1]);
+    const toSequence = _.max([1, seq]);
 
     if (fromSequence === toSequence) {
         return success([]);
@@ -246,7 +241,7 @@ export function chatServiceSetup() {
     messaging.on(EventTypes.SendMessage, async (event: MessageEvent) => {
         const conversationUuid = event.message.conversation;
 
-        if (R.has(conversationUuid, conversationsCache)) {
+        if (_.has(conversationsCache, conversationUuid)) {
             conversationsCache[conversationUuid] = {
                 ...conversationsCache[conversationUuid],
                 lastSeq: event.message.sequence,

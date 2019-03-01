@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import * as R from 'ramda';
 import * as React from 'react';
 import autoBind from 'react-autobind';
 import { Field, Form } from 'react-final-form';
@@ -24,8 +23,9 @@ import { InputField } from 'src/components/InputFIeld';
 import { Preloader } from 'src/components/Preloader';
 import { Observation, User } from 'src/contrib/aidbox';
 import { Cursor } from 'src/contrib/typed-baobab';
-import { isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
+import { isFailure, isLoadingCursor, isSuccess, notAsked, RemoteData } from 'src/libs/schema';
 import { schema } from 'src/libs/state';
+import { CallService } from 'src/services/call';
 import {
     ChatMessage,
     getMessages,
@@ -61,6 +61,7 @@ export interface Model {
     messages: ChatMessage[];
     lastSeq: number;
     isOnline: boolean;
+    callResponse: RemoteData<Voximplant['Call']>;
 }
 
 export const initial: Model = {
@@ -70,6 +71,7 @@ export const initial: Model = {
     messages: [],
     lastSeq: 1,
     isOnline: false,
+    callResponse: notAsked,
 };
 
 interface ComponentProps {
@@ -81,7 +83,7 @@ interface ComponentProps {
 }
 
 function getObservationInfo(observation: Observation) {
-    const code = R.path<string>(['code', 'coding', 0, 'code'], observation);
+    const code = _.get<string>(observation, ['code', 'coding', 0, 'code']);
 
     if (code) {
         return `${getNameByCode(code)}: ${getValue(observation)}`;
@@ -106,11 +108,10 @@ export class Component extends React.Component<ComponentProps, {}> {
                 subtitle: { text: 'Offline', color: COLOR.GRAY },
 
                 rightButtons: [
-                    // TODO: discuss and implement better behavior
-                    // {
-                    //     id: 'delete',
-                    //     text: 'Delete',
-                    // },
+                    {
+                        id: 'call',
+                        text: 'Call',
+                    },
                 ],
             },
             sideMenu: {
@@ -140,7 +141,7 @@ export class Component extends React.Component<ComponentProps, {}> {
             onTyping: this.onTyping,
         });
         const unsubscribeFromUsersStatuses = subscribeToUsersStatuses(
-            R.map((user) => user.username, props.users),
+            _.map(props.users, (user) => user.username),
             this.onUserStatusChange
         );
 
@@ -151,14 +152,38 @@ export class Component extends React.Component<ComponentProps, {}> {
     }
 
     public async navigationButtonPressed({ buttonId }: any) {
-        if (buttonId === 'delete') {
-            this.props.tree.isPending.set(true);
-            try {
-                await removeConversation(this.props.tree.removeConversationResponse, this.props.conversation.uuid);
-                await Navigation.pop(this.props.componentId);
-            } finally {
-                this.props.tree.isPending.set(false);
+        const { conversation, session } = this.props;
+
+        const conversationalists = conversation.participants.filter(
+            (conversationalist) => conversationalist.userId != makeUserId(session.username)
+        );
+
+        const convName = makeUsername(conversationalists[0].userId);
+        const convDisplayName = this.renderName(convName);
+
+        if (buttonId === 'call') {
+            if (this.props.tree.isPending.get()) {
+                return;
             }
+
+            this.props.tree.isPending.set(true);
+
+            const callResponse = await CallService.makeOutgoingCall(
+                this.props.tree.callResponse,
+                convName,
+                convDisplayName
+            );
+
+            if (isFailure(callResponse)) {
+                return Navigation.showOverlay({
+                    component: {
+                        name: 'td.Modal',
+                        passProps: { text: err.message },
+                    },
+                });
+            }
+
+            this.props.tree.isPending.set(false);
         }
     }
 
@@ -187,8 +212,8 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         const myUserId = makeUserId(session.username);
 
-        const usersIds = R.filter((pUserId) => pUserId !== myUserId, R.map((p) => p.userId, conversation.participants));
-        return R.includes(userId, usersIds);
+        const usersIds = _.filter(_.map(conversation.participants, (p) => p.userId), (pUserId) => pUserId !== myUserId);
+        return _.includes(usersIds, userId);
     }
 
     public setSubtitle(text: string, color: string) {
@@ -344,7 +369,7 @@ export class Component extends React.Component<ComponentProps, {}> {
         const username = makeUsername(sender);
         const { users } = this.props;
 
-        const foundUser = R.find((user) => user.username === username, users);
+        const foundUser = _.find(users, (user) => user.username === username);
         if (foundUser) {
             return foundUser.displayName;
         }
@@ -354,7 +379,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
     public renderMessage(item: ChatMessage) {
         if (item.payload && item.payload.length) {
-            return R.map((payload: any) => {
+            return _.map(item.payload, (payload: any) => {
                 if (payload.type === 'fhirResource') {
                     const resource: Observation = payload.data;
 
@@ -374,7 +399,7 @@ export class Component extends React.Component<ComponentProps, {}> {
                 }
 
                 return null;
-            }, item.payload);
+            });
         }
 
         return <Text>{item.text}</Text>;
@@ -387,7 +412,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         return (
             <FlatList<ChatMessage>
-                data={R.reverse(messages)}
+                data={_.reverse(_.clone(messages))}
                 listKey="message-list"
                 inverted
                 keyExtractor={(item) => item.uuid}
