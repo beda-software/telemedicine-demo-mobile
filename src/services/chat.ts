@@ -123,8 +123,8 @@ export async function createConversation(
             const conversations = await Promise.all(_.map(myUser.conversationsList, catchConversation));
             const existingConversation = _.find(conversations, (conversation) =>
                 _.isEqual(
-                    _.orderBy(_.map(conversation.participants, (p) => p.userId), _.identity, ['desc']),
-                    _.orderBy([myUserId, ..._.map(participantsUsernames, makeUserId)], _.identity, ['desc'])
+                    _.sortBy(_.map(conversation.participants, (p) => p.userId)),
+                    _.sortBy([myUserId, ..._.map(participantsUsernames, makeUserId)])
                 )
             );
             if (existingConversation) {

@@ -25,18 +25,13 @@ export function arePropsEqual(oldProps: any, newProps: any) {
         return false;
     }
 
-    return !_.every(
-        _.values(
-            _.mapValues(oldProps, (oldProp, key: string) => {
-                if (oldProp instanceof Cursor) {
-                    return oldProp.path !== newProps[key].path;
-                }
+    return !_.some(oldProps, (oldProp, key) => {
+        if (oldProp instanceof Cursor && oldProp && newProps[key]) {
+            return oldProp.path !== newProps[key].path;
+        }
 
-                return !_.isEqual(oldProp, newProps[key]);
-            })
-        ),
-        (val) => _.isEqual(val, true)
-    );
+        return !_.isEqual(oldProp, newProps[key]);
+    });
 }
 
 export function schema<P>(model: any) {

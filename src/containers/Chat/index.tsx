@@ -412,7 +412,7 @@ export class Component extends React.Component<ComponentProps, {}> {
 
         return (
             <FlatList<ChatMessage>
-                data={_.reverse(messages.slice())}
+                data={_.reverse(_.clone(messages))}
                 listKey="message-list"
                 inverted
                 keyExtractor={(item) => item.uuid}
